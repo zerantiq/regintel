@@ -6,7 +6,7 @@ This file is for Claude or other code agents working in this repository.
 
 Regintel is a code-aware regulatory intelligence skill for software repositories. It combines:
 
-- a Codex skill definition in `SKILL.md`
+- an AI agent skill definition in `SKILL.md` (Claude Code, Antigravity, OpenAI Codex)
 - regulatory reference material in `references/`
 - helper scripts in `scripts/`
 - repo validation in `tools/validate_repo.py`

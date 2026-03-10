@@ -22,9 +22,35 @@ After restarting Claude Code, the `regintel` skill is active in every repo. Ask 
 
 Claude will automatically invoke the skill and run the full analysis pipeline.
 
+## Install as an Antigravity Skill
+
+Antigravity discovers skills from `SKILL.md` files. Install globally or per-workspace:
+
+**Global** (available in every workspace):
+
+```bash
+git clone https://github.com/zerantiq/regintel ~/.gemini/antigravity/skills/regintel
+```
+
+**Per-workspace** (scoped to one project):
+
+```bash
+mkdir -p .agents/skills
+git clone https://github.com/zerantiq/regintel .agents/skills/regintel
+```
+
+After opening the workspace in Antigravity, the `regintel` skill is active. Ask things like:
+
+- *"Scan this repo for regulatory compliance"*
+- *"Does this codebase raise GDPR issues?"*
+- *"What are the upcoming EU AI Act deadlines?"*
+- *"Check this repo for HIPAA problems"*
+
+Antigravity will automatically read the skill, run the Python scripts, review the code, and deliver a full audit report.
+
 ## Why This Repo Exists
 
-This repository packages `regintel` as an AI coding agent skill (Claude Code, OpenAI Codex, and compatible agents) with:
+This repository packages `regintel` as an AI coding agent skill (Claude Code, Antigravity, OpenAI Codex, and compatible agents) with:
 
 - a repo scan workflow for software codebases
 - a regulatory update workflow for current developments and deadlines
@@ -76,19 +102,65 @@ Make a regulatory compliance check on this repo
 
 Claude will automatically read the skill, run the Python scripts, review the code, and deliver a full audit report.
 
+### Antigravity
+
+Antigravity loads skills from `SKILL.md` files in two locations:
+
+**Global** (every workspace):
+
+```bash
+git clone https://github.com/zerantiq/regintel ~/.gemini/antigravity/skills/regintel
+```
+
+**Per-workspace** (one project):
+
+```bash
+mkdir -p .agents/skills
+git clone https://github.com/zerantiq/regintel .agents/skills/regintel
+```
+
+Or add as a git submodule:
+
+```bash
+git submodule add https://github.com/zerantiq/regintel .agents/skills/regintel
+```
+
+Then prompt Antigravity:
+
+```
+Scan this repo for regulatory compliance issues
+```
+
+Antigravity will automatically discover the skill, run the Python scripts, review the code, and deliver a full audit report.
+
 ### OpenAI Codex
 
-Clone the repo alongside your project and reference the skill:
+Clone the repo alongside your project:
 
 ```bash
 git clone https://github.com/zerantiq/regintel
 ```
 
-Then prompt Codex:
+Or install into a skills directory if your Codex setup supports it:
+
+```bash
+mkdir -p .agents/skills
+git clone https://github.com/zerantiq/regintel .agents/skills/regintel
+```
+
+Then prompt Codex using the `$regintel` skill prefix:
 
 ```
 Use $regintel to scan this software repo for likely regulatory issues
 ```
+
+Codex will invoke the skill, run the analysis pipeline, and produce an evidence-backed report. You can also prompt without the prefix:
+
+```
+Scan this repo for regulatory compliance
+```
+
+The `agents/openai.yaml` manifest enables Codex to discover and invoke the skill automatically when the prompt matches.
 
 ### Example Prompts
 
