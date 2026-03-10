@@ -1,0 +1,21 @@
+{
+  "name": "regintel",
+  "version": "0.1.0",
+  "description": "Code-aware regulatory intelligence for software repositories. Scans codebases for compliance signals under EU AI Act, GDPR, HIPAA, SEC cyber disclosure, FDA, SOX, and global privacy regimes. Also tracks regulatory developments, deadlines, and framework changes.",
+  "author": {
+    "name": "Zerantiq"
+  },
+  "repository": "https://github.com/zerantiq/regintel",
+  "license": "MIT",
+  "keywords": [
+    "compliance",
+    "regulatory",
+    "gdpr",
+    "hipaa",
+    "eu-ai-act",
+    "sec",
+    "sox",
+    "privacy",
+    "security"
+  ]
+}

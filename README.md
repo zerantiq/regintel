@@ -4,6 +4,24 @@
 
 Regintel helps teams inspect a software repo for likely regulatory issues, map the findings to frameworks such as the EU AI Act, GDPR, HIPAA, FDA software obligations, SEC cyber disclosure, and SOX, and turn those signals into practical next actions.
 
+## Install as a Claude Code Skill
+
+Anyone can install regintel as a Claude Code plugin in two commands:
+
+```bash
+claude plugin marketplace add zerantiq/regintel
+claude plugin install regintel@zerantiq
+```
+
+After restarting Claude Code, the `regintel` skill is active in every repo. Ask Claude things like:
+
+- *"Scan this repo for regulatory compliance"*
+- *"Does this codebase raise GDPR issues?"*
+- *"What are the upcoming EU AI Act deadlines?"*
+- *"Check this repo for HIPAA problems"*
+
+Claude will automatically invoke the skill and run the full analysis pipeline.
+
 ## Why This Repo Exists
 
 This repository packages `regintel` as an AI coding agent skill (Claude Code, OpenAI Codex, and compatible agents) with:
@@ -86,7 +104,13 @@ Use $regintel to scan this software repo for likely regulatory issues
 
 ```text
 .
-├── SKILL.md
+├── conductor.json          # Claude Code marketplace manifest
+├── .claude-plugin/
+│   └── plugin.json         # Plugin metadata
+├── skills/
+│   └── regintel/
+│       └── SKILL.md        # Skill definition (installed copy)
+├── SKILL.md                # Canonical skill source
 ├── CLAUDE.md
 ├── agents/
 ├── examples/
