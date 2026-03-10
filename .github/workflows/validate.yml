@@ -1,0 +1,41 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate repository structure and scripts
+        run: python3 tools/validate_repo.py
+
+      - name: Smoke-test repo scan and applicability scoring
+        run: |
+          python3 scripts/repo_signal_scan.py --path . --scope full > /tmp/regintel-scan.json
+          python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --format json > /tmp/regintel-applicability.json
+
+      - name: Smoke-test deadline and diff utilities
+        run: |
+          printf '%s\n' \
+            '{' \
+            '  "developments": [' \
+            '    {' \
+            '      "id": "sample", "framework": "EU AI Act", "title": "Sample milestone",' \
+            '      "stage": "adopted", "timing": "upcoming",' \
+            '      "milestones": [{"label": "effective", "date": "2026-08-02", "kind": "effective"}]' \
+            '    }' \
+            '  ]' \
+            '}' > /tmp/developments.json
+          python3 scripts/check_deadlines.py --input /tmp/developments.json --as-of 2026-03-10 --format json > /tmp/deadlines.json
+          python3 scripts/change_diff.py --old /tmp/regintel-scan.json --new /tmp/regintel-scan.json --format json > /tmp/diff.json

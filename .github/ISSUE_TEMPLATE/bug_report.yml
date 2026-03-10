@@ -1,0 +1,55 @@
+name: Bug Report
+description: Report a repo, skill, or script problem in Regintel.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. For security-sensitive issues, do not use this form. Follow `SECURITY.md` instead.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is wrong?
+      placeholder: A short description of the issue.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Share the exact command, file path, and steps needed to reproduce the problem.
+      placeholder: |
+        1. Run ...
+        2. Scan ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Repo Context
+      description: Include branch, commit, target repo characteristics, and any relevant framework focus.
+      placeholder: branch, commit hash, repo type, AI usage, healthcare signals, etc.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output or Logs
+      description: Paste the relevant output, JSON snippet, or traceback.
+      render: shell

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Reporting
+    url: https://github.com/zerantiq/regintel/security/policy
+    about: Use the security policy for vulnerabilities or sensitive disclosure issues.
+  - name: Repository Overview
+    url: https://github.com/zerantiq/regintel
+    about: Start with the README and contribution guidance before opening an issue.
