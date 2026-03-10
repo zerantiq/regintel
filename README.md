@@ -6,7 +6,7 @@ Regintel helps teams inspect a software repo for likely regulatory issues, map t
 
 ## Why This Repo Exists
 
-This repository packages `regintel` as a Codex skill with:
+This repository packages `regintel` as an AI coding agent skill (Claude Code, OpenAI Codex, and compatible agents) with:
 
 - a repo scan workflow for software codebases
 - a regulatory update workflow for current developments and deadlines
@@ -30,6 +30,57 @@ flowchart LR
     F --> H["Warnings / Urgency"]
     G --> I["What's Changed"]
 ```
+
+## Install as a Skill
+
+Regintel is designed to be installed once and then invoked by prompting your AI agent. No manual script execution needed.
+
+### Claude Code
+
+Clone into your project's `.agent/skills/` directory:
+
+```bash
+mkdir -p .agent/skills
+git clone https://github.com/zerantiq/regintel .agent/skills/regintel
+```
+
+Or add as a git submodule:
+
+```bash
+git submodule add https://github.com/zerantiq/regintel .agent/skills/regintel
+```
+
+Then prompt Claude Code:
+
+```
+Make a regulatory compliance check on this repo
+```
+
+Claude will automatically read the skill, run the Python scripts, review the code, and deliver a full audit report.
+
+### OpenAI Codex
+
+Clone the repo alongside your project and reference the skill:
+
+```bash
+git clone https://github.com/zerantiq/regintel
+```
+
+Then prompt Codex:
+
+```
+Use $regintel to scan this software repo for likely regulatory issues
+```
+
+### Example Prompts
+
+| Prompt | What Happens |
+|---|---|
+| *"Scan this repo for regulatory issues"* | Full scan → applicability scoring → evidence-backed findings |
+| *"Does this codebase have GDPR problems?"* | Focused scan with `--focus gdpr` → targeted findings |
+| *"What regulatory deadlines should we worry about?"* | Regulatory update mode → deadline urgency labels |
+| *"Check this repo for HIPAA issues"* | Focused scan → healthcare-specific signals and controls |
+| *"What changed since our last compliance review?"* | Diff mode → snapshot comparison |
 
 ## Repository Layout
 

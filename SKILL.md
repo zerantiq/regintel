@@ -15,6 +15,8 @@ Provide compliance intelligence for software products and engineering organizati
 
 ## Repo Scan Mode
 
+When the user asks for a regulatory scan, run the full pipeline automatically. Do not ask the user to run commands.
+
 ### 1. Determine Scope
 
 - Default to the current repo root.
@@ -22,30 +24,53 @@ Provide compliance intelligence for software products and engineering organizati
 - Support a user-specified file or directory when the request is narrow.
 - Treat first-party source, configuration, schemas, infrastructure definitions, and compliance-relevant docs as in scope.
 
-### 2. Discover Evidence
+### 2. Run the Signal Scan
 
-- Prefer `rg --files` and `rg -n` style discovery over broad manual browsing.
-- Exclude `.git`, `node_modules`, `dist`, `build`, `.next`, coverage folders, generated artifacts, vendored code, snapshots, minified assets, and lockfiles unless a lockfile is the only plausible source of a first-party compliance signal.
-- Prioritize files such as application code, API routes, OpenAPI schemas, GraphQL schemas, deployment manifests, IaC files, environment templates, policy docs, privacy docs, architecture notes, and onboarding docs.
-- Use `scripts/repo_signal_scan.py` to inventory evidence before drafting conclusions when the repo is more than a few files or the regulatory surface is mixed.
+Run the scanner automatically to inventory repo-level evidence:
 
-### 3. Infer Product and Obligation Signals
+```bash
+python3 scripts/repo_signal_scan.py --path <repo_root> --scope full > /tmp/regintel-scan.json
+```
 
-- Use `references/repo-scan-signals.md` to map code and config patterns to likely obligations.
-- Use `references/applicability-signals.md` to infer product profile, geography, sector, data sensitivity, AI usage, and reporting posture.
-- Use `scripts/applicability_score.py` with repo-scan output and optional company context when the applicability picture is mixed or disputed.
+- Use `--scope diff` when the user wants to inspect only changed files.
+- Use `--scope path` with a specific file or directory for narrow scans.
+- Use `--focus <framework>` to filter signals to a single framework when the user asks about a specific one.
+- Read the resulting JSON to understand what signals, frameworks, and control observations were found.
 
-### 4. Draft Findings Carefully
+### 3. Run the Applicability Scorer
+
+Run the scorer automatically to compute framework-level priorities:
+
+```bash
+python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --format json > /tmp/regintel-applicability.json
+```
+
+- If the user provides company context (jurisdictions, public-company status, healthcare customers, etc.), save it as JSON and pass `--company <path>`.
+- Read the resulting JSON for scored frameworks, review areas, and confidence notes.
+
+### 4. Review Evidence with Agent Judgment
+
+The script output is a starting point. Refine it with your own code reading:
+
+- For each high-scoring signal, open the cited files and verify the match is meaningful, not a keyword coincidence.
+- Dismiss signals that come only from documentation describing regulatory concepts rather than implementing regulated processing.
+- Look for patterns the scripts may miss: implicit data flows, third-party integrations, deployment configurations, and architectural decisions.
+- Add findings the scripts cannot detect: missing controls, architectural gaps, and business-logic risks.
+- Use `references/repo-scan-signals.md` and `references/applicability-signals.md` to guide your review.
+
+This agent review step is what separates Regintel from a raw keyword scan.
+
+### 5. Draft Findings Carefully
 
 - Cite concrete repo evidence for every finding. Include file paths and, when possible, the exact symbol, setting, schema, or log/event name that triggered the concern.
 - Allow absence-based findings only when the repo clearly implements a relevant feature and the expected control is not observed anywhere in the in-scope evidence.
 - Describe issues as likely gaps, missing controls, or areas to review. Do not claim definitive non-compliance from repo evidence alone.
 - Separate confirmed facts from inference. Mark company-level or deployment-level assumptions explicitly.
 
-### 5. Map to Frameworks and Deadlines
+### 6. Map to Frameworks and Deadlines
 
 - Use `references/frameworks.md` for obligation framing and applicability boundaries.
-- Use `scripts/check_deadlines.py` when current developments have concrete milestone dates.
+- If regulatory developments with milestone dates are available, run `scripts/check_deadlines.py --input <developments.json> --format markdown` automatically to annotate urgency.
 - If the user asks for live dates, current enforcement posture, or recent changes, verify them with authoritative web sources before finalizing. Distinguish proposed, adopted, effective, and enforcement states.
 
 ## Regulatory Update Mode
@@ -96,14 +121,16 @@ State what is inferred, what is missing, and how that affects confidence.
 
 For regulatory updates, use the same structure but rename the first section `Regulatory Update`.
 
-## Script Usage
+## Script Execution
 
-- Use `scripts/repo_signal_scan.py --path . --scope full` for default repo scans.
-- Use `scripts/repo_signal_scan.py --path . --scope diff` for changed-file analysis in a git repo.
-- Use `scripts/repo_signal_scan.py --path path/to/file_or_dir --scope path` for narrow scans.
-- Use `scripts/applicability_score.py --signals scan.json --company company.json` when company context is available.
-- Use `scripts/check_deadlines.py --input developments.json` to annotate milestone urgency.
-- Use `scripts/change_diff.py --old old.json --new new.json` to summarize what changed between regulatory snapshots or scan outputs.
+The agent runs these scripts automatically as part of the skill workflow. The user does not need to run any commands.
+
+| Script | When to Run | Command |
+|---|---|---|
+| `repo_signal_scan.py` | Always, as the first step of every repo scan | `python3 scripts/repo_signal_scan.py --path <repo> --scope full` |
+| `applicability_score.py` | Always, immediately after the signal scan | `python3 scripts/applicability_score.py --signals <scan.json> --format json` |
+| `check_deadlines.py` | When regulatory developments with dates are available | `python3 scripts/check_deadlines.py --input <developments.json> --format markdown` |
+| `change_diff.py` | When comparing two snapshots (before/after scans or regulatory updates) | `python3 scripts/change_diff.py --old <old.json> --new <new.json> --format markdown` |
 
 ## Bundled References
 

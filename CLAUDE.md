@@ -34,7 +34,9 @@ Read these in order:
 - Keep generated artifacts out of the repo. Do not commit `__pycache__`, `.pyc`, or local scratch files.
 - Keep `examples/` and `tests/fixtures/` aligned with the current script contracts.
 
-## Preferred Validation Flow
+## Preferred Validation Flow (For Contributors)
+
+These commands are for agents working **on** this repo, not for end users. When the skill is invoked on a target repo, the agent runs the scripts automatically per `SKILL.md`.
 
 Run this before finishing work:
 
