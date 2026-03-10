@@ -36,6 +36,7 @@ flowchart LR
 ```text
 .
 ├── SKILL.md
+├── CLAUDE.md
 ├── agents/
 ├── references/
 ├── scripts/
@@ -80,10 +81,11 @@ python3 scripts/change_diff.py --old old.json --new new.json --format markdown
 Use this sequence when reviewing the repo:
 
 1. Read [README.md](README.md) and [SKILL.md](SKILL.md).
-2. Review the domain references in [references/frameworks.md](references/frameworks.md) and [references/repo-scan-signals.md](references/repo-scan-signals.md).
-3. Run `make validate` to verify structure and script health.
-4. Run `repo_signal_scan.py` against a target repo or this repo itself.
-5. Use `applicability_score.py` to turn raw signals into framework-specific review priorities.
+2. Read [CLAUDE.md](CLAUDE.md) if you are using an AI coding agent to work in the repo.
+3. Review the domain references in [references/frameworks.md](references/frameworks.md) and [references/repo-scan-signals.md](references/repo-scan-signals.md).
+4. Run `make validate` to verify structure and script health.
+5. Run `repo_signal_scan.py` against a target repo or this repo itself.
+6. Use `applicability_score.py` to turn raw signals into framework-specific review priorities.
 
 ## Script Overview
 

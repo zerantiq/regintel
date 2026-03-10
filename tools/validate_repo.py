@@ -12,6 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 REQUIRED_FILES = [
     "SKILL.md",
+    "CLAUDE.md",
     "README.md",
     "LICENSE",
     "CONTRIBUTING.md",
