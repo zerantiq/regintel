@@ -32,22 +32,23 @@ Read these in order:
 - Avoid expanding heuristics with broad keywords that will obviously inflate false positives.
 - If a script interface changes, update `references/script-schemas.md`, `README.md`, and any affected validation logic.
 - Keep generated artifacts out of the repo. Do not commit `__pycache__`, `.pyc`, or local scratch files.
+- Keep `examples/` and `tests/fixtures/` aligned with the current script contracts.
 
 ## Preferred Validation Flow
 
 Run this before finishing work:
 
 ```bash
-make validate
+make check
 python3 scripts/repo_signal_scan.py --path . --scope full > /tmp/regintel-scan.json
-python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --format markdown
+python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --company examples/company-context.json --format markdown
 ```
 
 If you change deadline or diff logic, also run:
 
 ```bash
-python3 scripts/check_deadlines.py --input developments.json --format markdown
-python3 scripts/change_diff.py --old old.json --new new.json --format markdown
+python3 scripts/check_deadlines.py --input examples/developments.json --format markdown
+python3 scripts/change_diff.py --old examples/old-scan.json --new examples/new-scan.json --format markdown
 ```
 
 ## Editing Guidance

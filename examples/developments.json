@@ -1,0 +1,32 @@
+{
+  "developments": [
+    {
+      "id": "eu-ai-act-gpai",
+      "framework": "EU AI Act",
+      "title": "General-purpose AI obligations",
+      "stage": "adopted",
+      "timing": "upcoming",
+      "milestones": [
+        {
+          "label": "obligations-apply",
+          "date": "2026-08-02",
+          "kind": "effective"
+        }
+      ]
+    },
+    {
+      "id": "gdpr-retention-review",
+      "framework": "GDPR",
+      "title": "Annual retention review",
+      "stage": "effective",
+      "timing": "current",
+      "milestones": [
+        {
+          "label": "review-window",
+          "date": "2026-05-15",
+          "kind": "reporting"
+        }
+      ]
+    }
+  ]
+}

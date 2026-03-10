@@ -1,0 +1,8 @@
+{
+  "jurisdictions": ["EU", "US-CA"],
+  "public_company": false,
+  "uses_ai": true,
+  "customers": ["enterprise"],
+  "deployment_model": "hosted-saas",
+  "regulated_claims": []
+}

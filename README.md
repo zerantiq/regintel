@@ -38,8 +38,10 @@ flowchart LR
 ├── SKILL.md
 ├── CLAUDE.md
 ├── agents/
+├── examples/
 ├── references/
 ├── scripts/
+├── tests/
 ├── tools/
 ├── .github/
 ├── CONTRIBUTING.md
@@ -57,23 +59,29 @@ flowchart LR
 make validate
 ```
 
-### 2. Run a repo scan
+### 2. Run the regression suite
 
 ```bash
-python3 scripts/repo_signal_scan.py --path . --scope full > /tmp/regintel-scan.json
-python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --format markdown
+make test
 ```
 
-### 3. Check milestone urgency
+### 3. Run a repo scan on the sample AI SaaS fixture
 
 ```bash
-python3 scripts/check_deadlines.py --input developments.json --format markdown
+python3 scripts/repo_signal_scan.py --path tests/fixtures/repos/ai-saas --scope full > /tmp/regintel-scan.json
+python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --company examples/company-context.json --format markdown
 ```
 
-### 4. Compare two snapshots
+### 4. Check milestone urgency
 
 ```bash
-python3 scripts/change_diff.py --old old.json --new new.json --format markdown
+python3 scripts/check_deadlines.py --input examples/developments.json --format markdown
+```
+
+### 5. Compare two snapshots
+
+```bash
+python3 scripts/change_diff.py --old examples/old-scan.json --new examples/new-scan.json --format markdown
 ```
 
 ## Clean Examination Workflow
@@ -83,9 +91,10 @@ Use this sequence when reviewing the repo:
 1. Read [README.md](README.md) and [SKILL.md](SKILL.md).
 2. Read [CLAUDE.md](CLAUDE.md) if you are using an AI coding agent to work in the repo.
 3. Review the domain references in [references/frameworks.md](references/frameworks.md) and [references/repo-scan-signals.md](references/repo-scan-signals.md).
-4. Run `make validate` to verify structure and script health.
+4. Run `make check` to verify structure and regression behavior.
 5. Run `repo_signal_scan.py` against a target repo or this repo itself.
 6. Use `applicability_score.py` to turn raw signals into framework-specific review priorities.
+7. Use `examples/` when you want deterministic deadline and diff demonstrations.
 
 ## Script Overview
 
@@ -96,6 +105,15 @@ Use this sequence when reviewing the repo:
 | `scripts/check_deadlines.py` | Labels milestone urgency for regulatory developments |
 | `scripts/change_diff.py` | Compares old and new regulatory or scan snapshots |
 | `tools/validate_repo.py` | Repo-native validation for structure, frontmatter, and Python syntax |
+
+## Examples and Tests
+
+- `examples/` contains ready-to-run JSON inputs for deadline checks, applicability scoring, and snapshot diffs.
+- `tests/fixtures/repos/` contains three regression fixture repos:
+  - `ai-saas`
+  - `healthcare`
+  - `low-risk`
+- `tests/test_regintel.py` asserts expected framework detection, diff-scan behavior, deadline labels, and example diff output.
 
 ## Contributing
 

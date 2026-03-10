@@ -3,9 +3,10 @@
 
 from __future__ import annotations
 
-import py_compile
+import json
 import re
 import sys
+import tomllib
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -14,6 +15,7 @@ REQUIRED_FILES = [
     "SKILL.md",
     "CLAUDE.md",
     "README.md",
+    "pyproject.toml",
     "LICENSE",
     "CONTRIBUTING.md",
     "SECURITY.md",
@@ -26,10 +28,18 @@ REQUIRED_FILES = [
     "references/warning-thresholds.md",
     "references/repo-scan-signals.md",
     "references/script-schemas.md",
+    "examples/company-context.json",
+    "examples/developments.json",
+    "examples/new-scan.json",
+    "examples/old-scan.json",
     "scripts/repo_signal_scan.py",
     "scripts/applicability_score.py",
     "scripts/check_deadlines.py",
     "scripts/change_diff.py",
+    "tests/test_regintel.py",
+    "tests/fixtures/repos/ai-saas/package.json",
+    "tests/fixtures/repos/healthcare/app/patient_service.py",
+    "tests/fixtures/repos/low-risk/src/main.py",
     ".github/ISSUE_TEMPLATE/bug_report.yml",
     ".github/ISSUE_TEMPLATE/feature_request.yml",
     ".github/ISSUE_TEMPLATE/config.yml",
@@ -38,11 +48,6 @@ REQUIRED_FILES = [
 ]
 
 ALLOWED_FRONTMATTER_KEYS = {"name", "description"}
-
-
-def fail(message: str) -> int:
-    print(f"[FAIL] {message}")
-    return 1
 
 
 def validate_required_files() -> list[str]:
@@ -111,12 +116,40 @@ def validate_openai_yaml() -> list[str]:
 
 def validate_python_files() -> list[str]:
     errors = []
-    for directory in ("scripts", "tools"):
+    for directory in ("scripts", "tools", "tests"):
         for path in sorted((REPO_ROOT / directory).rglob("*.py")):
             try:
-                py_compile.compile(str(path), doraise=True)
-            except py_compile.PyCompileError as exc:
-                errors.append(f"{path.relative_to(REPO_ROOT)} failed to compile: {exc.msg}")
+                source = path.read_text(encoding="utf-8")
+                compile(source, str(path), "exec")
+            except (OSError, SyntaxError, ValueError) as exc:
+                errors.append(f"{path.relative_to(REPO_ROOT)} failed syntax validation: {exc}")
+    return errors
+
+
+def validate_pyproject() -> list[str]:
+    path = REPO_ROOT / "pyproject.toml"
+    errors = []
+    try:
+        data = tomllib.loads(path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        return [f"pyproject.toml could not be parsed: {exc}"]
+
+    project = data.get("project", {})
+    required = {
+        "name": "zerantiq-regintel",
+        "version": None,
+        "requires-python": None,
+    }
+    for key, expected in required.items():
+        value = project.get(key)
+        if not value:
+            errors.append(f"pyproject.toml missing project.{key}")
+        elif expected is not None and value != expected:
+            errors.append(f"pyproject.toml project.{key} should be {expected!r}")
+
+    pytest_config = data.get("tool", {}).get("pytest", {}).get("ini_options", {})
+    if pytest_config.get("testpaths") != ["tests"]:
+        errors.append("pyproject.toml should configure pytest testpaths to ['tests'].")
     return errors
 
 
@@ -133,14 +166,20 @@ def validate_issue_templates() -> list[str]:
     return errors
 
 
-def remove_generated_caches() -> None:
-    for directory in (REPO_ROOT / "scripts", REPO_ROOT / "tools"):
-        cache = directory / "__pycache__"
-        if not cache.exists():
-            continue
-        for path in cache.iterdir():
-            path.unlink()
-        cache.rmdir()
+def validate_example_json() -> list[str]:
+    errors = []
+    for relative in (
+        "examples/company-context.json",
+        "examples/developments.json",
+        "examples/old-scan.json",
+        "examples/new-scan.json",
+    ):
+        path = REPO_ROOT / relative
+        try:
+            json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"{relative} is not valid JSON: {exc}")
+    return errors
 
 
 def main() -> int:
@@ -150,11 +189,11 @@ def main() -> int:
         errors.extend([f"Missing required file: {path}" for path in missing])
     else:
         errors.extend(validate_frontmatter())
+        errors.extend(validate_pyproject())
         errors.extend(validate_openai_yaml())
         errors.extend(validate_python_files())
+        errors.extend(validate_example_json())
         errors.extend(validate_issue_templates())
-
-    remove_generated_caches()
 
     if errors:
         for error in errors:
@@ -163,8 +202,10 @@ def main() -> int:
 
     print("[OK] Required files present")
     print("[OK] SKILL.md frontmatter valid")
+    print("[OK] pyproject metadata present")
     print("[OK] agents/openai.yaml contains required interface fields")
     print("[OK] Python files compile")
+    print("[OK] example JSON files parse")
     print("[OK] GitHub templates present")
     return 0
 

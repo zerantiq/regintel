@@ -1,0 +1,8 @@
+{
+  "name": "ai-saas",
+  "private": true,
+  "dependencies": {
+    "openai": "^5.0.0",
+    "posthog-js": "^1.0.0"
+  }
+}

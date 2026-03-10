@@ -17,25 +17,31 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate repository structure and scripts
-        run: python3 tools/validate_repo.py
+      - name: Validate repository structure
+        run: make validate
 
-      - name: Smoke-test repo scan and applicability scoring
-        run: |
-          python3 scripts/repo_signal_scan.py --path . --scope full > /tmp/regintel-scan.json
-          python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --format json > /tmp/regintel-applicability.json
+      - name: Run regression tests
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 
-      - name: Smoke-test deadline and diff utilities
+      - name: Smoke-test documented example commands
         run: |
-          printf '%s\n' \
-            '{' \
-            '  "developments": [' \
-            '    {' \
-            '      "id": "sample", "framework": "EU AI Act", "title": "Sample milestone",' \
-            '      "stage": "adopted", "timing": "upcoming",' \
-            '      "milestones": [{"label": "effective", "date": "2026-08-02", "kind": "effective"}]' \
-            '    }' \
-            '  ]' \
-            '}' > /tmp/developments.json
-          python3 scripts/check_deadlines.py --input /tmp/developments.json --as-of 2026-03-10 --format json > /tmp/deadlines.json
-          python3 scripts/change_diff.py --old /tmp/regintel-scan.json --new /tmp/regintel-scan.json --format json > /tmp/diff.json
+          python3 scripts/repo_signal_scan.py --path tests/fixtures/repos/ai-saas --scope full > /tmp/regintel-scan.json
+          python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --company examples/company-context.json --format json > /tmp/regintel-applicability.json
+          python3 scripts/check_deadlines.py --input examples/developments.json --as-of 2026-03-10 --format json > /tmp/deadlines.json
+          python3 scripts/change_diff.py --old examples/old-scan.json --new examples/new-scan.json --format json > /tmp/diff.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          applicability = json.loads(Path("/tmp/regintel-applicability.json").read_text())
+          deadlines = json.loads(Path("/tmp/deadlines.json").read_text())
+          diff = json.loads(Path("/tmp/diff.json").read_text())
+
+          assert applicability["applicability"], "Applicability output should not be empty."
+          labels = {item["id"]: item["warning_label"] for item in deadlines["developments"]}
+          assert labels["gdpr-retention-review"] == "Action Needed Soon"
+          changed = diff["collections"]["candidate_frameworks"]["changed"]
+          added = diff["collections"]["signals"]["added"]
+          assert changed, "Expected candidate framework score changes in example diff."
+          assert added, "Expected added signals in example diff."
+          PY

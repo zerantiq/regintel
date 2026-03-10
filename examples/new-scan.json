@@ -1,0 +1,67 @@
+{
+  "signals": [
+    {
+      "id": "personal-data-processing",
+      "category": "privacy",
+      "title": "Personal-data processing",
+      "frameworks": ["gdpr", "us-state-privacy"],
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "path": "src/api/users.ts",
+          "line": 12,
+          "match": "const email = user.email"
+        },
+        {
+          "path": "src/api/users.ts",
+          "line": 30,
+          "match": "return { email, retentionDays }"
+        }
+      ]
+    },
+    {
+      "id": "ai-model-integration",
+      "category": "ai",
+      "title": "AI model or agent integration",
+      "frameworks": ["eu-ai-act", "gdpr", "us-state-privacy"],
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "path": "services/llm/client.py",
+          "line": 4,
+          "match": "from openai import OpenAI"
+        }
+      ]
+    }
+  ],
+  "candidate_frameworks": [
+    {
+      "framework": "gdpr",
+      "display_name": "GDPR",
+      "score": 68,
+      "confidence": 0.81
+    },
+    {
+      "framework": "eu-ai-act",
+      "display_name": "EU AI Act",
+      "score": 41,
+      "confidence": 0.64
+    }
+  ],
+  "applicability": [
+    {
+      "framework": "gdpr",
+      "display_name": "GDPR",
+      "score": 68,
+      "confidence": 0.81,
+      "likely_review_areas": ["retention", "vendor controls", "privacy user controls"]
+    },
+    {
+      "framework": "eu-ai-act",
+      "display_name": "EU AI Act",
+      "score": 41,
+      "confidence": 0.64,
+      "likely_review_areas": ["AI inventory", "transparency", "ai governance controls"]
+    }
+  ]
+}

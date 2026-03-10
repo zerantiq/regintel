@@ -1,0 +1,35 @@
+{
+  "signals": [
+    {
+      "id": "personal-data-processing",
+      "category": "privacy",
+      "title": "Personal-data processing",
+      "frameworks": ["gdpr", "us-state-privacy"],
+      "confidence": 0.78,
+      "evidence": [
+        {
+          "path": "src/api/users.ts",
+          "line": 12,
+          "match": "const email = user.email"
+        }
+      ]
+    }
+  ],
+  "candidate_frameworks": [
+    {
+      "framework": "gdpr",
+      "display_name": "GDPR",
+      "score": 52,
+      "confidence": 0.73
+    }
+  ],
+  "applicability": [
+    {
+      "framework": "gdpr",
+      "display_name": "GDPR",
+      "score": 52,
+      "confidence": 0.73,
+      "likely_review_areas": ["retention", "vendor controls"]
+    }
+  ]
+}

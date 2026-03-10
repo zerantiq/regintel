@@ -30,6 +30,12 @@ Validation:
 make validate
 ```
 
+Regression tests:
+
+```bash
+make test
+```
+
 Basic smoke scan:
 
 ```bash
@@ -43,6 +49,7 @@ python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --forma
 - Prefer evidence-backed heuristics over broad keyword expansion.
 - Update references when behavior or assumptions change.
 - Add or update validation coverage when you change scripts or repo structure.
+- Add or update fixtures when you change heuristics, examples, or thresholds.
 - Keep public claims careful: likely gap, likely applicability, or area to review.
 
 ## Clean Examination Checklist
