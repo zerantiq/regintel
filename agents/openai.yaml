@@ -1,0 +1,7 @@
+interface:
+  display_name: "Regintel"
+  short_description: "Code-aware regulatory compliance scans"
+  default_prompt: "Use $regintel to scan this software repo for likely regulatory issues and explain the most important obligations and fixes."
+
+policy:
+  allow_implicit_invocation: true
