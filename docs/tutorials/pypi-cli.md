@@ -1,6 +1,6 @@
 # Pip CLI Workflow
 
-The v0.8 package exposes stable CLI entry points for all major workflows.
+The v0.9 package exposes stable CLI entry points for all major workflows.
 
 ## Install
 

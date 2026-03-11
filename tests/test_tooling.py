@@ -54,7 +54,7 @@ class TestTooling(BaseRegintelTest):
 
     def test_v1_docs_site_files_and_navigation_exist(self) -> None:
         mkdocs_path = self.repo_root / "mkdocs.yml"
-        self.assertTrue(mkdocs_path.exists(), "Expected mkdocs.yml to exist for the v0.8 docs site.")
+        self.assertTrue(mkdocs_path.exists(), "Expected mkdocs.yml to exist for the v0.9 docs site.")
         content = mkdocs_path.read_text(encoding="utf-8")
         self.assertIn("nav:", content)
         self.assertIn("tutorials/ci-monitoring.md", content)

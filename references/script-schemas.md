@@ -2,7 +2,7 @@
 
 All scripts use UTF-8 JSON files as input. Dates use `YYYY-MM-DD`.
 
-## v0.8 Contract Header
+## v0.9 Contract Header
 
 All machine-readable outputs include a stable contract header:
 
@@ -30,7 +30,11 @@ Consumers should validate `meta.tool` and `meta.schema_version` before parsing s
     "scope": "full",
     "focus": null,
     "scanned_files": 42,
-    "excluded_files": 11
+    "excluded_files": 11,
+    "parallel_workers": 8,
+    "cache_enabled": true,
+    "cache_hits": 30,
+    "cache_misses": 12
   },
   "product_profile": {
     "labels": ["ai-enabled-software", "saas-service"],
@@ -178,7 +182,11 @@ Scans Python, TypeScript, Java, Go, and .NET/C# source files for structural func
       "java-brace-patterns",
       "go-brace-patterns",
       "csharp-brace-patterns"
-    ]
+    ],
+    "parallel_workers": 8,
+    "cache_enabled": true,
+    "cache_hits": 6,
+    "cache_misses": 2
   },
   "structural_findings": [
     {

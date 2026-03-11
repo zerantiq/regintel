@@ -45,6 +45,7 @@ python3 SKILL_DIR/scripts/repo_signal_scan.py --path TARGET_REPO --scope full > 
 - Use `--scope diff` when the user wants to inspect only changed files.
 - Use `--scope path` with a specific file or directory for narrow scans.
 - Use `--focus <framework>` to filter signals to a single framework when the user asks about a specific one.
+- For large repos, tune performance with `--workers <N>` and `--cache-dir <path>`; use `--no-cache` for cache bypass.
 - Read the resulting JSON to understand what signals, frameworks, and control observations were found.
 
 ### 3. Run the AST Structural Scanner
@@ -58,6 +59,7 @@ python3 SKILL_DIR/scripts/ast_signal_scan.py --path TARGET_REPO > /tmp/regintel-
 - Read `structural_findings` in the output for PII-in-return-value, unlogged-db-write, and unencrypted-storage-write findings.
 - Each finding includes the function name, file path, and line number for direct inspection.
 - Python analysis uses stdlib AST parsing; TypeScript/Java/Go/.NET analysis uses structural function-block parsing.
+- For large repos, tune structural scan throughput with `--workers <N>` and `--cache-dir <path>`; use `--no-cache` for cache bypass.
 - Incorporate these findings into the agent review step alongside regex-based signal evidence.
 
 ### 4. Run the Applicability Scorer

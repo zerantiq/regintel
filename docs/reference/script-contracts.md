@@ -1,6 +1,6 @@
 # Script Contracts
 
-Regintel v0.8 defines a stable JSON interface contract across all machine-readable script outputs.
+Regintel v0.9 defines a stable JSON interface contract across all machine-readable script outputs.
 
 ## Common Contract Header
 

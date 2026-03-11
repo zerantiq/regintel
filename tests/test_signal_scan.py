@@ -7,8 +7,47 @@ from tests.base_test import BaseRegintelTest
 
 
 class TestSignalScan(BaseRegintelTest):
+    def test_v09_repo_scan_cache_reuse_and_parallel_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_dir = Path(tmpdir) / "cache"
+            first = self.run_json_script(
+                "repo_signal_scan.py",
+                "--path",
+                str(self.fixtures_root / "ai-saas"),
+                "--scope",
+                "full",
+                "--cache-dir",
+                str(cache_dir),
+                "--workers",
+                "2",
+            )
+            second = self.run_json_script(
+                "repo_signal_scan.py",
+                "--path",
+                str(self.fixtures_root / "ai-saas"),
+                "--scope",
+                "full",
+                "--cache-dir",
+                str(cache_dir),
+                "--workers",
+                "2",
+            )
+
+        self.assertEqual(first["scan"]["parallel_workers"], 2)
+        self.assertTrue(first["scan"]["cache_enabled"])
+        self.assertGreater(first["scan"]["cache_misses"], 0)
+        self.assertEqual(second["scan"]["parallel_workers"], 2)
+        self.assertTrue(second["scan"]["cache_enabled"])
+        self.assertGreaterEqual(second["scan"]["cache_hits"], second["scan"]["scanned_files"])
+        self.assertEqual(second["scan"]["cache_misses"], 0)
+        self.assertEqual(first["signals"], second["signals"])
+
     def test_ai_saas_scan_detects_expected_frameworks_and_missing_controls(self) -> None:
         result = self.run_json_script("repo_signal_scan.py", "--path", str(self.fixtures_root / "ai-saas"), "--scope", "full")
+        self.assertIn("parallel_workers", result["scan"])
+        self.assertIn("cache_enabled", result["scan"])
+        self.assertIn("cache_hits", result["scan"])
+        self.assertIn("cache_misses", result["scan"])
         frameworks = {item["framework"]: item["score"] for item in result["candidate_frameworks"]}
         self.assertIn("gdpr", frameworks)
         self.assertIn("us-state-privacy", frameworks)

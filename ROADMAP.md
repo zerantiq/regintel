@@ -105,14 +105,16 @@ Delivered:
 - Added a dedicated `polyglot-structural` fixture repo and regression tests to validate structural findings across TypeScript, Java, Go, and .NET/C#
 - Updated README, skill guidance, and reference schemas to document the multi-language structural scanner behavior
 
-## v0.9 — Performance Features for Large Repos
+## ✅ v0.9 — Performance Features for Large Repos
 
-Status: **planned**
+Status: **complete**
 
-Goals:
-- Add incremental caching for repeat scans
-- Add parallel file scanning for faster execution
-- Target predictable runtime characteristics for monorepos
+Delivered:
+- Added incremental file-level cache support to `repo_signal_scan.py` and `ast_signal_scan.py` with configurable cache directory (`--cache-dir`) and opt-out (`--no-cache`)
+- Added parallel file scanning controls (`--workers`) to both scanners, with bounded defaults for predictable host utilization
+- Added deterministic file traversal/order handling for stable outputs across repeated monorepo scans
+- Added scan metadata for performance telemetry (`parallel_workers`, `cache_enabled`, `cache_hits`, `cache_misses`) in both scanner outputs
+- Added regression tests to validate cache reuse and parallel-scan metadata behavior
 
 ## v1.0 — Benchmark Harness for Quality
 

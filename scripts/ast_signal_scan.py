@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import concurrent.futures
 import json
 import os
 import re
@@ -33,8 +34,20 @@ from typing import Any
 
 try:
     from ._contract import with_meta
+    from ._scan_cache import (
+        default_parallel_workers,
+        file_fingerprint,
+        load_scan_cache,
+        save_scan_cache,
+    )
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _scan_cache import (  # type: ignore
+        default_parallel_workers,
+        file_fingerprint,
+        load_scan_cache,
+        save_scan_cache,
+    )
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -201,6 +214,8 @@ STRUCTURAL_METHODS: dict[str, str] = {
 }
 
 MAX_FILE_BYTES = 1_000_000
+DEFAULT_WORKERS = default_parallel_workers(cap=8)
+AST_SCAN_CACHE_VERSION = "ast_signal_scan.v0.9.0"
 
 PII_TOKEN_PATTERN = "|".join(
     sorted((re.escape(name) for name in PII_FIELD_NAMES), key=len, reverse=True)
@@ -831,9 +846,11 @@ def collect_structural_files(base_path: Path) -> tuple[dict[str, list[Path]], Pa
         return files_by_language, root
 
     for dirpath, dirnames, filenames in os.walk(base_path):
-        dirnames[:] = [d for d in dirnames if d not in EXCLUDED_DIRS]
-        for filename in filenames:
+        dirnames[:] = sorted(d for d in dirnames if d not in EXCLUDED_DIRS)
+        for filename in sorted(filenames):
             maybe_add_file(Path(dirpath) / filename)
+    for language in files_by_language:
+        files_by_language[language].sort()
     return files_by_language, root
 
 
@@ -889,6 +906,22 @@ def parse_args() -> argparse.Namespace:
         default="json",
         help="Output format (default: json).",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=DEFAULT_WORKERS,
+        help=f"Parallel worker count for file scanning (default: {DEFAULT_WORKERS}).",
+    )
+    parser.add_argument(
+        "--cache-dir",
+        default=".regintel/cache",
+        help="Directory for incremental scanner cache files (default: .regintel/cache).",
+    )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable incremental cache reads/writes for this run.",
+    )
     return parser.parse_args()
 
 
@@ -902,11 +935,68 @@ def main() -> int:
     files_by_language, root = collect_structural_files(base_path)
     all_findings: list[dict[str, Any]] = []
 
-    for path in files_by_language["python"]:
-        all_findings.extend(scan_python_file(path, root))
-    for language in ("typescript", "java", "go", "csharp"):
+    max_workers = max(1, args.workers)
+    use_cache = not args.no_cache
+    cache_hits = 0
+    cache_misses = 0
+    cache_entries: dict[str, dict[str, Any]] = {}
+    cache_file = Path(args.cache_dir) / "ast_signal_scan.json"
+    if use_cache:
+        cache_entries = load_scan_cache(cache_file, version=AST_SCAN_CACHE_VERSION)
+
+    work_items: list[tuple[int, str, Path]] = []
+    ordered_languages = ("python", "typescript", "java", "go", "csharp")
+    item_index = 0
+    for language in ordered_languages:
         for path in files_by_language[language]:
-            all_findings.extend(scan_language_file(path, root, language))
+            work_items.append((item_index, language, path))
+            item_index += 1
+
+    findings_by_index: dict[int, list[dict[str, Any]]] = {}
+    futures: dict[
+        concurrent.futures.Future[list[dict[str, Any]]], tuple[int, str, str | None]
+    ] = {}
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for index, language, path in work_items:
+            cache_key = f"{root.resolve()}::{path.resolve()}::{language}"
+            fingerprint: str | None = None
+            try:
+                fingerprint = file_fingerprint(path)
+            except OSError:
+                fingerprint = None
+
+            if use_cache and fingerprint:
+                cached = cache_entries.get(cache_key)
+                if (
+                    isinstance(cached, dict)
+                    and cached.get("fingerprint") == fingerprint
+                    and isinstance(cached.get("result"), list)
+                ):
+                    findings_by_index[index] = cached["result"]
+                    cache_hits += 1
+                    continue
+
+            if language == "python":
+                future = executor.submit(scan_python_file, path, root)
+            else:
+                future = executor.submit(scan_language_file, path, root, language)
+            futures[future] = (index, cache_key, fingerprint)
+            if use_cache:
+                cache_misses += 1
+
+        for future in concurrent.futures.as_completed(futures):
+            index, cache_key, fingerprint = futures[future]
+            result = future.result()
+            findings_by_index[index] = result
+            if use_cache and fingerprint:
+                cache_entries[cache_key] = {"fingerprint": fingerprint, "result": result}
+
+    if use_cache:
+        save_scan_cache(cache_file, version=AST_SCAN_CACHE_VERSION, entries=cache_entries)
+
+    for index, _, _ in work_items:
+        all_findings.extend(findings_by_index.get(index, []))
 
     methods_used = [
         STRUCTURAL_METHODS[language]
@@ -926,6 +1016,10 @@ def main() -> int:
         "finding_count": len(all_findings),
         "ast_method": "python-ast",
         "structural_methods": methods_used,
+        "parallel_workers": max_workers,
+        "cache_enabled": use_cache,
+        "cache_hits": cache_hits if use_cache else 0,
+        "cache_misses": cache_misses if use_cache else 0,
     }
 
     if args.format == "markdown":

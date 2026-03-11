@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import concurrent.futures
 import json
 import os
 import re
@@ -16,8 +17,20 @@ from typing import Any
 
 try:
     from ._contract import with_meta
+    from ._scan_cache import (
+        default_parallel_workers,
+        file_fingerprint,
+        load_scan_cache,
+        save_scan_cache,
+    )
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _scan_cache import (  # type: ignore
+        default_parallel_workers,
+        file_fingerprint,
+        load_scan_cache,
+        save_scan_cache,
+    )
 
 FRAMEWORKS = {
     "eu-ai-act": "EU AI Act",
@@ -188,6 +201,8 @@ MAX_FILE_BYTES = 1_000_000
 MAX_EVIDENCE_PER_SIGNAL = 6
 MAX_SNIPPET_CHARS = 180
 DEFERRED_MARKERS = ("todo", "fixme", "tbd", "later", "not implemented", "future work")
+DEFAULT_WORKERS = default_parallel_workers(cap=8)
+REPO_SCAN_CACHE_VERSION = "repo_signal_scan.v0.9.0"
 
 # Evidence-class weighting: source code and config are stronger signals than docs/comments
 EVIDENCE_WEIGHTS = {
@@ -983,6 +998,22 @@ def parse_args() -> argparse.Namespace:
         choices=tuple(FRAMEWORKS.keys()),
         help="Filter output to signals relevant to a single framework.",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=DEFAULT_WORKERS,
+        help=f"Parallel worker count for file scanning (default: {DEFAULT_WORKERS}).",
+    )
+    parser.add_argument(
+        "--cache-dir",
+        default=".regintel/cache",
+        help="Directory for incremental scanner cache files (default: .regintel/cache).",
+    )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable incremental cache reads/writes for this run.",
+    )
     return parser.parse_args()
 
 
@@ -1025,9 +1056,9 @@ def iter_full_scope(base_path: Path) -> tuple[list[Path], int]:
     if base_path.is_file():
         return ([base_path] if not should_skip_file(base_path) and is_probably_text(base_path) else []), 0
     for root, dirnames, filenames in os.walk(base_path):
-        dirnames[:] = [name for name in dirnames if name not in EXCLUDED_DIRS]
+        dirnames[:] = sorted(name for name in dirnames if name not in EXCLUDED_DIRS)
         root_path = Path(root)
-        for filename in filenames:
+        for filename in sorted(filenames):
             candidate = root_path / filename
             if should_skip_file(candidate) or not is_probably_text(candidate):
                 excluded += 1
@@ -1060,15 +1091,10 @@ def git_changed_files(repo_root: Path) -> list[Path]:
                 candidates.append(path)
         if candidates:
             break
-    unique: list[Path] = []
-    seen = set()
+    unique_map: dict[str, Path] = {}
     for candidate in candidates:
-        key = str(candidate)
-        if key in seen:
-            continue
-        seen.add(key)
-        unique.append(candidate)
-    return unique
+        unique_map[str(candidate)] = candidate
+    return [unique_map[key] for key in sorted(unique_map)]
 
 
 def collect_files(base_path: Path, scope: str) -> tuple[list[Path], Path, int]:
@@ -1141,7 +1167,77 @@ def get_python_docstring_lines(path: Path) -> set[int]:
     return docstring_lines
 
 
-def scan_files(files: list[Path], root: Path, focus: str | None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+def scan_single_file_signals(
+    file_path: Path, compiled_definitions: list[dict[str, Any]]
+) -> dict[str, dict[str, Any]]:
+    """Scan a single file and return per-signal evidence and matched terms."""
+    try:
+        lines = file_path.read_text(encoding="utf-8", errors="ignore").splitlines()
+    except OSError:
+        return {}
+
+    is_python_source = file_path.suffix.lower() == ".py"
+    docstring_lines: set[int] = set()
+    if is_python_source:
+        docstring_lines = get_python_docstring_lines(file_path)
+
+    per_signal_hits: dict[str, dict[str, Any]] = {}
+
+    for line_number, line in enumerate(lines, start=1):
+        if not line.strip():
+            continue
+        if is_python_source and line_number in docstring_lines:
+            continue
+        lowered_line = line.lower()
+        snippet = line.strip()
+        if len(snippet) > MAX_SNIPPET_CHARS:
+            snippet = snippet[: MAX_SNIPPET_CHARS - 3] + "..."
+
+        evidence_class: str | None = None
+        for definition in compiled_definitions:
+            if definition.get("skip_deferred") and any(marker in lowered_line for marker in DEFERRED_MARKERS):
+                continue
+            matches = []
+            for pattern in definition["compiled_patterns"]:
+                found = pattern.search(line)
+                if found:
+                    matches.append(found.group(0))
+            if not matches:
+                continue
+            signal_entry = per_signal_hits.setdefault(
+                definition["id"], {"evidence": [], "_matched_terms": set()}
+            )
+            if evidence_class is None:
+                evidence_class = classify_evidence(file_path, line)
+            signal_entry["_matched_terms"].update(match.lower() for match in matches)
+            if len(signal_entry["evidence"]) < MAX_EVIDENCE_PER_SIGNAL:
+                signal_entry["evidence"].append(
+                    {
+                        "line": line_number,
+                        "match": snippet,
+                        "patterns": sorted({match.lower() for match in matches}),
+                        "evidence_class": evidence_class,
+                    }
+                )
+
+    materialized: dict[str, dict[str, Any]] = {}
+    for signal_id, hit in per_signal_hits.items():
+        materialized[signal_id] = {
+            "evidence": hit["evidence"],
+            "matched_terms": sorted(hit["_matched_terms"]),
+        }
+    return materialized
+
+
+def scan_files(
+    files: list[Path],
+    root: Path,
+    focus: str | None,
+    *,
+    workers: int,
+    cache_dir: Path,
+    use_cache: bool,
+) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
     compiled_definitions = build_compiled_signal_definitions()
     signals: dict[str, dict[str, Any]] = {}
     framework_scores: dict[str, float] = defaultdict(float)
@@ -1162,61 +1258,77 @@ def scan_files(files: list[Path], root: Path, focus: str | None) -> tuple[list[d
             "_matched_terms": set(),
         }
 
-    python_docstring_lines_cache: dict[str, set[int]] = {}
+    cache_hits = 0
+    cache_misses = 0
+    max_workers = max(1, workers)
+    cache_entries: dict[str, dict[str, Any]] = {}
+    cache_file = cache_dir / "repo_signal_scan.json"
+    if use_cache:
+        cache_entries = load_scan_cache(cache_file, version=REPO_SCAN_CACHE_VERSION)
 
-    for file_path in files:
-        try:
-            lines = file_path.read_text(encoding="utf-8", errors="ignore").splitlines()
-        except OSError:
+    per_file_results: dict[int, dict[str, dict[str, Any]]] = {}
+    futures: dict[concurrent.futures.Future[dict[str, dict[str, Any]]], tuple[int, str, str | None]] = {}
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for index, file_path in enumerate(files):
+            cache_key = str(file_path.resolve())
+            fingerprint: str | None = None
+            try:
+                fingerprint = file_fingerprint(file_path)
+            except OSError:
+                fingerprint = None
+
+            if use_cache and fingerprint:
+                cached = cache_entries.get(cache_key)
+                if (
+                    isinstance(cached, dict)
+                    and cached.get("fingerprint") == fingerprint
+                    and isinstance(cached.get("result"), dict)
+                ):
+                    per_file_results[index] = cached["result"]
+                    cache_hits += 1
+                    continue
+
+            future = executor.submit(scan_single_file_signals, file_path, compiled_definitions)
+            futures[future] = (index, cache_key, fingerprint)
+            if use_cache:
+                cache_misses += 1
+
+        for future in concurrent.futures.as_completed(futures):
+            index, cache_key, fingerprint = futures[future]
+            result = future.result()
+            per_file_results[index] = result
+            if use_cache and fingerprint:
+                cache_entries[cache_key] = {"fingerprint": fingerprint, "result": result}
+
+    if use_cache:
+        save_scan_cache(cache_file, version=REPO_SCAN_CACHE_VERSION, entries=cache_entries)
+
+    for index, file_path in enumerate(files):
+        rel_path = make_relative(file_path, root)
+        file_hits = per_file_results.get(index, {})
+        if not file_hits:
             continue
-
-        # For Python source files, skip lines that fall inside module, class, or function
-        # docstrings. This reduces false positives from regulatory keywords that appear
-        # only in documentation prose rather than in executable code or configuration.
-        is_python_source = file_path.suffix.lower() == ".py"
-        docstring_lines: set[int] = set()
-        if is_python_source:
-            cache_key = str(file_path)
-            if cache_key not in python_docstring_lines_cache:
-                python_docstring_lines_cache[cache_key] = get_python_docstring_lines(file_path)
-            docstring_lines = python_docstring_lines_cache[cache_key]
-
-        for line_number, line in enumerate(lines, start=1):
-            if not line.strip():
+        for definition in compiled_definitions:
+            signal = signals.get(definition["id"])
+            if signal is None:
                 continue
-            if is_python_source and line_number in docstring_lines:
+            hit = file_hits.get(definition["id"])
+            if not hit:
                 continue
-            snippet = line.strip()
-            if len(snippet) > MAX_SNIPPET_CHARS:
-                snippet = snippet[: MAX_SNIPPET_CHARS - 3] + "..."
-            for definition in compiled_definitions:
-                if definition["id"] not in signals:
-                    continue
-                lowered_line = line.lower()
-                if definition.get("skip_deferred") and any(marker in lowered_line for marker in DEFERRED_MARKERS):
-                    continue
-                matches = []
-                for pattern in definition["compiled_patterns"]:
-                    found = pattern.search(line)
-                    if found:
-                        matches.append(found.group(0))
-                if not matches:
-                    continue
-                signal = signals[definition["id"]]
+            signal["_matched_terms"].update(hit.get("matched_terms", []))
+            for evidence in hit.get("evidence", []):
                 if len(signal["evidence"]) >= MAX_EVIDENCE_PER_SIGNAL:
-                    signal["_matched_terms"].update(matches)
-                    continue
-                evidence_class = classify_evidence(file_path, line)
+                    break
                 signal["evidence"].append(
                     {
-                        "path": make_relative(file_path, root),
-                        "line": line_number,
-                        "match": snippet,
-                        "patterns": sorted({match.lower() for match in matches}),
-                        "evidence_class": evidence_class,
+                        "path": rel_path,
+                        "line": evidence["line"],
+                        "match": evidence["match"],
+                        "patterns": evidence["patterns"],
+                        "evidence_class": evidence["evidence_class"],
                     }
                 )
-                signal["_matched_terms"].update(matches)
 
     materialized_signals: list[dict[str, Any]] = []
     for definition in compiled_definitions:
@@ -1238,11 +1350,17 @@ def scan_files(files: list[Path], root: Path, focus: str | None) -> tuple[list[d
     product_profile = infer_product_profile(materialized_signals, label_reasons)
     candidate_frameworks = build_candidate_frameworks(materialized_signals, framework_scores, focus)
     control_observations = build_control_observations(materialized_signals, focus)
+    performance_meta = {
+        "parallel_workers": max_workers,
+        "cache_enabled": use_cache,
+        "cache_hits": cache_hits if use_cache else 0,
+        "cache_misses": cache_misses if use_cache else 0,
+    }
     return materialized_signals, {
         "product_profile": product_profile,
         "candidate_frameworks": candidate_frameworks,
         "control_observations": control_observations,
-    }
+    }, performance_meta
 
 
 def infer_product_profile(signals: list[dict[str, Any]], label_reasons: dict[str, list[str]]) -> dict[str, Any]:
@@ -1354,7 +1472,15 @@ def main() -> int:
         print(json.dumps({"error": f"Path not found: {base_path}"}))
         return 1
 
-    signals, derived = scan_files(files, root, args.focus)
+    cache_dir = Path(args.cache_dir)
+    signals, derived, perf = scan_files(
+        files,
+        root,
+        args.focus,
+        workers=args.workers,
+        cache_dir=cache_dir,
+        use_cache=not args.no_cache,
+    )
     output = with_meta(
         "repo_signal_scan",
         {
@@ -1364,6 +1490,10 @@ def main() -> int:
             "focus": args.focus,
             "scanned_files": len(files),
             "excluded_files": excluded_files,
+            "parallel_workers": perf["parallel_workers"],
+            "cache_enabled": perf["cache_enabled"],
+            "cache_hits": perf["cache_hits"],
+            "cache_misses": perf["cache_misses"],
         },
         "product_profile": derived["product_profile"],
         "signals": signals,

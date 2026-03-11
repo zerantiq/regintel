@@ -30,6 +30,10 @@ class TestASTScanner(BaseRegintelTest):
         self.assertIn("csharp_files", result["scan"])
         self.assertEqual(result["scan"]["ast_method"], "python-ast")
         self.assertIn("structural_methods", result["scan"])
+        self.assertIn("parallel_workers", result["scan"])
+        self.assertIn("cache_enabled", result["scan"])
+        self.assertIn("cache_hits", result["scan"])
+        self.assertIn("cache_misses", result["scan"])
         for finding in result["structural_findings"]:
             self.assertIn("id", finding)
             self.assertIn("severity", finding)
@@ -60,6 +64,47 @@ class TestASTScanner(BaseRegintelTest):
     def test_ast_scanner_low_risk_fixture_has_no_findings(self) -> None:
         result = self.run_json_script("ast_signal_scan.py", "--path", str(self.fixtures_root / "low-risk"))
         self.assertEqual(result["structural_findings"], [])
+
+    def test_v09_ast_scan_cache_reuse_and_parallel_metadata(self) -> None:
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_dir = Path(tmpdir) / "cache"
+            first = self.run_json_script(
+                "ast_signal_scan.py",
+                "--path",
+                str(self.fixtures_root / "polyglot-structural"),
+                "--cache-dir",
+                str(cache_dir),
+                "--workers",
+                "2",
+            )
+            second = self.run_json_script(
+                "ast_signal_scan.py",
+                "--path",
+                str(self.fixtures_root / "polyglot-structural"),
+                "--cache-dir",
+                str(cache_dir),
+                "--workers",
+                "2",
+            )
+
+        self.assertEqual(first["scan"]["parallel_workers"], 2)
+        self.assertTrue(first["scan"]["cache_enabled"])
+        self.assertGreater(first["scan"]["cache_misses"], 0)
+        self.assertEqual(second["scan"]["parallel_workers"], 2)
+        self.assertTrue(second["scan"]["cache_enabled"])
+        total_files = (
+            second["scan"]["python_files"]
+            + second["scan"]["typescript_files"]
+            + second["scan"]["java_files"]
+            + second["scan"]["go_files"]
+            + second["scan"]["csharp_files"]
+        )
+        self.assertGreaterEqual(second["scan"]["cache_hits"], total_files)
+        self.assertEqual(second["scan"]["cache_misses"], 0)
+        self.assertEqual(first["structural_findings"], second["structural_findings"])
 
     def test_ast_scanner_detects_polyglot_structural_findings(self) -> None:
         result = self.run_json_script(
