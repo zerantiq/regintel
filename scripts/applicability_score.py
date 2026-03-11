@@ -9,6 +9,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+try:
+    from ._contract import with_meta
+except ImportError:
+    from _contract import with_meta  # type: ignore
+
 FRAMEWORK_DETAILS = {
     "eu-ai-act": {
         "display_name": "EU AI Act",
@@ -285,12 +290,15 @@ def build_output(scan_data: dict[str, Any], company: dict[str, Any] | None) -> d
         if len(priority_review_areas) == 8:
             break
 
-    return {
-        "product_profile": scan_data.get("product_profile", {}),
-        "applicability": applicability,
-        "priority_review_areas": priority_review_areas,
-        "confidence_notes": confidence_notes,
-    }
+    return with_meta(
+        "applicability_score",
+        {
+            "product_profile": scan_data.get("product_profile", {}),
+            "applicability": applicability,
+            "priority_review_areas": priority_review_areas,
+            "confidence_notes": confidence_notes,
+        },
+    )
 
 
 def render_markdown(output: dict[str, Any]) -> str:

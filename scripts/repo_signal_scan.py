@@ -14,6 +14,11 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+try:
+    from ._contract import with_meta
+except ImportError:
+    from _contract import with_meta  # type: ignore
+
 FRAMEWORKS = {
     "eu-ai-act": "EU AI Act",
     "iso-42001": "ISO/IEC 42001",
@@ -1350,7 +1355,9 @@ def main() -> int:
         return 1
 
     signals, derived = scan_files(files, root, args.focus)
-    output = {
+    output = with_meta(
+        "repo_signal_scan",
+        {
         "scan": {
             "path": str(base_path),
             "scope": args.scope,
@@ -1362,7 +1369,8 @@ def main() -> int:
         "signals": signals,
         "control_observations": derived["control_observations"],
         "candidate_frameworks": derived["candidate_frameworks"],
-    }
+        },
+    )
     json.dump(output, sys.stdout, indent=2)
     sys.stdout.write("\n")
     return 0

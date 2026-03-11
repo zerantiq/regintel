@@ -15,6 +15,11 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+try:
+    from ._contract import with_meta
+except ImportError:
+    from _contract import with_meta  # type: ignore
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -340,13 +345,16 @@ def main() -> int:
                 existing = [item for item in merged_source if isinstance(item, dict)]
 
     developments = merge_developments(existing, all_updates)
-    output = {
-        "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
-        "feed_count": len([feed for feed in feeds if isinstance(feed, dict)]),
-        "item_count": len(all_updates),
-        "developments": developments,
-        "errors": errors,
-    }
+    output = with_meta(
+        "sync_regulatory_feeds",
+        {
+            "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+            "feed_count": len([feed for feed in feeds if isinstance(feed, dict)]),
+            "item_count": len(all_updates),
+            "developments": developments,
+            "errors": errors,
+        },
+    )
 
     if args.format == "markdown":
         write_output(render_markdown(output), args.output)

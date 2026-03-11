@@ -10,6 +10,11 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
+try:
+    from ._contract import with_meta
+except ImportError:
+    from _contract import with_meta  # type: ignore
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -83,7 +88,10 @@ def annotate_developments(data: Any, as_of: date) -> dict[str, Any]:
                 "days_until": nearest["days_until"],
             }
         )
-    return {"as_of": as_of.isoformat(), "developments": annotated}
+    return with_meta(
+        "check_deadlines",
+        {"as_of": as_of.isoformat(), "developments": annotated},
+    )
 
 
 def render_markdown(output: dict[str, Any]) -> str:

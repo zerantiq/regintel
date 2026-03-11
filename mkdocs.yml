@@ -1,0 +1,19 @@
+site_name: Regintel
+site_description: Code-aware regulatory intelligence for software repositories.
+site_url: https://zerantiq.github.io/regintel/
+repo_url: https://github.com/zerantiq/regintel
+repo_name: zerantiq/regintel
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Getting Started: installation.md
+  - Tutorials:
+      - CI Monitoring Pipeline: tutorials/ci-monitoring.md
+      - Pip CLI Workflow: tutorials/pypi-cli.md
+  - Integrations:
+      - Agent Skills: integrations/agents.md
+  - Reference:
+      - Script Contracts: reference/script-contracts.md

@@ -9,6 +9,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+try:
+    from ._contract import with_meta
+except ImportError:
+    from _contract import with_meta  # type: ignore
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -346,21 +351,24 @@ def evaluate_policy(
 
     failed = [check for check in checks if check["status"] == "fail"]
     passed = not failed
-    return {
-        "policy_name": str(policy.get("name", "unnamed-policy")),
-        "passed": passed,
-        "failed_checks": len(failed),
-        "total_checks": len(checks),
-        "checks": checks,
-        "metrics": {
-            "signal_count": len(signals),
-            "framework_scores": scores,
-            "not_observed_controls": missing_controls,
-            "high_or_critical_deadlines": urgent_deadlines,
-            "structural_findings": structural_findings,
-            "trend_deltas": deltas,
+    return with_meta(
+        "compliance_gate",
+        {
+            "policy_name": str(policy.get("name", "unnamed-policy")),
+            "passed": passed,
+            "failed_checks": len(failed),
+            "total_checks": len(checks),
+            "checks": checks,
+            "metrics": {
+                "signal_count": len(signals),
+                "framework_scores": scores,
+                "not_observed_controls": missing_controls,
+                "high_or_critical_deadlines": urgent_deadlines,
+                "structural_findings": structural_findings,
+                "trend_deltas": deltas,
+            },
         },
-    }
+    )
 
 
 def render_markdown(result: dict[str, Any]) -> str:

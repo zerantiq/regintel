@@ -11,6 +11,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+try:
+    from ._contract import with_meta
+except ImportError:
+    from _contract import with_meta  # type: ignore
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -301,11 +306,14 @@ def main() -> int:
     save_index(snapshot_dir, index)
 
     trend = build_trend(snapshot, previous_snapshot)
-    output = {
-        "snapshot": {"snapshot_id": snapshot_id, "created_at": created_at, "path": str(snapshot_path.as_posix())},
-        "metrics": metrics,
-        "trend": trend,
-    }
+    output = with_meta(
+        "snapshot_store",
+        {
+            "snapshot": {"snapshot_id": snapshot_id, "created_at": created_at, "path": str(snapshot_path.as_posix())},
+            "metrics": metrics,
+            "trend": trend,
+        },
+    )
     if args.format == "markdown":
         sys.stdout.write(render_markdown(output))
     else:

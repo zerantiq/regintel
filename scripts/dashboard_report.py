@@ -8,7 +8,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from trend_report import build_report, load_index, load_snapshot
+try:
+    from .trend_report import build_report, load_index, load_snapshot
+except ImportError:
+    from trend_report import build_report, load_index, load_snapshot  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:

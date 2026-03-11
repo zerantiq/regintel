@@ -77,6 +77,15 @@ flowchart LR
 
 Regintel is designed to be installed once and invoked by prompting your AI agent. **No manual script execution needed.**
 
+For direct CLI usage (v0.7 package):
+
+```bash
+python -m pip install zerantiq-regintel
+regintel-scan --help
+```
+
+Documentation site sources live under [`docs/`](docs/), with MkDocs config in [`mkdocs.yml`](mkdocs.yml).
+
 <details>
 <summary><strong>Claude Code</strong> — marketplace plugin</summary>
 
@@ -159,7 +168,7 @@ Scan this repo for regulatory compliance issues
 # 1. Validate repo structure
 make validate
 
-# 2. Run the regression suite (35 tests)
+# 2. Run the regression suite
 make test
 
 # 3. Scan a sample repo
@@ -320,7 +329,7 @@ See **[ROADMAP.md](ROADMAP.md)** for the planned evolution of Regintel:
 | **v0.4** | ✅ Extended framework + jurisdiction support (ISO 42001, UK GDPR, CCPA/CPRA, PCI DSS, polyglot + IaC scanning) |
 | **v0.5** | ✅ Continuous monitoring, scheduled CI scans, dashboards, and feed sync |
 | **v0.6** | ✅ Policy-based compliance gates and CI quality enforcement |
-| **v1.0** | Stable release on PyPI |
+| **v0.7** | ✅ Stable interfaces, pip entry points, and docs site |
 
 ---
 
@@ -343,7 +352,7 @@ For security-sensitive findings, follow **[SECURITY.md](SECURITY.md)** instead o
 
 <div align="center">
 
-**[Documentation](SKILL.md)** · **[Roadmap](ROADMAP.md)** · **[Contributing](CONTRIBUTING.md)** · **[Security](SECURITY.md)**
+**[Documentation](docs/index.md)** · **[Roadmap](ROADMAP.md)** · **[Contributing](CONTRIBUTING.md)** · **[Security](SECURITY.md)**
 
 MIT License · Copyright © 2026 [Zerantiq](https://www.zerantiq.com)
 

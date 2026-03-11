@@ -51,3 +51,32 @@ class TestTooling(BaseRegintelTest):
         self.assertIn("snapshot_store.py", content)
         self.assertIn("trend_report.py", content)
         self.assertIn("compliance_gate.py", content)
+
+    def test_v1_docs_site_files_and_navigation_exist(self) -> None:
+        mkdocs_path = self.repo_root / "mkdocs.yml"
+        self.assertTrue(mkdocs_path.exists(), "Expected mkdocs.yml to exist for the v0.7 docs site.")
+        content = mkdocs_path.read_text(encoding="utf-8")
+        self.assertIn("nav:", content)
+        self.assertIn("tutorials/ci-monitoring.md", content)
+        self.assertIn("reference/script-contracts.md", content)
+
+    def test_docs_workflow_exists_for_site_deploy(self) -> None:
+        workflow_path = self.repo_root / ".github" / "workflows" / "docs.yml"
+        self.assertTrue(workflow_path.exists(), "Expected .github/workflows/docs.yml to exist.")
+        content = workflow_path.read_text(encoding="utf-8")
+        self.assertIn("mkdocs gh-deploy", content)
+        self.assertIn("python -m pip install -e \".[docs]\"", content)
+
+    def test_v1_package_metadata_has_console_scripts(self) -> None:
+        pyproject = (self.repo_root / "pyproject.toml").read_text(encoding="utf-8")
+        self.assertIn('version = "1.0.0"', pyproject)
+        self.assertIn("[project.scripts]", pyproject)
+        self.assertIn('regintel-scan = "scripts.repo_signal_scan:main"', pyproject)
+        self.assertIn('regintel-gate = "scripts.compliance_gate:main"', pyproject)
+
+    def test_publish_workflow_exists_for_release_builds(self) -> None:
+        workflow_path = self.repo_root / ".github" / "workflows" / "publish.yml"
+        self.assertTrue(workflow_path.exists(), "Expected .github/workflows/publish.yml to exist.")
+        content = workflow_path.read_text(encoding="utf-8")
+        self.assertIn("gh-action-pypi-publish", content)
+        self.assertIn("python -m build", content)

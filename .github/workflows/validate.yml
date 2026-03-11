@@ -35,17 +35,17 @@ jobs:
 
       - name: Smoke-test documented example commands
         run: |
-          python3 scripts/repo_signal_scan.py --path tests/fixtures/repos/ai-saas --scope full > /tmp/regintel-scan.json
-          python3 scripts/repo_signal_scan.py --path tests/fixtures/repos/fintech --scope full > /tmp/regintel-scan-2.json
-          python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --company examples/company-context.json --format json > /tmp/regintel-applicability.json
-          python3 scripts/check_deadlines.py --input examples/developments.json --as-of 2026-03-10 --format json > /tmp/deadlines.json
-          python3 scripts/change_diff.py --old examples/old-scan.json --new examples/new-scan.json --format json > /tmp/diff.json
-          python3 scripts/sync_regulatory_feeds.py --config tests/fixtures/feeds/feed-config.json --format json > /tmp/synced-developments.json
-          python3 scripts/snapshot_store.py --scan /tmp/regintel-scan.json --applicability /tmp/regintel-applicability.json --deadlines /tmp/deadlines.json --snapshot-dir /tmp/regintel-snapshots --timestamp 2026-03-10T10:00:00Z --format json > /tmp/snapshot-1.json
-          python3 scripts/snapshot_store.py --scan /tmp/regintel-scan-2.json --snapshot-dir /tmp/regintel-snapshots --timestamp 2026-03-11T10:00:00Z --format json > /tmp/snapshot-2.json
-          python3 scripts/trend_report.py --snapshot-dir /tmp/regintel-snapshots --format json > /tmp/trend.json
-          python3 scripts/dashboard_report.py --snapshot-dir /tmp/regintel-snapshots --format markdown > /tmp/dashboard.md
-          python3 scripts/compliance_gate.py --policy examples/compliance-gate-policy.json --scan /tmp/regintel-scan-2.json --format json > /tmp/gate.json
+          regintel-scan --path tests/fixtures/repos/ai-saas --scope full > /tmp/regintel-scan.json
+          regintel-scan --path tests/fixtures/repos/fintech --scope full > /tmp/regintel-scan-2.json
+          regintel-applicability --signals /tmp/regintel-scan.json --company examples/company-context.json --format json > /tmp/regintel-applicability.json
+          regintel-deadlines --input examples/developments.json --as-of 2026-03-10 --format json > /tmp/deadlines.json
+          regintel-diff --old examples/old-scan.json --new examples/new-scan.json --format json > /tmp/diff.json
+          regintel-feed-sync --config tests/fixtures/feeds/feed-config.json --format json > /tmp/synced-developments.json
+          regintel-snapshot --scan /tmp/regintel-scan.json --applicability /tmp/regintel-applicability.json --deadlines /tmp/deadlines.json --snapshot-dir /tmp/regintel-snapshots --timestamp 2026-03-10T10:00:00Z --format json > /tmp/snapshot-1.json
+          regintel-snapshot --scan /tmp/regintel-scan-2.json --snapshot-dir /tmp/regintel-snapshots --timestamp 2026-03-11T10:00:00Z --format json > /tmp/snapshot-2.json
+          regintel-trend --snapshot-dir /tmp/regintel-snapshots --format json > /tmp/trend.json
+          regintel-dashboard --snapshot-dir /tmp/regintel-snapshots --format markdown > /tmp/dashboard.md
+          regintel-gate --policy examples/compliance-gate-policy.json --scan /tmp/regintel-scan-2.json --format json > /tmp/gate.json
           python3 - <<'PY'
           import json
           from pathlib import Path
@@ -69,6 +69,13 @@ jobs:
           added = diff["collections"]["signals"]["added"]
           assert changed, "Expected candidate framework score changes in example diff."
           assert added, "Expected added signals in example diff."
+          assert applicability["meta"]["schema_version"] == "1.0.0"
+          assert deadlines["meta"]["schema_version"] == "1.0.0"
+          assert diff["meta"]["schema_version"] == "1.0.0"
+          assert synced["meta"]["schema_version"] == "1.0.0"
+          assert snapshot_two["meta"]["schema_version"] == "1.0.0"
+          assert trend["meta"]["schema_version"] == "1.0.0"
+          assert gate["meta"]["schema_version"] == "1.0.0"
           assert snapshot_two["trend"]["baseline_snapshot_id"], "Expected second snapshot to have a baseline."
           assert trend["snapshot_count"] >= 2, "Trend report should include snapshot history."
           assert gate["passed"] is True, "Default gate policy should pass for fintech smoke fixture."

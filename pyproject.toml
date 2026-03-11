@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zerantiq-regintel"
-version = "0.1.0"
+version = "1.0.0"
 description = "Code-aware regulatory intelligence skill for software repositories."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,7 +15,7 @@ license = "MIT"
 authors = [{ name = "Zerantiq" }]
 keywords = ["compliance", "regulation", "privacy", "ai-governance", "security", "software"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Intended Audience :: Information Technology",
   "Programming Language :: Python :: 3",
@@ -23,9 +23,24 @@ classifiers = [
   "Topic :: Security",
   "Topic :: Software Development :: Quality Assurance",
 ]
+urls = { Homepage = "https://github.com/zerantiq/regintel", Documentation = "https://zerantiq.github.io/regintel/" }
+
+[project.scripts]
+regintel-scan = "scripts.repo_signal_scan:main"
+regintel-ast-scan = "scripts.ast_signal_scan:main"
+regintel-applicability = "scripts.applicability_score:main"
+regintel-deadlines = "scripts.check_deadlines:main"
+regintel-diff = "scripts.change_diff:main"
+regintel-snapshot = "scripts.snapshot_store:main"
+regintel-trend = "scripts.trend_report:main"
+regintel-dashboard = "scripts.dashboard_report:main"
+regintel-feed-sync = "scripts.sync_regulatory_feeds:main"
+regintel-gate = "scripts.compliance_gate:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.3,<9"]
+docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.6,<10"]
+release = ["build>=1.2,<2", "twine>=6,<7"]
 
 [tool.setuptools.packages.find]
 include = ["scripts*", "tools*"]

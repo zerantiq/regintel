@@ -83,13 +83,16 @@ Delivered:
 - Added regression tests for pass/fail gate behavior and trend-drop detection
 - Updated reference schemas and skill instructions to include gate usage
 
-## v1.0 — Stable Release
+## ✅ v0.7 — Stable Release
 
-Goals:
-- Stable script interfaces with semantic versioning guarantees
-- Comprehensive test coverage across all supported frameworks and languages
-- Published to PyPI for `pip install` adoption
-- Full documentation site with tutorials and integration guides
+Status: **complete**
+
+Delivered:
+- Added stable JSON interface metadata across machine-readable scripts via `meta.tool` + `meta.schema_version` (`1.0.0`) and documented semver compatibility rules
+- Added release-contract regression coverage (`tests/test_v1_release.py`) for interface headers, full framework coverage across fixture repos, and console-script importability checks
+- Upgraded packaging to `1.0.0`, promoted project classifiers to production/stable, and added `project.scripts` entry points for all core workflows
+- Added documentation site scaffold (`mkdocs.yml` + `docs/`) with getting-started guidance, CI monitoring tutorial, pip CLI workflow, agent integration notes, and contract reference docs
+- Updated reference schemas and README install guidance to reflect pip-based usage and v0.7 interface guarantees
 
 ## Non-Goals
 

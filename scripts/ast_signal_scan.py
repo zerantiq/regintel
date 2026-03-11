@@ -24,6 +24,11 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
+try:
+    from ._contract import with_meta
+except ImportError:
+    from _contract import with_meta  # type: ignore
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -506,10 +511,13 @@ def main() -> int:
         print(render_markdown(all_findings, scan_meta))
         return 0
 
-    output: dict[str, Any] = {
-        "scan": scan_meta,
-        "structural_findings": all_findings,
-    }
+    output: dict[str, Any] = with_meta(
+        "ast_signal_scan",
+        {
+            "scan": scan_meta,
+            "structural_findings": all_findings,
+        },
+    )
     json.dump(output, sys.stdout, indent=2)
     sys.stdout.write("\n")
     return 0

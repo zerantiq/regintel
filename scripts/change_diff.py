@@ -9,6 +9,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+try:
+    from ._contract import with_meta
+except ImportError:
+    from _contract import with_meta  # type: ignore
+
 COLLECTION_KEYS = ("developments", "signals", "candidate_frameworks", "applicability")
 
 
@@ -158,7 +163,7 @@ def build_diff(old_data: Any, new_data: Any) -> dict[str, Any]:
             old_collections.get(key, []),
             new_collections.get(key, []),
         )
-    return {"collections": collections}
+    return with_meta("change_diff", {"collections": collections})
 
 
 def render_markdown(diff: dict[str, Any]) -> str:

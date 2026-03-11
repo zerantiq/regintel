@@ -2,10 +2,29 @@
 
 All scripts use UTF-8 JSON files as input. Dates use `YYYY-MM-DD`.
 
+## v0.7 Contract Header
+
+All machine-readable outputs include a stable contract header:
+
+```json
+{
+  "meta": {
+    "tool": "repo_signal_scan",
+    "schema_version": "1.0.0"
+  }
+}
+```
+
+Consumers should validate `meta.tool` and `meta.schema_version` before parsing script-specific fields.
+
 ## `repo_signal_scan.py` Output
 
 ```json
 {
+  "meta": {
+    "tool": "repo_signal_scan",
+    "schema_version": "1.0.0"
+  },
   "scan": {
     "path": ".",
     "scope": "full",
@@ -85,6 +104,10 @@ Pass the JSON file produced by `repo_signal_scan.py`.
 
 ```json
 {
+  "meta": {
+    "tool": "applicability_score",
+    "schema_version": "1.0.0"
+  },
   "product_profile": { "...": "..." },
   "applicability": [
     {
@@ -127,13 +150,17 @@ Pass the JSON file produced by `repo_signal_scan.py`.
 
 ## `check_deadlines.py` Output
 
-- `json`: echoes developments with `nearest_milestone`, `warning_label`, `urgency`, and `days_until`
+- `json`: includes `meta`, then developments with `nearest_milestone`, `warning_label`, `urgency`, and `days_until`
 - `markdown`: concise deadline table plus warning notes
 
 ## `ast_signal_scan.py` Output
 
 ```json
 {
+  "meta": {
+    "tool": "ast_signal_scan",
+    "schema_version": "1.0.0"
+  },
   "scan": {
     "path": ".",
     "python_files": 4,
@@ -222,6 +249,10 @@ Items should expose `id` where possible. If `id` is absent, the script falls bac
 
 ```json
 {
+  "meta": {
+    "tool": "snapshot_store",
+    "schema_version": "1.0.0"
+  },
   "snapshot": {
     "snapshot_id": "20260311120000",
     "created_at": "2026-03-11T12:00:00Z",
@@ -254,6 +285,10 @@ Items should expose `id` where possible. If `id` is absent, the script falls bac
 
 ```json
 {
+  "meta": {
+    "tool": "trend_report",
+    "schema_version": "1.0.0"
+  },
   "snapshot_count": 12,
   "window": 10,
   "history": [
@@ -304,6 +339,10 @@ Items should expose `id` where possible. If `id` is absent, the script falls bac
 
 ```json
 {
+  "meta": {
+    "tool": "sync_regulatory_feeds",
+    "schema_version": "1.0.0"
+  },
   "generated_at": "2026-03-11T12:00:00Z",
   "feed_count": 2,
   "item_count": 8,
@@ -335,6 +374,10 @@ Items should expose `id` where possible. If `id` is absent, the script falls bac
 
 ```json
 {
+  "meta": {
+    "tool": "compliance_gate",
+    "schema_version": "1.0.0"
+  },
   "policy_name": "balanced-default-gate",
   "passed": true,
   "failed_checks": 0,

@@ -9,6 +9,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+try:
+    from ._contract import with_meta
+except ImportError:
+    from _contract import with_meta  # type: ignore
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -66,13 +71,16 @@ def top_framework(scan: dict[str, Any] | None) -> dict[str, Any] | None:
 def build_report(snapshot_dir: Path, limit: int) -> dict[str, Any]:
     entries = load_index(snapshot_dir)
     if not entries:
-        return {
-            "snapshot_count": 0,
-            "window": 0,
-            "history": [],
-            "framework_trends": [],
-            "latest_snapshot": None,
-        }
+        return with_meta(
+            "trend_report",
+            {
+                "snapshot_count": 0,
+                "window": 0,
+                "history": [],
+                "framework_trends": [],
+                "latest_snapshot": None,
+            },
+        )
 
     entries.sort(key=lambda item: str(item.get("created_at", "")))
     window_entries = entries[-max(limit, 1) :]
@@ -125,13 +133,16 @@ def build_report(snapshot_dir: Path, limit: int) -> dict[str, Any]:
     trends.sort(key=lambda item: (-abs(int(item["delta"])), item["framework"]))
 
     latest_snapshot = history[-1] if history else None
-    return {
-        "snapshot_count": len(entries),
-        "window": len(history),
-        "history": history,
-        "framework_trends": trends,
-        "latest_snapshot": latest_snapshot,
-    }
+    return with_meta(
+        "trend_report",
+        {
+            "snapshot_count": len(entries),
+            "window": len(history),
+            "history": history,
+            "framework_trends": trends,
+            "latest_snapshot": latest_snapshot,
+        },
+    )
 
 
 def render_markdown(report: dict[str, Any]) -> str:
