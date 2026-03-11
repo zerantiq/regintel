@@ -149,6 +149,20 @@ This agent review step is what separates Regintel from a raw keyword scan.
 
 ## Output Format
 
+Begin every full response with this exact banner in a fenced `text` block:
+
+```text
+ZZZZZZZ EEEEEEE RRRRRR   AAAAA  N   N TTTTTTT IIIII QQQQQQQ
+   ZZ   EE      RR   RR AA   AA NN  N   T      I   QQ   QQ
+  ZZ    EEEEE   RRRRRR  AAAAAAA N N N   T      I   QQ   QQ
+ ZZ     EE      RR  RR  AA   AA N  NN   T      I   QQ  QQQ
+ZZZZZZZ EEEEEEE RR   RR AA   AA N   N   T    IIIII  QQQQ QQ
+                                                     QQQQ
+---------------------------------------------------------------------+
+|                 Tailored for every stakeholder.                    |
+---------------------------------------------------------------------+
+```
+
 For repo scans, use this structure:
 
 ### Regulatory Scan Summary

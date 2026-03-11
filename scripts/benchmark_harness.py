@@ -127,10 +127,20 @@ def run_json_command(command: list[str], cwd: Path) -> dict[str, Any]:
     return json.loads(result.stdout)
 
 
+def resolve_path_arg(raw_value: str | None, *, base_dir: Path) -> Path | None:
+    if not raw_value:
+        return None
+    raw_path = Path(raw_value)
+    if raw_path.is_absolute():
+        return raw_path
+    return (base_dir / raw_path).resolve()
+
+
 def evaluate_fixture(
     fixture: dict[str, Any],
     *,
-    repo_root: Path,
+    scripts_dir: Path,
+    execution_root: Path,
     fixtures_root: Path,
     workers: int,
     cache_dir: str,
@@ -144,7 +154,7 @@ def evaluate_fixture(
 
     repo_scan_cmd = [
         sys.executable,
-        str((repo_root / "scripts" / "repo_signal_scan.py").resolve()),
+        str((scripts_dir / "repo_signal_scan.py").resolve()),
         "--path",
         str(fixture_path),
         "--scope",
@@ -156,7 +166,7 @@ def evaluate_fixture(
     ]
     ast_scan_cmd = [
         sys.executable,
-        str((repo_root / "scripts" / "ast_signal_scan.py").resolve()),
+        str((scripts_dir / "ast_signal_scan.py").resolve()),
         "--path",
         str(fixture_path),
         "--workers",
@@ -168,8 +178,8 @@ def evaluate_fixture(
         repo_scan_cmd.append("--no-cache")
         ast_scan_cmd.append("--no-cache")
 
-    repo_result = run_json_command(repo_scan_cmd, repo_root)
-    ast_result = run_json_command(ast_scan_cmd, repo_root)
+    repo_result = run_json_command(repo_scan_cmd, execution_root)
+    ast_result = run_json_command(ast_scan_cmd, execution_root)
 
     predicted_signal_ids = {item["id"] for item in repo_result.get("signals", [])}
     predicted_ast_ids = {item["id"] for item in ast_result.get("structural_findings", [])}
@@ -422,23 +432,20 @@ def render_markdown(payload: dict[str, Any]) -> str:
 
 def main() -> int:
     args = parse_args()
-    repo_root = Path(__file__).resolve().parents[1]
-    labels_path = (repo_root / args.labels).resolve() if not Path(args.labels).is_absolute() else Path(args.labels)
-    fixtures_root = (
-        (repo_root / args.fixtures_root).resolve()
-        if not Path(args.fixtures_root).is_absolute()
-        else Path(args.fixtures_root)
-    )
-    baseline_path = (
-        (repo_root / args.baseline).resolve()
-        if args.baseline and not Path(args.baseline).is_absolute()
-        else (Path(args.baseline) if args.baseline else None)
-    )
-    policy_path = (
-        (repo_root / args.policy).resolve()
-        if args.policy and not Path(args.policy).is_absolute()
-        else (Path(args.policy) if args.policy else None)
-    )
+    execution_root = Path.cwd().resolve()
+    scripts_dir = Path(__file__).resolve().parent
+
+    labels_path = resolve_path_arg(args.labels, base_dir=execution_root)
+    fixtures_root = resolve_path_arg(args.fixtures_root, base_dir=execution_root)
+    baseline_path = resolve_path_arg(args.baseline, base_dir=execution_root)
+    policy_path = resolve_path_arg(args.policy, base_dir=execution_root)
+
+    if labels_path is None:
+        print(json.dumps({"error": "Invalid labels path."}))
+        return 1
+    if fixtures_root is None:
+        print(json.dumps({"error": "Invalid fixtures-root path."}))
+        return 1
 
     labels_payload = load_json(labels_path)
     fixtures = labels_payload.get("fixtures", [])
@@ -451,7 +458,8 @@ def main() -> int:
         fixture_results.append(
             evaluate_fixture(
                 fixture,
-                repo_root=repo_root,
+                scripts_dir=scripts_dir,
+                execution_root=execution_root,
                 fixtures_root=fixtures_root,
                 workers=max(1, args.workers),
                 cache_dir=args.cache_dir,
@@ -503,11 +511,10 @@ def main() -> int:
     )
 
     if args.history_file:
-        history_path = (
-            (repo_root / args.history_file).resolve()
-            if not Path(args.history_file).is_absolute()
-            else Path(args.history_file)
-        )
+        history_path = resolve_path_arg(args.history_file, base_dir=execution_root)
+        if history_path is None:
+            print(json.dumps({"error": "Invalid history-file path."}))
+            return 1
         append_history(history_path, payload)
 
     if args.format == "markdown":
@@ -516,11 +523,10 @@ def main() -> int:
         text_output = json.dumps(payload, indent=2)
 
     if args.output:
-        output_path = (
-            (repo_root / args.output).resolve()
-            if not Path(args.output).is_absolute()
-            else Path(args.output)
-        )
+        output_path = resolve_path_arg(args.output, base_dir=execution_root)
+        if output_path is None:
+            print(json.dumps({"error": "Invalid output path."}))
+            return 1
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(text_output + ("\n" if not text_output.endswith("\n") else ""), encoding="utf-8")
     else:
