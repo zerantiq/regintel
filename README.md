@@ -252,7 +252,8 @@ See **[ROADMAP.md](ROADMAP.md)** for the planned evolution of Regintel:
 
 | Version | Focus |
 |:---|:---|
-| **v0.2** | Stronger heuristics, DORA/NIS2/NIST AI RMF *(in progress)* |
+| **v0.1** | ✅ Initial release — core scanner, 7 frameworks, agent integrations |
+| **v0.2** | ✅ Stronger heuristics, DORA/NIS2/NIST AI RMF, evidence-class weighting |
 | **v0.3** | AST-based scanning (Python, TypeScript) |
 | **v0.4** | Extended frameworks (ISO 42001, PCI DSS) |
 | **v0.5** | Continuous monitoring & dashboards |

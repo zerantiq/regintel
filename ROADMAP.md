@@ -2,18 +2,32 @@
 
 This document outlines the planned evolution of Regintel. Priorities may shift based on community feedback and real-world scan results.
 
-## v0.2 — Stronger Heuristics and Broader Coverage
+## ✅ v0.1 — Initial Release
 
-Status: **in progress**
+Status: **complete**
 
-Goals:
-- Reduce false positives through evidence-class weighting and dependency-noise filtering
-- Dismiss documentation-only matches that describe regulatory concepts without implementing regulated processing
-- Add new signal categories: encryption and key management, infrastructure-as-code, financial reporting controls
-- Expand framework coverage to include DORA, NIS2, and NIST AI RMF
-- Add fintech and IoT fixture repos for broader regression testing
-- Enhance CI with Python version matrix testing
-- Publish example scan reports for common repo archetypes
+Delivered:
+- Core repo-signal scanner with pattern-based heuristics across 7 frameworks
+- Applicability scoring with optional company context
+- Deadline urgency labeling for regulatory developments
+- Snapshot diff tool for tracking changes between scans
+- AI-saas, healthcare, and low-risk fixture repos with regression tests
+- Claude Code, Antigravity, and OpenAI Codex agent integrations
+- CI pipeline with structure validation and test suite
+- Reference documentation for frameworks, signals, and schemas
+
+## ✅ v0.2 — Stronger Heuristics and Broader Coverage
+
+Status: **complete**
+
+Delivered:
+- Reduced false positives through evidence-class weighting and dependency-noise filtering
+- Dismissed documentation-only matches that describe regulatory concepts without implementing regulated processing
+- Added new signal categories: encryption and key management, infrastructure-as-code, financial reporting controls
+- Expanded framework coverage to include DORA, NIS2, and NIST AI RMF
+- Added fintech and IoT fixture repos for broader regression testing
+- Enhanced CI with Python version matrix testing (3.10, 3.12, 3.13)
+- Published example scan reports for common repo archetypes
 
 ## v0.3 — Structured Code Analysis
 
