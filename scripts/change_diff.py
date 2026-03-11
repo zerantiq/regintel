@@ -11,8 +11,10 @@ from typing import Any
 
 try:
     from ._contract import with_meta
+    from ._markdown import markdown_cell, status_badge
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _markdown import markdown_cell, status_badge  # type: ignore
 
 COLLECTION_KEYS = ("developments", "signals", "candidate_frameworks", "applicability")
 
@@ -168,20 +170,31 @@ def build_diff(old_data: Any, new_data: Any) -> dict[str, Any]:
 
 def render_markdown(diff: dict[str, Any]) -> str:
     lines = ["# Change Diff", ""]
+    lines.append("| Collection | Added | Removed | Changed | Status |")
+    lines.append("|---|---:|---:|---:|---|")
+    has_changes = False
     for collection, changes in diff["collections"].items():
         total = len(changes["added"]) + len(changes["removed"]) + len(changes["changed"])
+        status = status_badge("changed" if total else "pass")
+        lines.append(
+            f"| {markdown_cell(collection.replace('_', ' ').title())} | {len(changes['added'])} | {len(changes['removed'])} | {len(changes['changed'])} | {status} |"
+        )
         if total == 0:
             continue
-        lines.append(f"## {collection.replace('_', ' ').title()}")
+        has_changes = True
+        lines.extend(["", f"## {collection.replace('_', ' ').title()}", ""])
+        lines.append("| Change | Key | Detail |")
+        lines.append("|---|---|---|")
         for item in changes["added"]:
-            lines.append(f"- Added `{item['key']}`")
+            lines.append(f"| {status_badge('added')} | {markdown_cell(item['key'])} | Added in new output |")
         for item in changes["removed"]:
-            lines.append(f"- Removed `{item['key']}`")
+            lines.append(f"| {status_badge('removed')} | {markdown_cell(item['key'])} | Removed from new output |")
         for item in changes["changed"]:
-            lines.append(f"- Changed `{item['key']}`: {item['summary']}")
-        lines.append("")
-    if len(lines) == 2:
-        lines.append("No changes detected.")
+            lines.append(
+                f"| {status_badge('changed')} | {markdown_cell(item['key'])} | {markdown_cell(item['summary'])} |"
+            )
+    if not has_changes:
+        lines.extend(["", "✅ No changes detected."])
     return "\n".join(lines) + "\n"
 
 

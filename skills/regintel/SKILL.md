@@ -113,33 +113,38 @@ Begin every full response with this exact banner in a fenced `text` block:
 ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝ ╚══▀▀╚═╝
 ```
 
-For repo scans, use this structure:
+For repo scans, prefer this richer markdown structure:
 
-### Regulatory Scan Summary
-State what was scanned and the overall risk picture.
+### Executive Snapshot
+Use a 2-column table for scope, top frameworks, overall urgency, and confidence.
 
-### Applicability
-Explain which frameworks appear relevant, what is confirmed by evidence, and what still depends on company context.
+### Severity Legend
+Use these badges consistently: `🚨 Critical`, `🔴 High`, `🟠 Medium`, `🟡 Low`, `🔵 Info`.
 
-### Potential Repo Findings
-List evidence-backed findings. For each finding, include severity, framework, file/path evidence, and why it matters.
+### Applicability Matrix
+Use a markdown table with: priority, framework, why it triggered, confirmed repo evidence, and what still depends on company context.
 
-### Issues to Address
-List likely gaps or controls to review.
+### Key Findings
+Use a markdown table with: severity badge, framework, repo evidence, why it matters, and recommended owner/team.
 
-### Recommended Fixes / Next Actions
-Group actions by engineering, product, security, legal/compliance, and leadership when relevant.
+### Action Plan
+Use a markdown table with: priority, team, action, and evidence trigger.
 
-### Warning
-Highlight near-term dates, enforcement milestones, or immediate review triggers.
+### Deadlines & Warnings
+When dates exist, use a markdown table with: date/milestone, framework, warning badge, urgency, and what needs review.
 
-### Urgency
-Use `Low`, `Medium`, `High`, or `Critical`.
+### Open Questions / Assumptions
+Use short bullets for missing deployment facts, jurisdiction assumptions, or company-context unknowns.
 
-### Confidence / Assumptions
-State what is inferred, what is missing, and how that affects confidence.
+Formatting rules:
 
-For regulatory updates, use the same structure but rename the first section `Regulatory Update`.
+- Default to tables when comparing frameworks, findings, or actions.
+- Put the most important 3-6 findings in the primary findings table; move lower-signal items to a short `Additional Observations` list only if needed.
+- Avoid empty sections and generic filler text.
+- Use emoji badges for severity, urgency, warnings, pass/fail status, and trend direction when relevant.
+- Keep evidence concrete: file paths, symbols, routes, config keys, schema fields, or log/event names.
+
+For regulatory updates, keep the same visual style but rename the first section `Regulatory Update Snapshot` and include stage/status plus exact dates in the snapshot table.
 
 ## Script Execution
 

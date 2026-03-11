@@ -12,8 +12,10 @@ from typing import Any
 
 try:
     from ._contract import with_meta
+    from ._markdown import markdown_cell, urgency_badge, warning_badge
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _markdown import markdown_cell, urgency_badge, warning_badge  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:
@@ -95,7 +97,20 @@ def annotate_developments(data: Any, as_of: date) -> dict[str, Any]:
 
 
 def render_markdown(output: dict[str, Any]) -> str:
-    lines = [f"# Deadline Check ({output['as_of']})", "", "| Framework | Title | Milestone | Days | Warning | Urgency |", "|---|---|---|---:|---|---|"]
+    urgent_count = sum(
+        1 for development in output["developments"] if development.get("urgency") in {"Critical", "High"}
+    )
+    lines = [
+        f"# Deadline Check ({output['as_of']})",
+        "",
+        "| Summary | Value |",
+        "|---|---|",
+        f"| Developments tracked | {len(output['developments'])} |",
+        f"| High/Critical items | {urgent_count} |",
+        "",
+        "| Framework | Title | Milestone | Days | Warning | Urgency |",
+        "|---|---|---|---:|---|---|",
+    ]
     for development in output["developments"]:
         nearest = development.get("nearest_milestone")
         if nearest:
@@ -105,7 +120,18 @@ def render_markdown(output: dict[str, Any]) -> str:
             milestone_label = "No milestone"
             days = "-"
         lines.append(
-            f"| {development.get('framework', '-')} | {development.get('title', '-')} | {milestone_label} | {days} | {development['warning_label']} | {development['urgency']} |"
+            "| "
+            + " | ".join(
+                [
+                    markdown_cell(development.get("framework", "-")),
+                    markdown_cell(development.get("title", "-")),
+                    markdown_cell(milestone_label),
+                    days,
+                    warning_badge(development["warning_label"]),
+                    urgency_badge(development["urgency"]),
+                ]
+            )
+            + " |"
         )
     return "\n".join(lines) + "\n"
 

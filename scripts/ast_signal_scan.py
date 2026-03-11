@@ -34,6 +34,7 @@ from typing import Any
 
 try:
     from ._contract import with_meta
+    from ._markdown import markdown_cell, severity_badge
     from ._scan_cache import (
         default_parallel_workers,
         file_fingerprint,
@@ -42,6 +43,7 @@ try:
     )
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _markdown import markdown_cell, severity_badge  # type: ignore
     from _scan_cache import (  # type: ignore
         default_parallel_workers,
         file_fingerprint,
@@ -863,33 +865,42 @@ def render_markdown(findings: list[dict[str, Any]], scan_meta: dict[str, Any]) -
     lines = [
         "## AST Structural Scan",
         "",
-        (
-            "Scanned "
-            f"**{scan_meta['python_files']}** Python, "
-            f"**{scan_meta['typescript_files']}** TypeScript, "
-            f"**{scan_meta['java_files']}** Java, "
-            f"**{scan_meta['go_files']}** Go file(s), "
-            f"**{scan_meta['csharp_files']}** .NET/C# file(s), "
-            f"found **{scan_meta['finding_count']}** structural finding(s)."
-        ),
+        "| Scope | Count |",
+        "|---|---:|",
+        f"| Python files | {scan_meta['python_files']} |",
+        f"| TypeScript files | {scan_meta['typescript_files']} |",
+        f"| Java files | {scan_meta['java_files']} |",
+        f"| Go files | {scan_meta['go_files']} |",
+        f"| .NET/C# files | {scan_meta['csharp_files']} |",
+        f"| Structural findings | {scan_meta['finding_count']} |",
         "",
     ]
     if not findings:
-        lines.append("No structural findings detected.")
-        return "\n".join(lines)
+        lines.append("✅ No structural findings detected.")
+        return "\n".join(lines) + "\n"
 
+    lines.extend(["| Severity | Finding | Frameworks | Evidence | Detail |", "|---|---|---|---|---|"])
     for finding in findings:
-        lines.append(f"### {finding['title']}")
-        lines.append(f"- **Severity**: {finding['severity']}")
-        lines.append(f"- **Frameworks**: {', '.join(finding['frameworks'])}")
+        evidence_lines = []
+        detail_lines = []
         for evidence in finding["evidence"]:
-            lines.append(
-                f"- **Location**: `{evidence['path']}:{evidence['line']}` in `{evidence['function']}`"
+            evidence_lines.append(f"`{evidence['path']}:{evidence['line']}` in `{evidence['function']}`")
+            detail_lines.append(evidence["detail"])
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    severity_badge(finding["severity"]),
+                    markdown_cell(finding["title"]),
+                    markdown_cell(", ".join(finding["frameworks"])),
+                    markdown_cell("<br>".join(evidence_lines)),
+                    markdown_cell("<br>".join(detail_lines)),
+                ]
             )
-            lines.append(f"- **Detail**: {evidence['detail']}")
-        lines.append("")
+            + " |"
+        )
 
-    return "\n".join(lines)
+    return "\n".join(lines) + "\n"
 
 
 # ---------------------------------------------------------------------------

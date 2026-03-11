@@ -11,8 +11,10 @@ from typing import Any
 
 try:
     from ._contract import with_meta
+    from ._markdown import delta_badge, markdown_cell
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _markdown import delta_badge, markdown_cell  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:
@@ -148,14 +150,22 @@ def build_report(snapshot_dir: Path, limit: int) -> dict[str, Any]:
 def render_markdown(report: dict[str, Any]) -> str:
     lines = ["# Trend Report", ""]
     if report["snapshot_count"] == 0:
-        lines.append("No snapshots found.")
+        lines.append("✅ No snapshots found.")
         return "\n".join(lines) + "\n"
 
-    lines.append(f"- Total snapshots: {report['snapshot_count']}")
-    lines.append(f"- Report window: {report['window']}")
+    lines.extend(
+        [
+            "| Overview | Value |",
+            "|---|---|",
+            f"| Total snapshots | {report['snapshot_count']} |",
+            f"| Report window | {report['window']} |",
+        ]
+    )
     latest = report.get("latest_snapshot")
     if latest:
-        lines.append(f"- Latest snapshot: `{latest.get('snapshot_id')}` ({latest.get('created_at')})")
+        lines.append(
+            f"| Latest snapshot | `{latest.get('snapshot_id')}` ({markdown_cell(latest.get('created_at'))}) |"
+        )
     lines.append("")
 
     lines.append("## Snapshot History")
@@ -164,7 +174,7 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.append("|---|---:|---:|---:|---:|")
     for item in report["history"]:
         lines.append(
-            f"| {item.get('snapshot_id')} | {item.get('signal_count', 0)} | {item.get('framework_count', 0)} | {item.get('not_observed_control_count', 0)} | {item.get('high_or_critical_deadline_count', 0)} |"
+            f"| {markdown_cell(item.get('snapshot_id'))} | {item.get('signal_count', 0)} | {item.get('framework_count', 0)} | {item.get('not_observed_control_count', 0)} | {item.get('high_or_critical_deadline_count', 0)} |"
         )
 
     lines.append("")
@@ -172,14 +182,14 @@ def render_markdown(report: dict[str, Any]) -> str:
     trends = report.get("framework_trends", [])
     if not trends:
         lines.append("")
-        lines.append("No framework score movement detected in this window.")
+        lines.append("✅ No framework score movement detected in this window.")
     else:
         lines.append("")
         lines.append("| Framework | First | Latest | Delta |")
-        lines.append("|---|---:|---:|---:|")
+        lines.append("|---|---:|---:|---|")
         for trend in trends:
             lines.append(
-                f"| {trend['framework']} | {trend['first_score']} | {trend['latest_score']} | {trend['delta']:+d} |"
+                f"| {markdown_cell(trend['framework'])} | {trend['first_score']} | {trend['latest_score']} | {delta_badge(trend['delta'])} |"
             )
 
     return "\n".join(lines) + "\n"

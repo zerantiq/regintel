@@ -13,8 +13,10 @@ from typing import Any
 
 try:
     from ._contract import with_meta
+    from ._markdown import delta_badge, markdown_cell
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _markdown import delta_badge, markdown_cell  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:
@@ -212,36 +214,49 @@ def render_markdown(summary: dict[str, Any]) -> str:
     lines = [
         "# Snapshot Store",
         "",
-        f"- Snapshot ID: `{snapshot['snapshot_id']}`",
-        f"- Created At: `{snapshot['created_at']}`",
-        f"- File: `{snapshot['path']}`",
+        "| Snapshot | Value |",
+        "|---|---|",
+        f"| Snapshot ID | `{snapshot['snapshot_id']}` |",
+        f"| Created At | `{snapshot['created_at']}` |",
+        f"| File | `{snapshot['path']}` |",
         "",
         "## Metrics",
-        f"- Signals: {metrics['signal_count']}",
-        f"- Candidate frameworks: {metrics['framework_count']}",
-        f"- Not-observed controls: {metrics['not_observed_control_count']}",
-        f"- High/Critical deadlines: {metrics['high_or_critical_deadline_count']}",
-        f"- Structural findings: {metrics['structural_finding_count']}",
+        "",
+        "| Metric | Value |",
+        "|---|---:|",
+        f"| Signals | {metrics['signal_count']} |",
+        f"| Candidate frameworks | {metrics['framework_count']} |",
+        f"| Not-observed controls | {metrics['not_observed_control_count']} |",
+        f"| High/Critical deadlines | {metrics['high_or_critical_deadline_count']} |",
+        f"| Structural findings | {metrics['structural_finding_count']} |",
     ]
     top = metrics.get("top_framework")
     if isinstance(top, dict) and top.get("framework"):
-        lines.append(f"- Top framework: {top.get('framework')} ({top.get('score')})")
+        lines.append(f"| Top framework | {markdown_cell(top.get('framework'))} ({top.get('score')}) |")
 
     lines.extend(["", "## Delta vs Previous Snapshot"])
     if not trend.get("baseline_snapshot_id"):
-        lines.append("- No baseline snapshot found.")
+        lines.append("")
+        lines.append("✅ No baseline snapshot found.")
     else:
-        lines.append(f"- Baseline snapshot: `{trend['baseline_snapshot_id']}`")
-        lines.append(f"- Signal delta: {trend['signal_delta']:+d}")
-        lines.append(f"- Framework delta: {trend['framework_delta']:+d}")
-        lines.append(f"- Not-observed controls delta: {trend['not_observed_control_delta']:+d}")
-        lines.append(f"- High/Critical deadlines delta: {trend['urgent_deadline_delta']:+d}")
+        lines.extend(
+            [
+                "",
+                "| Metric | Value |",
+                "|---|---|",
+                f"| Baseline snapshot | `{trend['baseline_snapshot_id']}` |",
+                f"| Signal delta | {delta_badge(trend['signal_delta'])} |",
+                f"| Framework delta | {delta_badge(trend['framework_delta'])} |",
+                f"| Not-observed controls delta | {delta_badge(trend['not_observed_control_delta'])} |",
+                f"| High/Critical deadlines delta | {delta_badge(trend['urgent_deadline_delta'])} |",
+            ]
+        )
         changes = trend.get("framework_score_changes", [])
         if changes:
-            lines.append("- Framework score changes:")
+            lines.extend(["", "### Framework Score Changes", "", "| Framework | Previous | Current | Delta |", "|---|---:|---:|---|"])
             for change in changes[:6]:
                 lines.append(
-                    f"  - {change['framework']}: {change['old_score']} -> {change['new_score']} ({change['delta']:+d})"
+                    f"| {markdown_cell(change['framework'])} | {change['old_score']} | {change['new_score']} | {delta_badge(change['delta'])} |"
                 )
     return "\n".join(lines) + "\n"
 

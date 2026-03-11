@@ -9,8 +9,10 @@ from pathlib import Path
 from typing import Any
 
 try:
+    from ._markdown import markdown_cell, score_badge, urgency_badge
     from .trend_report import build_report, load_index, load_snapshot
 except ImportError:
+    from _markdown import markdown_cell, score_badge, urgency_badge  # type: ignore
     from trend_report import build_report, load_index, load_snapshot  # type: ignore
 
 
@@ -58,30 +60,36 @@ def render_markdown(report: dict[str, Any], latest_entry: dict[str, Any] | None,
     generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
     lines = ["# Regintel Monitoring Dashboard", "", f"- Generated at: `{generated_at}`", ""]
     if not latest_entry or not snapshot:
-        lines.append("No snapshots found.")
+        lines.append("✅ No snapshots found.")
         return "\n".join(lines) + "\n"
 
     metrics = snapshot.get("metrics", {}) if isinstance(snapshot.get("metrics"), dict) else {}
     lines.append("## Latest Snapshot")
-    lines.append(f"- Snapshot: `{latest_entry.get('snapshot_id')}`")
-    lines.append(f"- Created at: `{latest_entry.get('created_at')}`")
-    lines.append(f"- Signals: {metrics.get('signal_count', 0)}")
-    lines.append(f"- Candidate frameworks: {metrics.get('framework_count', 0)}")
-    lines.append(f"- Not-observed controls: {metrics.get('not_observed_control_count', 0)}")
-    lines.append(f"- High/Critical deadlines: {metrics.get('high_or_critical_deadline_count', 0)}")
-    lines.append("")
+    lines.extend(
+        [
+            "| Metric | Value |",
+            "|---|---|",
+            f"| Snapshot | `{latest_entry.get('snapshot_id')}` |",
+            f"| Created at | `{latest_entry.get('created_at')}` |",
+            f"| Signals | {metrics.get('signal_count', 0)} |",
+            f"| Candidate frameworks | {metrics.get('framework_count', 0)} |",
+            f"| Not-observed controls | {metrics.get('not_observed_control_count', 0)} |",
+            f"| High/Critical deadlines | {urgency_badge('high' if metrics.get('high_or_critical_deadline_count', 0) else 'low')} ({metrics.get('high_or_critical_deadline_count', 0)}) |",
+            "",
+        ]
+    )
 
     lines.append("### Top Frameworks")
     lines.append("")
     frameworks = top_frameworks(snapshot)
     if not frameworks:
-        lines.append("No framework scores available.")
+        lines.append("✅ No framework scores available.")
     else:
-        lines.append("| Framework | Score | Confidence |")
-        lines.append("|---|---:|---:|")
+        lines.append("| Priority | Framework | Score | Confidence |")
+        lines.append("|---|---|---:|---:|")
         for item in frameworks:
             lines.append(
-                f"| {item.get('display_name', item.get('framework', '-'))} | {int(item.get('score', 0))} | {float(item.get('confidence', 0.0)):.2f} |"
+                f"| {score_badge(int(item.get('score', 0)))} | {markdown_cell(item.get('display_name', item.get('framework', '-')))} | {int(item.get('score', 0))} | {float(item.get('confidence', 0.0)):.2f} |"
             )
     lines.append("")
 
@@ -89,19 +97,21 @@ def render_markdown(report: dict[str, Any], latest_entry: dict[str, Any] | None,
     lines.append("")
     missing = not_observed_controls(snapshot)
     if not missing:
-        lines.append("No not-observed controls in the latest snapshot.")
+        lines.append("✅ No not-observed controls in the latest snapshot.")
     else:
+        lines.append("| Control | Rationale |")
+        lines.append("|---|---|")
         for item in missing:
-            lines.append(f"- `{item.get('control')}`: {item.get('rationale', '')}")
+            lines.append(f"| `{item.get('control')}` | {markdown_cell(item.get('rationale', ''))} |")
     lines.append("")
 
     lines.append("## Trend Window")
     lines.append("")
-    lines.append("| Snapshot | Signals | Frameworks | Not Observed Controls |")
-    lines.append("|---|---:|---:|---:|")
+    lines.append("| Snapshot | Signals | Frameworks | Not Observed Controls | High/Critical Deadlines |")
+    lines.append("|---|---:|---:|---:|---:|")
     for item in report.get("history", []):
         lines.append(
-            f"| {item.get('snapshot_id')} | {item.get('signal_count', 0)} | {item.get('framework_count', 0)} | {item.get('not_observed_control_count', 0)} |"
+            f"| {markdown_cell(item.get('snapshot_id'))} | {item.get('signal_count', 0)} | {item.get('framework_count', 0)} | {item.get('not_observed_control_count', 0)} | {item.get('high_or_critical_deadline_count', 0)} |"
         )
 
     return "\n".join(lines) + "\n"

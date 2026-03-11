@@ -1,65 +1,88 @@
 # Output Patterns
 
-Use these patterns to keep responses practical and evidence-backed.
+Use these patterns to keep responses practical, evidence-backed, and visually scannable.
 
 ## Repo Scan Pattern
 
-### Regulatory Scan Summary
-Scanned the application repo for first-party evidence of AI, privacy, healthcare, and disclosure-sensitive obligations. The strongest signals point to GDPR and EU AI Act review, with lower-confidence healthcare obligations that depend on deployment context.
+### Executive Snapshot
 
-### Applicability
-- **GDPR**: likely relevant because the repo includes account data, analytics, cookie handling, and delete/export endpoints.
-- **EU AI Act**: likely relevant because the repo integrates third-party model APIs and prompt orchestration.
-- **HIPAA**: possible only if the customer environment actually includes PHI; the repo contains healthcare terms but not enough to confirm covered workflows.
+| Metric | Value |
+|---|---|
+| Scope | Full application repo scan across source, config, infra, and compliance-sensitive docs |
+| Top frameworks | GDPR, EU AI Act, ISO/IEC 42001 |
+| Overall urgency | 🔴 High |
+| Confidence | 🟡 Medium: repo evidence is strong, but deployment facts are incomplete |
 
-### Potential Repo Findings
-- **High | GDPR | `apps/api/routes/users.ts`**
-  User profile and analytics events appear to collect personal data, but no retention or deletion policy was observed in the scanned repo. This suggests a likely review area around storage limitation and user-rights workflows.
-- **Medium | EU AI Act | `services/llm/client.py`**
-  The product uses external model providers and prompt templates, but no model inventory, safety review, or AI-specific notice path was observed. This suggests a likely governance gap to review.
+### Severity Legend
 
-### Issues to Address
-- Document retention, deletion, and export behavior.
-- Review AI feature inventory and user transparency.
-- Confirm whether healthcare-related fields process PHI in production.
+`🚨 Critical` · `🔴 High` · `🟠 Medium` · `🟡 Low` · `🔵 Info`
 
-### Recommended Fixes / Next Actions
-- Engineering: map data stores, retention settings, and delete/export code paths.
-- Product: inventory AI-assisted features and user-facing disclosures.
-- Security: verify logging, incident escalation, and vendor controls.
-- Legal/Compliance: confirm geography, public-company status, and HIPAA/FDA exposure.
+### Applicability Matrix
 
-### Warning
-Action Needed Soon: if EU AI Act milestones apply to the deployed feature set, verify current dates before release planning.
+| Priority | Framework | Why it triggered | Confirmed repo evidence | Depends on company context |
+|---|---|---|---|---|
+| 🔴 High | GDPR | Account data, analytics, delete/export language | `apps/api/routes/users.ts`, `src/api/telemetry.ts` | EU-user exposure and controller/processor role |
+| 🟠 Elevated | EU AI Act | External model APIs and prompt orchestration | `services/llm/client.py`, prompt templates | Whether the deployed feature set is in-scope and how it is used |
+| 🟡 Watch | HIPAA | Healthcare domain terms are present | patient-related schemas or workflow docs | Whether PHI is processed in production and BA/CE status |
 
-### Urgency
-High
+### Key Findings
 
-### Confidence / Assumptions
-Medium confidence. The assessment relies on repo evidence and does not confirm production data categories, customer profile, or legal entity status.
+| Severity | Framework | Repo evidence | Why it matters | Owner |
+|---|---|---|---|---|
+| 🔴 High | GDPR | `src/api/telemetry.ts` logs account-linked events; no retention path observed | Suggests a review gap around storage limitation, deletion, and notice coverage | Engineering + Privacy |
+| 🟠 Medium | EU AI Act | `services/llm/client.py` integrates model providers; no model inventory or human-review path observed | Suggests an AI governance and transparency gap to review before broader rollout | Product + Compliance |
+| 🟡 Low | ISO/IEC 42001 | AI-related workflows exist but governance artifacts are not visible in-repo | Suggests maturity work, not necessarily an immediate blocker | Leadership + Security |
+
+### Action Plan
+
+| Priority | Team | Action | Evidence trigger |
+|---|---|---|---|
+| 🔴 High | Engineering | Map retention, deletion, and export behavior across all user-data stores | Telemetry and user-data endpoints are visible |
+| 🟠 Medium | Product | Inventory all AI-assisted features and user-facing disclosures | Model-provider integrations are visible |
+| 🟠 Medium | Security | Confirm logging, escalation, and vendor-review paths for incidents involving AI or personal data | Disclosure-sensitive and privacy-sensitive signals were detected |
+| 🟡 Low | Legal / Compliance | Confirm geography, public-company status, and regulated-data scope | Repo evidence alone cannot confirm legal/entity facts |
+
+### Deadlines & Warnings
+
+| Milestone | Framework | Warning | Urgency | Review trigger |
+|---|---|---|---|---|
+| 2026-08-01 enforcement milestone | EU AI Act | 🟠 Action Needed Soon | 🔴 High | Validate whether current product workflows fall into the affected category |
+| Incident reporting window | DORA / NIS2 | 🚨 Critical Deadline | 🚨 Critical | Confirm whether the business is actually in scope before relying on current incident processes |
+
+### Open Questions / Assumptions
+
+- EU and UK exposure are inferred from product signals, not confirmed from entity or customer facts.
+- Healthcare terminology alone does not confirm HIPAA scope.
+- No claim of definitive non-compliance should be made from repo evidence alone.
 
 ## Regulatory Update Pattern
 
-### Regulatory Update
-Explain what changed, whether the change is proposed, adopted, effective, or entering enforcement, and what software teams need to revisit.
+### Regulatory Update Snapshot
 
-### Applicability
-State who is likely affected and what assumptions drive that view.
+| Metric | Value |
+|---|---|
+| Framework | EU AI Act |
+| Status | 🟠 Adopted, approaching milestone |
+| Date to anchor on | August 1, 2026 |
+| Operational urgency | 🔴 High |
 
-### Why It Matters
-Connect the change to engineering, product, data governance, security, or disclosure processes.
+### Impact Matrix
 
-### Issues to Address
-List the main review items.
+| Area | What changed | Why it matters |
+|---|---|---|
+| Engineering | Logging, monitoring, and provider-governance expectations become more immediate | Release plans may need additional controls and evidence |
+| Product | User-facing transparency and feature inventory work may need to land sooner | Unclear ownership creates launch risk |
+| Compliance | Control mapping and scope triage must happen against exact use cases | Proposed vs effective obligations must stay clearly separated |
 
-### Recommended Fixes / Next Actions
-Assign actions across legal/compliance, security, engineering, product, and leadership.
+### Action Plan
 
-### Warning
-Use one of: `Monitor`, `Upcoming Change`, `Action Needed Soon`, `High Priority`, `Critical Deadline`.
+| Priority | Team | Action |
+|---|---|---|
+| 🔴 High | Compliance | Confirm exact scope category and milestone relevance |
+| 🟠 Medium | Engineering | Map deployed AI features, logs, and fallback paths |
+| 🟠 Medium | Product | Review user notices and human-escalation paths |
 
-### Urgency
-Use one of: `Low`, `Medium`, `High`, `Critical`.
+### Open Questions / Assumptions
 
-### Confidence / Assumptions
-Explain missing context, deployment unknowns, or unsettled legal interpretation.
+- Applicability still depends on the deployed feature category and market exposure.
+- Use exact dates and adoption/effective status, not relative phrases.

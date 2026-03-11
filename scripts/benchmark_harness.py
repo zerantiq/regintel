@@ -13,8 +13,10 @@ from typing import Any
 
 try:
     from ._contract import with_meta
+    from ._markdown import bool_badge, delta_badge, markdown_cell
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _markdown import bool_badge, delta_badge, markdown_cell  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:
@@ -379,8 +381,12 @@ def render_markdown(payload: dict[str, Any]) -> str:
     lines = [
         "## Benchmark Quality Report",
         "",
-        f"- Generated: `{payload['generated_at']}`",
-        f"- Fixtures evaluated: **{len(fixtures)}**",
+        "| Overview | Value |",
+        "|---|---|",
+        f"| Generated | `{payload['generated_at']}` |",
+        f"| Fixtures evaluated | {len(fixtures)} |",
+        f"| Gate passed | {bool_badge(gate['passed'])} |",
+        f"| Failed checks | {gate['failed_checks']} / {gate['total_checks']} |",
         "",
         "### Overall Metrics",
         "",
@@ -396,36 +402,22 @@ def render_markdown(payload: dict[str, Any]) -> str:
     lines.extend(["", "### Trend Deltas", ""])
     if trends.get("available"):
         lines.append("| Group | Precision delta | Recall delta | F1 delta |")
-        lines.append("|---|---:|---:|---:|")
+        lines.append("|---|---|---|---|")
         deltas = trends.get("deltas", {})
         for group in ("signals", "ast", "combined"):
             group_delta = deltas.get(group, {})
             lines.append(
-                f"| {group} | {group_delta.get('precision', 0.0):+.4f} | {group_delta.get('recall', 0.0):+.4f} | {group_delta.get('f1', 0.0):+.4f} |"
+                f"| {group} | {delta_badge(group_delta.get('precision', 0.0))} | {delta_badge(group_delta.get('recall', 0.0))} | {delta_badge(group_delta.get('f1', 0.0))} |"
             )
     else:
-        lines.append("No baseline trend delta available.")
+        lines.append("✅ No baseline trend delta available.")
 
-    lines.extend(
-        [
-            "",
-            "### Gate",
-            "",
-            f"- Policy: `{gate['policy_name']}`",
-            f"- Passed: **{str(gate['passed']).lower()}**",
-            f"- Failed checks: **{gate['failed_checks']} / {gate['total_checks']}**",
-            "",
-            "### Fixture Summary",
-            "",
-            "| Fixture | Signal P/R | AST P/R | Signal FP | AST FP |",
-            "|---|---:|---:|---:|---:|",
-        ]
-    )
+    lines.extend(["", "### Fixture Summary", "", "| Fixture | Signal P/R | AST P/R | Signal FP | AST FP |", "|---|---:|---:|---:|---:|"])
     for fixture in fixtures:
         signal = fixture["signal_metrics"]
         ast_metrics = fixture["ast_metrics"]
         lines.append(
-            f"| {fixture['id']} | {signal['precision']:.4f}/{signal['recall']:.4f} | {ast_metrics['precision']:.4f}/{ast_metrics['recall']:.4f} | {signal['fp']} | {ast_metrics['fp']} |"
+            f"| {markdown_cell(fixture['id'])} | {signal['precision']:.4f}/{signal['recall']:.4f} | {ast_metrics['precision']:.4f}/{ast_metrics['recall']:.4f} | {signal['fp']} | {ast_metrics['fp']} |"
         )
     return "\n".join(lines)
 

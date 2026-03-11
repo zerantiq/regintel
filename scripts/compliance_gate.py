@@ -11,8 +11,10 @@ from typing import Any
 
 try:
     from ._contract import with_meta
+    from ._markdown import bool_badge, markdown_cell, status_badge
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _markdown import bool_badge, markdown_cell, status_badge  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:
@@ -372,11 +374,33 @@ def evaluate_policy(
 
 
 def render_markdown(result: dict[str, Any]) -> str:
-    lines = ["# Compliance Gate", "", f"- Policy: `{result['policy_name']}`", f"- Passed: `{result['passed']}`"]
-    lines.append(f"- Failed checks: {result['failed_checks']} of {result['total_checks']}")
-    lines.extend(["", "## Checks"])
+    metrics = result.get("metrics", {})
+    lines = [
+        "# Compliance Gate",
+        "",
+        "| Overview | Value |",
+        "|---|---|",
+        f"| Policy | `{result['policy_name']}` |",
+        f"| Passed | {bool_badge(result['passed'])} |",
+        f"| Failed checks | {result['failed_checks']} / {result['total_checks']} |",
+    ]
+    if metrics:
+        lines.extend(
+            [
+                "",
+                "## Runtime Metrics",
+                "",
+                "| Metric | Value |",
+                "|---|---|",
+                f"| Signals | {len(metrics.get('signal_count', [])) if isinstance(metrics.get('signal_count'), list) else metrics.get('signal_count', 0)} |",
+                f"| Not-observed controls | {len(metrics.get('not_observed_controls', []))} |",
+                f"| High/Critical deadlines | {len(metrics.get('high_or_critical_deadlines', []))} |",
+                f"| Structural findings | {len(metrics.get('structural_findings', []))} |",
+            ]
+        )
+    lines.extend(["", "## Checks", "", "| Status | Check | Message | Details |", "|---|---|---|---|"])
     if not result["checks"]:
-        lines.append("- No checks defined in policy.")
+        lines.append("| ⚪ Unknown | - | No checks defined in policy. | - |")
     for check in result["checks"]:
         suffix = []
         if "framework" in check:
@@ -388,7 +412,18 @@ def render_markdown(result: dict[str, Any]) -> str:
         if "threshold" in check:
             suffix.append(f"threshold={check['threshold']}")
         details = f" ({', '.join(suffix)})" if suffix else ""
-        lines.append(f"- [{check['status'].upper()}] `{check['check']}`: {check['message']}{details}")
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    status_badge(check["status"]),
+                    f"`{check['check']}`",
+                    markdown_cell(check["message"]),
+                    markdown_cell(details or "-"),
+                ]
+            )
+            + " |"
+        )
     return "\n".join(lines) + "\n"
 
 

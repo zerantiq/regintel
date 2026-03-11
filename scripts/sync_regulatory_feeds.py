@@ -17,8 +17,10 @@ from urllib.parse import urlparse
 
 try:
     from ._contract import with_meta
+    from ._markdown import markdown_cell
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _markdown import markdown_cell  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:
@@ -268,9 +270,11 @@ def render_markdown(output: dict[str, Any]) -> str:
     lines = [
         "# Regulatory Feed Sync",
         "",
-        f"- Generated at: `{output['generated_at']}`",
-        f"- Feeds processed: {output['feed_count']}",
-        f"- Developments available: {len(output['developments'])}",
+        "| Overview | Value |",
+        "|---|---|",
+        f"| Generated at | `{output['generated_at']}` |",
+        f"| Feeds processed | {output['feed_count']} |",
+        f"| Developments available | {len(output['developments'])} |",
         "",
         "| Framework | Title | Milestone Date | Source |",
         "|---|---|---|---|",
@@ -278,12 +282,13 @@ def render_markdown(output: dict[str, Any]) -> str:
     for item in output["developments"][:40]:
         milestones = item.get("milestones", [])
         date = milestones[0].get("date") if milestones else "-"
-        lines.append(f"| {item.get('framework', '-')} | {item.get('title', '-')} | {date} | {item.get('source', '-')} |")
+        lines.append(
+            f"| {markdown_cell(item.get('framework', '-'))} | {markdown_cell(item.get('title', '-'))} | {date} | {markdown_cell(item.get('source', '-'))} |"
+        )
     if output.get("errors"):
-        lines.append("")
-        lines.append("## Errors")
+        lines.extend(["", "## Errors", "", "| Status | Detail |", "|---|---|"])
         for err in output["errors"]:
-            lines.append(f"- {err}")
+            lines.append(f"| ❌ Error | {markdown_cell(err)} |")
     return "\n".join(lines) + "\n"
 
 

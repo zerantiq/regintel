@@ -158,4 +158,5 @@ class TestASTScanner(BaseRegintelTest):
             ]
         )
         self.assertIn("AST Structural Scan", result.stdout)
-        self.assertIn("finding(s)", result.stdout)
+        self.assertIn("| Severity | Finding | Frameworks | Evidence | Detail |", result.stdout)
+        self.assertIn("🟠 Medium", result.stdout)

@@ -95,6 +95,7 @@ class TestBenchmarkHarness(BaseRegintelTest):
                 "repo_signal_scan.py",
                 "ast_signal_scan.py",
                 "_contract.py",
+                "_markdown.py",
                 "_scan_cache.py",
             ):
                 shutil.copy2(self.scripts_root / script_name, installed_scripts / script_name)

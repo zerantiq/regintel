@@ -11,8 +11,10 @@ from typing import Any
 
 try:
     from ._contract import with_meta
+    from ._markdown import confidence_badge, markdown_cell, score_badge
 except ImportError:
     from _contract import with_meta  # type: ignore
+    from _markdown import confidence_badge, markdown_cell, score_badge  # type: ignore
 
 FRAMEWORK_DETAILS = {
     "eu-ai-act": {
@@ -305,25 +307,44 @@ def render_markdown(output: dict[str, Any]) -> str:
     lines = ["# Applicability Score", ""]
     profile = output.get("product_profile", {})
     labels = ", ".join(profile.get("labels", [])) or "none"
-    lines.append(f"- Product profile: {labels} (confidence {profile.get('confidence', 0)})")
+    lines.extend(
+        [
+            "| Overview | Value |",
+            "|---|---|",
+            f"| Product profile | {markdown_cell(labels)} |",
+            f"| Profile confidence | {confidence_badge(profile.get('confidence', 0))} |",
+            f"| Frameworks flagged | {len(output.get('applicability', []))} |",
+        ]
+    )
     if profile.get("reasons"):
-        lines.append(f"- Profile basis: {' '.join(profile['reasons'])}")
-    lines.append("")
-    lines.append("## Frameworks")
+        lines.append(f"| Profile basis | {markdown_cell(' '.join(profile['reasons']))} |")
+    lines.extend(["", "## Framework Matrix", ""])
+    lines.append("| Priority | Framework | Score | Confidence | Review Areas | Assumptions |")
+    lines.append("|---|---|---:|---|---|---|")
     for candidate in output.get("applicability", []):
+        assumptions = candidate.get("assumptions") or []
         lines.append(
-            f"- {candidate['display_name']}: score {candidate['score']}, confidence {candidate['confidence']}, review areas: {', '.join(candidate['likely_review_areas'][:4])}"
+            "| "
+            + " | ".join(
+                [
+                    score_badge(candidate["score"]),
+                    markdown_cell(candidate["display_name"]),
+                    str(candidate["score"]),
+                    confidence_badge(candidate["confidence"]),
+                    markdown_cell(", ".join(candidate["likely_review_areas"][:4]) or "-"),
+                    markdown_cell(" ".join(assumptions) or "-"),
+                ]
+            )
+            + " |"
         )
-        if candidate.get("assumptions"):
-            lines.append(f"  Assumptions: {' '.join(candidate['assumptions'])}")
     if output.get("priority_review_areas"):
-        lines.append("")
-        lines.append("## Priority Review Areas")
+        lines.extend(["", "## Priority Review Areas", ""])
+        lines.append("| Priority | Review Area |")
+        lines.append("|---|---|")
         for area in output["priority_review_areas"]:
-            lines.append(f"- {area}")
+            lines.append(f"| 🛠️ | {markdown_cell(area)} |")
     if output.get("confidence_notes"):
-        lines.append("")
-        lines.append("## Confidence Notes")
+        lines.extend(["", "## Confidence Notes", ""])
         for note in output["confidence_notes"]:
             lines.append(f"- {note}")
     return "\n".join(lines) + "\n"
