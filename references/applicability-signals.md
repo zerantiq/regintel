@@ -42,6 +42,35 @@ Strong signals:
 Implications:
 - SEC cyber disclosure and SOX controls may be relevant
 
+### ICT Risk and Resilience (DORA)
+
+Strong signals:
+- ICT risk management, resilience testing, disaster recovery, failover, circuit breaker, business continuity, third-party risk assessments
+
+Implications:
+- DORA review likely for EU financial entities
+- Incident classification and reporting obligations
+- Third-party ICT service provider oversight
+
+### Network and Critical Infrastructure (NIS2)
+
+Strong signals:
+- firewall, WAF, DDoS protection, intrusion detection, vulnerability scanning, patch management, supply chain security
+
+Implications:
+- NIS2 review likely for EU essential or important entities
+- Incident notification obligations (24h / 72h)
+- Supply chain and vulnerability management
+
+### AI Risk Management (NIST AI RMF)
+
+Strong signals:
+- model cards, dataset cards, bias evaluation, fairness testing, explainability, AI impact assessments
+
+Implications:
+- NIST AI RMF alignment recommended for U.S. AI deployments
+- Complements EU AI Act obligations for dual-jurisdiction operations
+
 ## Company Context Signals
 
 Increase confidence when company facts confirm:
@@ -60,6 +89,10 @@ Increase confidence when company facts confirm:
   - raises EU AI Act and privacy review
 - `regulated_claims`
   - diagnostic, treatment, or device-control claims raise FDA relevance
+- `financial_entity`
+  - financial-entity status raises DORA relevance
+- `essential_service` / `important_entity`
+  - essential or important entity status raises NIS2 relevance
 
 ## Codebase Signals by Theme
 

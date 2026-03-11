@@ -21,6 +21,9 @@ FRAMEWORKS = {
     "fda-software": "FDA Software / SaMD",
     "sec-cyber-disclosure": "SEC Cyber Disclosure",
     "sox": "SOX",
+    "dora": "DORA",
+    "nis2": "NIS2",
+    "nist-ai-rmf": "NIST AI RMF",
 }
 
 EXCLUDED_DIRS = {
@@ -134,6 +137,37 @@ MAX_EVIDENCE_PER_SIGNAL = 6
 MAX_SNIPPET_CHARS = 180
 DEFERRED_MARKERS = ("todo", "fixme", "tbd", "later", "not implemented", "future work")
 
+# Evidence-class weighting: source code and config are stronger signals than docs/comments
+EVIDENCE_WEIGHTS = {
+    "source": 1.0,
+    "config": 0.9,
+    "infra": 0.85,
+    "docs": 0.4,
+    "comment": 0.3,
+}
+
+# Suffixes that indicate documentation or prose rather than executable code
+DOC_SUFFIXES = {".md", ".txt", ".rst", ".adoc", ".html"}
+
+# Comment line prefixes by language (used for evidence-class downweighting)
+COMMENT_PREFIXES = ("#", "//", "/*", "*", "--", "<!--")
+
+
+def classify_evidence(path: Path, line: str) -> str:
+    """Classify the evidence class of a match for weighting purposes."""
+    suffix = path.suffix.lower()
+    stripped = line.strip()
+    if suffix in DOC_SUFFIXES:
+        return "docs"
+    if stripped.startswith(COMMENT_PREFIXES):
+        return "comment"
+    if suffix in {".yaml", ".yml", ".toml", ".ini", ".cfg", ".conf", ".env", ".json"}:
+        return "config"
+    if suffix in {".tf", ".bicep", ".hcl"} or path.name.lower() in {"dockerfile", "helm", "kustomization.yaml"}:
+        return "infra"
+    return "source"
+
+
 SIGNAL_DEFINITIONS = [
     {
         "id": "ai-model-integration",
@@ -154,7 +188,7 @@ SIGNAL_DEFINITIONS = [
             r"\bprompt(_template|s)?\b",
             r"\bchat\.completions\b",
         ],
-        "framework_weights": {"eu-ai-act": 9, "gdpr": 4, "us-state-privacy": 3},
+        "framework_weights": {"eu-ai-act": 9, "gdpr": 4, "us-state-privacy": 3, "nist-ai-rmf": 6},
         "product_labels": ["ai-enabled-software"],
         "base_confidence": 0.9,
         "review_areas": ["AI inventory", "transparency", "logging and monitoring", "vendor controls"],
@@ -399,12 +433,137 @@ SIGNAL_DEFINITIONS = [
             r"\bclinical decision\b",
             r"\b510\(k\)\b",
             r"\biec 62304\b",
-            r"\bdevice telemetry\b",
+            r"\bmedical.{0,20}telemetry\b",
         ],
         "framework_weights": {"fda-software": 10, "hipaa": 4},
         "product_labels": ["clinical-or-device-software"],
         "base_confidence": 0.88,
         "review_areas": ["Intended use", "validation", "traceability", "change control"],
+    },
+    {
+        "id": "encryption-key-management",
+        "category": "security",
+        "title": "Encryption or key management",
+        "summary": "The repo includes encryption configuration, certificate handling, or key management.",
+        "patterns": [
+            r"\baes[- ]?256\b",
+            r"\btls\b",
+            r"\bssl\b",
+            r"\bcertificate\b",
+            r"\bkms\b",
+            r"\bkey[- ]?vault\b",
+            r"\bencrypt(ion|ed)?\b",
+            r"\bhash(ing|ed)?\b",
+            r"\bbcrypt\b",
+            r"\bsecret[- ]?manager\b",
+        ],
+        "framework_weights": {"gdpr": 3, "hipaa": 4, "dora": 4, "nis2": 4, "sec-cyber-disclosure": 2},
+        "product_labels": [],
+        "base_confidence": 0.7,
+        "review_areas": ["Key rotation", "encryption at rest and in transit", "certificate management"],
+        "skip_deferred": True,
+    },
+    {
+        "id": "iac-deployment",
+        "category": "infra",
+        "title": "Infrastructure-as-code or deployment config",
+        "summary": "The repo includes infrastructure definitions, container configs, or deployment manifests.",
+        "patterns": [
+            r"\bterraform\b",
+            r"\bbicep\b",
+            r"\bcloudformation\b",
+            r"\bhelm\b",
+            r"\bkustomize\b",
+            r"\bkubernetes\b",
+            r"\bdockerfile\b",
+            r"\bdocker-compose\b",
+        ],
+        "framework_weights": {"dora": 3, "nis2": 3, "sec-cyber-disclosure": 2},
+        "product_labels": [],
+        "base_confidence": 0.65,
+        "review_areas": ["Change management", "environment isolation", "secret injection"],
+        "skip_deferred": True,
+    },
+    {
+        "id": "financial-reporting",
+        "category": "finance",
+        "title": "Financial reporting or controls",
+        "summary": "The repo includes financial systems, reporting, or internal-controls evidence.",
+        "patterns": [
+            r"\bgeneral ledger\b",
+            r"\bjournal entr(y|ies)\b",
+            r"\berp\b",
+            r"\bsegregation of duties\b",
+            r"\bapproval workflow\b",
+            r"\bfinancial report\b",
+            r"\breconciliation\b",
+        ],
+        "framework_weights": {"sox": 8, "sec-cyber-disclosure": 4, "dora": 3},
+        "product_labels": ["disclosure-sensitive-operations"],
+        "base_confidence": 0.78,
+        "review_areas": ["Access control", "approval evidence", "audit trails", "change management"],
+    },
+    {
+        "id": "ict-risk-management",
+        "category": "resilience",
+        "title": "ICT risk management or resilience controls",
+        "summary": "The repo includes ICT risk management, resilience testing, or third-party ICT oversight.",
+        "patterns": [
+            r"\bdora\b",
+            r"\bict[_ -]?risk\b",
+            r"\bresilience[_ -]?test(ing)?\b",
+            r"\bbusiness[_ -]?continuity\b",
+            r"\bdisaster[_ -]?recovery\b",
+            r"\bfailover\b",
+            r"\bcircuit[_ -]?breaker\b",
+            r"\bthird[_ -]?party[_ -]?risk\b",
+        ],
+        "framework_weights": {"dora": 9, "nis2": 5, "sec-cyber-disclosure": 3},
+        "product_labels": [],
+        "base_confidence": 0.74,
+        "review_areas": ["ICT risk framework", "resilience testing", "third-party oversight", "incident reporting"],
+    },
+    {
+        "id": "network-critical-infra",
+        "category": "resilience",
+        "title": "Network security or critical infrastructure controls",
+        "summary": "The repo includes network security, supply-chain risk, or essential-service controls.",
+        "patterns": [
+            r"\bnis2\b",
+            r"\bfirewall\w*\b",
+            r"\bwaf\w*\b",
+            r"\bddos\b",
+            r"\bintrusion[_ -]?detect(ion)?\b",
+            r"\bsupply[_ -]?chain\b",
+            r"\bvulnerability[_ -]?scan(ning)?\b",
+            r"\bpatch[_ -]?management\b",
+        ],
+        "framework_weights": {"nis2": 9, "dora": 5, "sec-cyber-disclosure": 3},
+        "product_labels": [],
+        "base_confidence": 0.72,
+        "review_areas": ["Network security", "supply chain risk", "vulnerability management", "incident notification"],
+    },
+    {
+        "id": "ai-risk-management",
+        "category": "ai-controls",
+        "title": "AI risk management framework alignment",
+        "summary": "The repo includes evidence of AI risk management practices aligned with NIST AI RMF.",
+        "patterns": [
+            r"\bnist ai\b",
+            r"\bai rmf\b",
+            r"\bmodel card(s)?\b",
+            r"\bdata(set)? card(s)?\b",
+            r"\bbias\b",
+            r"\bfairness\b",
+            r"\bexplainab(le|ility)\b",
+            r"\bai impact\b",
+            r"\bai risk\b",
+        ],
+        "framework_weights": {"nist-ai-rmf": 9, "eu-ai-act": 5, "gdpr": 2},
+        "product_labels": ["ai-enabled-software"],
+        "base_confidence": 0.73,
+        "review_areas": ["AI risk assessment", "bias and fairness", "model documentation", "explainability"],
+        "skip_deferred": True,
     },
 ]
 
@@ -444,6 +603,33 @@ CONTROL_RULES = [
         "missing_rationale": "",
         "observed_rationale": "Disclosure-sensitive logging or escalation evidence was observed.",
         "confidence": 0.58,
+    },
+    {
+        "control": "ict-resilience",
+        "frameworks": ["dora"],
+        "required_if_any": ["ict-risk-management", "financial-reporting"],
+        "satisfied_by_any": ["ict-risk-management", "encryption-key-management", "incident-response"],
+        "missing_rationale": "Financial or ICT-risk signals were found, but no resilience testing, disaster recovery, or encryption evidence was observed.",
+        "observed_rationale": "ICT resilience or risk management evidence was observed.",
+        "confidence": 0.62,
+    },
+    {
+        "control": "network-security-controls",
+        "frameworks": ["nis2"],
+        "required_if_any": ["network-critical-infra", "web-api-service"],
+        "satisfied_by_any": ["network-critical-infra", "encryption-key-management", "incident-response"],
+        "missing_rationale": "Network or web service signals were found, but no firewall, vulnerability scanning, or supply-chain security evidence was observed.",
+        "observed_rationale": "Network security or vulnerability management evidence was observed.",
+        "confidence": 0.60,
+    },
+    {
+        "control": "ai-risk-governance",
+        "frameworks": ["nist-ai-rmf"],
+        "required_if_any": ["ai-model-integration"],
+        "satisfied_by_any": ["ai-risk-management", "ai-governance-controls"],
+        "missing_rationale": "AI model integration was found, but no model cards, bias evaluation, fairness testing, or AI risk management evidence was observed.",
+        "observed_rationale": "AI risk management or governance evidence was observed.",
+        "confidence": 0.65,
     },
 ]
 
@@ -629,12 +815,14 @@ def scan_files(files: list[Path], root: Path, focus: str | None) -> tuple[list[d
                 if len(signal["evidence"]) >= MAX_EVIDENCE_PER_SIGNAL:
                     signal["_matched_terms"].update(matches)
                     continue
+                evidence_class = classify_evidence(file_path, line)
                 signal["evidence"].append(
                     {
                         "path": make_relative(file_path, root),
                         "line": line_number,
                         "match": snippet,
                         "patterns": sorted({match.lower() for match in matches}),
+                        "evidence_class": evidence_class,
                     }
                 )
                 signal["_matched_terms"].update(matches)
@@ -648,8 +836,11 @@ def scan_files(files: list[Path], root: Path, focus: str | None) -> tuple[list[d
         signal["matched_terms"] = matched_terms
         materialized_signals.append(signal)
         evidence_factor = min(len(signal["evidence"]) / 3.0, 1.0)
+        # Weight by strongest evidence class — source/config evidence counts more than docs/comments
+        class_weights = [EVIDENCE_WEIGHTS.get(ev.get("evidence_class", "source"), 1.0) for ev in signal["evidence"]]
+        best_class_weight = max(class_weights) if class_weights else 1.0
         for framework, weight in definition["framework_weights"].items():
-            framework_scores[framework] += weight * (0.6 + 0.4 * evidence_factor)
+            framework_scores[framework] += weight * (0.6 + 0.4 * evidence_factor) * best_class_weight
         for label in definition["product_labels"]:
             label_reasons[label].append(definition["title"])
 

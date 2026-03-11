@@ -1,0 +1,541 @@
+{
+  "scan": {
+    "path": "tests/fixtures/repos/fintech",
+    "scope": "full",
+    "focus": null,
+    "scanned_files": 3,
+    "excluded_files": 0
+  },
+  "product_profile": {
+    "labels": [
+      "saas-service",
+      "personal-data-processing",
+      "disclosure-sensitive-operations"
+    ],
+    "confidence": 0.69,
+    "reasons": [
+      "saas service inferred from: Web application or API service.",
+      "personal data processing inferred from: Personal-data processing.",
+      "disclosure sensitive operations inferred from: Financial reporting or controls, Incident, breach, or disclosure workflow."
+    ]
+  },
+  "signals": [
+    {
+      "id": "web-api-service",
+      "category": "service",
+      "title": "Web application or API service",
+      "frameworks": [
+        "gdpr",
+        "sec-cyber-disclosure",
+        "us-state-privacy"
+      ],
+      "confidence": 0.68,
+      "summary": "The repo looks like a hosted application or API service.",
+      "review_areas": [
+        "Data inventory",
+        "access control",
+        "vendor management"
+      ],
+      "evidence": [
+        {
+          "path": "package.json",
+          "line": 6,
+          "match": "\"express\": \"^4.18.0\",",
+          "patterns": [
+            "express"
+          ],
+          "evidence_class": "config"
+        }
+      ],
+      "matched_terms": [
+        "express"
+      ]
+    },
+    {
+      "id": "personal-data-processing",
+      "category": "privacy",
+      "title": "Personal-data processing",
+      "frameworks": [
+        "gdpr",
+        "hipaa",
+        "us-state-privacy"
+      ],
+      "confidence": 0.77,
+      "summary": "The repo handles user or customer personal data fields.",
+      "review_areas": [
+        "Lawful basis",
+        "retention",
+        "data subject rights",
+        "security controls"
+      ],
+      "evidence": [
+        {
+          "path": "services/transaction_service.py",
+          "line": 13,
+          "match": "def process_payment(self, customer_id: str, amount: float) -> dict[str, Any]:",
+          "patterns": [
+            "customer_id"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/transaction_service.py",
+          "line": 14,
+          "match": "encrypted = hashlib.sha256(customer_id.encode()).hexdigest()",
+          "patterns": [
+            "customer_id"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/transaction_service.py",
+          "line": 17,
+          "match": "\"customer\": customer_id,",
+          "patterns": [
+            "customer_id"
+          ],
+          "evidence_class": "source"
+        }
+      ],
+      "matched_terms": [
+        "customer_id"
+      ]
+    },
+    {
+      "id": "incident-response",
+      "category": "security",
+      "title": "Incident, breach, or disclosure workflow",
+      "frameworks": [
+        "gdpr",
+        "hipaa",
+        "sec-cyber-disclosure",
+        "sox"
+      ],
+      "confidence": 0.76,
+      "summary": "The repo contains incident response, breach, or disclosure process evidence.",
+      "review_areas": [
+        "Escalation",
+        "investigation support",
+        "disclosure readiness"
+      ],
+      "evidence": [
+        {
+          "path": "security/incident_plan.py",
+          "line": 1,
+          "match": "\"\"\"Incident response and security escalation procedures.\"\"\"",
+          "patterns": [
+            "incident response",
+            "security escalation"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "security/incident_plan.py",
+          "line": 5,
+          "match": "\"escalation_path\": [\"on-call engineer\", \"security lead\", \"disclosure committee\"],",
+          "patterns": [
+            "disclosure committee"
+          ],
+          "evidence_class": "source"
+        }
+      ],
+      "matched_terms": [
+        "disclosure committee",
+        "incident response",
+        "security escalation"
+      ]
+    },
+    {
+      "id": "encryption-key-management",
+      "category": "security",
+      "title": "Encryption or key management",
+      "frameworks": [
+        "dora",
+        "gdpr",
+        "hipaa",
+        "nis2",
+        "sec-cyber-disclosure"
+      ],
+      "confidence": 0.7,
+      "summary": "The repo includes encryption configuration, certificate handling, or key management.",
+      "review_areas": [
+        "Key rotation",
+        "encryption at rest and in transit",
+        "certificate management"
+      ],
+      "evidence": [
+        {
+          "path": "services/transaction_service.py",
+          "line": 14,
+          "match": "encrypted = hashlib.sha256(customer_id.encode()).hexdigest()",
+          "patterns": [
+            "encrypted"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/transaction_service.py",
+          "line": 15,
+          "match": "audit_log.info(\"payment processed for customer %s, amount %.2f\", encrypted, amount)",
+          "patterns": [
+            "encrypted"
+          ],
+          "evidence_class": "source"
+        }
+      ],
+      "matched_terms": [
+        "encrypted"
+      ]
+    },
+    {
+      "id": "financial-reporting",
+      "category": "finance",
+      "title": "Financial reporting or controls",
+      "frameworks": [
+        "dora",
+        "sec-cyber-disclosure",
+        "sox"
+      ],
+      "confidence": 0.78,
+      "summary": "The repo includes financial systems, reporting, or internal-controls evidence.",
+      "review_areas": [
+        "Access control",
+        "approval evidence",
+        "audit trails",
+        "change management"
+      ],
+      "evidence": [
+        {
+          "path": "services/transaction_service.py",
+          "line": 20,
+          "match": "\"reconciliation\": \"pending\",",
+          "patterns": [
+            "reconciliation"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/transaction_service.py",
+          "line": 33,
+          "match": "return {\"period\": period, \"status\": \"reconciliation complete\"}",
+          "patterns": [
+            "reconciliation"
+          ],
+          "evidence_class": "source"
+        }
+      ],
+      "matched_terms": [
+        "reconciliation"
+      ]
+    },
+    {
+      "id": "ict-risk-management",
+      "category": "resilience",
+      "title": "ICT risk management or resilience controls",
+      "frameworks": [
+        "dora",
+        "nis2",
+        "sec-cyber-disclosure"
+      ],
+      "confidence": 0.74,
+      "summary": "The repo includes ICT risk management, resilience testing, or third-party ICT oversight.",
+      "review_areas": [
+        "ICT risk framework",
+        "resilience testing",
+        "third-party oversight",
+        "incident reporting"
+      ],
+      "evidence": [
+        {
+          "path": "security/incident_plan.py",
+          "line": 8,
+          "match": "\"business_continuity\": {",
+          "patterns": [
+            "business_continuity"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "security/incident_plan.py",
+          "line": 9,
+          "match": "\"failover\": \"active-passive\",",
+          "patterns": [
+            "failover"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "security/incident_plan.py",
+          "line": 10,
+          "match": "\"disaster_recovery\": \"RPO 1h, RTO 4h\",",
+          "patterns": [
+            "disaster_recovery"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "security/incident_plan.py",
+          "line": 11,
+          "match": "\"resilience_testing\": \"quarterly\",",
+          "patterns": [
+            "resilience_testing"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "security/incident_plan.py",
+          "line": 15,
+          "match": "THIRD_PARTY_RISK = {",
+          "patterns": [
+            "third_party_risk"
+          ],
+          "evidence_class": "source"
+        }
+      ],
+      "matched_terms": [
+        "business_continuity",
+        "disaster_recovery",
+        "failover",
+        "resilience_testing",
+        "third_party_risk"
+      ]
+    }
+  ],
+  "control_observations": [
+    {
+      "control": "privacy-user-controls",
+      "status": "not-observed",
+      "frameworks": [
+        "gdpr",
+        "us-state-privacy"
+      ],
+      "confidence": 0.64,
+      "rationale": "Personal-data or tracking signals were found, but no privacy-notice, consent, deletion/export, or retention evidence was observed.",
+      "evidence": [
+        {
+          "path": "services/transaction_service.py",
+          "line": 13,
+          "match": "def process_payment(self, customer_id: str, amount: float) -> dict[str, Any]:",
+          "patterns": [
+            "customer_id"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/transaction_service.py",
+          "line": 14,
+          "match": "encrypted = hashlib.sha256(customer_id.encode()).hexdigest()",
+          "patterns": [
+            "customer_id"
+          ],
+          "evidence_class": "source"
+        }
+      ]
+    },
+    {
+      "control": "disclosure-readiness",
+      "status": "observed",
+      "frameworks": [
+        "sec-cyber-disclosure",
+        "sox"
+      ],
+      "confidence": 0.58,
+      "rationale": "Disclosure-sensitive logging or escalation evidence was observed.",
+      "evidence": [
+        {
+          "path": "security/incident_plan.py",
+          "line": 1,
+          "match": "\"\"\"Incident response and security escalation procedures.\"\"\"",
+          "patterns": [
+            "incident response",
+            "security escalation"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "security/incident_plan.py",
+          "line": 5,
+          "match": "\"escalation_path\": [\"on-call engineer\", \"security lead\", \"disclosure committee\"],",
+          "patterns": [
+            "disclosure committee"
+          ],
+          "evidence_class": "source"
+        }
+      ]
+    },
+    {
+      "control": "ict-resilience",
+      "status": "observed",
+      "frameworks": [
+        "dora"
+      ],
+      "confidence": 0.62,
+      "rationale": "ICT resilience or risk management evidence was observed.",
+      "evidence": [
+        {
+          "path": "security/incident_plan.py",
+          "line": 8,
+          "match": "\"business_continuity\": {",
+          "patterns": [
+            "business_continuity"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "security/incident_plan.py",
+          "line": 9,
+          "match": "\"failover\": \"active-passive\",",
+          "patterns": [
+            "failover"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/transaction_service.py",
+          "line": 14,
+          "match": "encrypted = hashlib.sha256(customer_id.encode()).hexdigest()",
+          "patterns": [
+            "encrypted"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/transaction_service.py",
+          "line": 15,
+          "match": "audit_log.info(\"payment processed for customer %s, amount %.2f\", encrypted, amount)",
+          "patterns": [
+            "encrypted"
+          ],
+          "evidence_class": "source"
+        }
+      ]
+    },
+    {
+      "control": "network-security-controls",
+      "status": "observed",
+      "frameworks": [
+        "nis2"
+      ],
+      "confidence": 0.6,
+      "rationale": "Network security or vulnerability management evidence was observed.",
+      "evidence": [
+        {
+          "path": "services/transaction_service.py",
+          "line": 14,
+          "match": "encrypted = hashlib.sha256(customer_id.encode()).hexdigest()",
+          "patterns": [
+            "encrypted"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/transaction_service.py",
+          "line": 15,
+          "match": "audit_log.info(\"payment processed for customer %s, amount %.2f\", encrypted, amount)",
+          "patterns": [
+            "encrypted"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "security/incident_plan.py",
+          "line": 1,
+          "match": "\"\"\"Incident response and security escalation procedures.\"\"\"",
+          "patterns": [
+            "incident response",
+            "security escalation"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "security/incident_plan.py",
+          "line": 5,
+          "match": "\"escalation_path\": [\"on-call engineer\", \"security lead\", \"disclosure committee\"],",
+          "patterns": [
+            "disclosure committee"
+          ],
+          "evidence_class": "source"
+        }
+      ]
+    }
+  ],
+  "candidate_frameworks": [
+    {
+      "framework": "gdpr",
+      "display_name": "GDPR",
+      "score": 84,
+      "confidence": 0.95,
+      "reasons": [
+        "Encryption or key management evidence was detected.",
+        "Incident, breach, or disclosure workflow evidence was detected.",
+        "Personal-data processing evidence was detected.",
+        "Web application or API service evidence was detected."
+      ]
+    },
+    {
+      "framework": "sec-cyber-disclosure",
+      "display_name": "SEC Cyber Disclosure",
+      "score": 82,
+      "confidence": 0.95,
+      "reasons": [
+        "Encryption or key management evidence was detected.",
+        "Financial reporting or controls evidence was detected.",
+        "ICT risk management or resilience controls evidence was detected.",
+        "Incident, breach, or disclosure workflow evidence was detected.",
+        "Web application or API service evidence was detected."
+      ]
+    },
+    {
+      "framework": "dora",
+      "display_name": "DORA",
+      "score": 75,
+      "confidence": 0.95,
+      "reasons": [
+        "Encryption or key management evidence was detected.",
+        "Financial reporting or controls evidence was detected.",
+        "ICT risk management or resilience controls evidence was detected."
+      ]
+    },
+    {
+      "framework": "us-state-privacy",
+      "display_name": "U.S. State Privacy",
+      "score": 53,
+      "confidence": 0.79,
+      "reasons": [
+        "Personal-data processing evidence was detected.",
+        "Web application or API service evidence was detected."
+      ]
+    },
+    {
+      "framework": "sox",
+      "display_name": "SOX",
+      "score": 52,
+      "confidence": 0.78,
+      "reasons": [
+        "Financial reporting or controls evidence was detected.",
+        "Incident, breach, or disclosure workflow evidence was detected."
+      ]
+    },
+    {
+      "framework": "nis2",
+      "display_name": "NIS2",
+      "score": 42,
+      "confidence": 0.7,
+      "reasons": [
+        "Encryption or key management evidence was detected.",
+        "ICT risk management or resilience controls evidence was detected."
+      ]
+    },
+    {
+      "framework": "hipaa",
+      "display_name": "HIPAA",
+      "score": 40,
+      "confidence": 0.68,
+      "reasons": [
+        "Encryption or key management evidence was detected.",
+        "Incident, breach, or disclosure workflow evidence was detected.",
+        "Personal-data processing evidence was detected."
+      ]
+    }
+  ]
+}

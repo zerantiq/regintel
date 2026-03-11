@@ -118,6 +118,8 @@ class RegintelRegressionTests(unittest.TestCase):
         labels = {item["id"]: item["warning_label"] for item in result["developments"]}
         self.assertEqual(labels["eu-ai-act-gpai"], "Upcoming Change")
         self.assertEqual(labels["gdpr-retention-review"], "Action Needed Soon")
+        self.assertEqual(labels["dora-full-application"], "Critical Deadline")
+        self.assertEqual(labels["nis2-transposition"], "Upcoming Change")
 
     def test_example_change_diff_reports_added_and_changed_items(self) -> None:
         result = run_json_script(
@@ -132,6 +134,68 @@ class RegintelRegressionTests(unittest.TestCase):
         self.assertTrue(result["collections"]["signals"]["added"])
         self.assertTrue(result["collections"]["candidate_frameworks"]["changed"])
         self.assertTrue(result["collections"]["applicability"]["changed"])
+
+    def test_fintech_scan_detects_sox_dora_and_financial_signals(self) -> None:
+        result = run_json_script("repo_signal_scan.py", "--path", str(FIXTURES_ROOT / "fintech"), "--scope", "full")
+        frameworks = {item["framework"]: item["score"] for item in result["candidate_frameworks"]}
+        signal_ids = [signal["id"] for signal in result["signals"]]
+
+        # Financial reporting and ICT risk signals should be detected
+        self.assertIn("financial-reporting", signal_ids)
+        self.assertIn("ict-risk-management", signal_ids)
+        self.assertIn("incident-response", signal_ids)
+        self.assertIn("encryption-key-management", signal_ids)
+
+        # SOX and DORA frameworks should be present with meaningful scores
+        self.assertIn("sox", frameworks)
+        self.assertIn("dora", frameworks)
+        self.assertGreaterEqual(frameworks["sox"], 40)
+        self.assertGreaterEqual(frameworks["dora"], 50)
+
+        # ICT resilience control should be satisfied
+        controls = {item["control"]: item["status"] for item in result["control_observations"]}
+        self.assertEqual(controls["ict-resilience"], "observed")
+        self.assertEqual(controls["disclosure-readiness"], "observed")
+
+    def test_iot_scan_detects_nis2_and_network_signals(self) -> None:
+        result = run_json_script("repo_signal_scan.py", "--path", str(FIXTURES_ROOT / "iot"), "--scope", "full")
+        frameworks = {item["framework"]: item["score"] for item in result["candidate_frameworks"]}
+        signal_ids = [signal["id"] for signal in result["signals"]]
+
+        # Network-critical-infra and encryption signals should be detected
+        self.assertIn("network-critical-infra", signal_ids)
+        self.assertIn("encryption-key-management", signal_ids)
+
+        # NIS2 should be the top-scoring framework
+        self.assertIn("nis2", frameworks)
+        self.assertGreaterEqual(frameworks["nis2"], 50)
+
+        # Medical-device-claims should NOT fire on generic IoT device telemetry
+        self.assertNotIn("medical-device-claims", signal_ids)
+
+    def test_evidence_class_tracking_in_scan_output(self) -> None:
+        result = run_json_script("repo_signal_scan.py", "--path", str(FIXTURES_ROOT / "ai-saas"), "--scope", "full")
+        for signal in result["signals"]:
+            for evidence in signal["evidence"]:
+                self.assertIn("evidence_class", evidence)
+                self.assertIn(evidence["evidence_class"], {"source", "config", "infra", "docs", "comment"})
+
+    def test_new_frameworks_appear_in_applicability_scoring(self) -> None:
+        scan_result = run_json_script("repo_signal_scan.py", "--path", str(FIXTURES_ROOT / "fintech"), "--scope", "full")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            scan_path = Path(tmpdir) / "scan.json"
+            scan_path.write_text(json.dumps(scan_result), encoding="utf-8")
+            result = run_json_script("applicability_score.py", "--signals", str(scan_path))
+        frameworks = {item["framework"]: item for item in result["applicability"]}
+        self.assertIn("dora", frameworks)
+        self.assertIn("assumptions", frameworks["dora"])
+
+    def test_focus_flag_filters_to_single_new_framework(self) -> None:
+        result = run_json_script("repo_signal_scan.py", "--path", str(FIXTURES_ROOT / "fintech"), "--scope", "full", "--focus", "dora")
+        for signal in result["signals"]:
+            self.assertIn("dora", signal["frameworks"])
+        for candidate in result["candidate_frameworks"]:
+            self.assertEqual(candidate["framework"], "dora")
 
 
 if __name__ == "__main__":

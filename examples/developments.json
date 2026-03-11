@@ -27,6 +27,34 @@
           "kind": "reporting"
         }
       ]
+    },
+    {
+      "id": "dora-full-application",
+      "framework": "DORA",
+      "title": "Full application of DORA requirements",
+      "stage": "effective",
+      "timing": "current",
+      "milestones": [
+        {
+          "label": "enforcement-start",
+          "date": "2025-01-17",
+          "kind": "enforcement"
+        }
+      ]
+    },
+    {
+      "id": "nis2-transposition",
+      "framework": "NIS2",
+      "title": "NIS2 member state transposition deadline",
+      "stage": "adopted",
+      "timing": "upcoming",
+      "milestones": [
+        {
+          "label": "transposition-deadline",
+          "date": "2026-10-18",
+          "kind": "effective"
+        }
+      ]
     }
   ]
 }

@@ -91,6 +91,81 @@ Potential review areas:
 - software lifecycle controls
 - change control
 
+### Encryption and Key Management
+
+Example evidence:
+- AES-256, TLS configuration, SSL certificates
+- KMS, Key Vault, secret manager integrations
+- bcrypt, hashing, encryption-at-rest settings
+
+Potential review areas:
+- key rotation policies
+- encryption at rest and in transit
+- certificate management and expiry
+
+### Infrastructure-as-Code and Deployment
+
+Example evidence:
+- Terraform, Bicep, CloudFormation, Helm, Kustomize
+- Dockerfile, docker-compose configurations
+- Kubernetes manifests, deployment pipelines
+
+Potential review areas:
+- change management and drift detection
+- environment isolation
+- secret injection and management
+
+### Financial Reporting and Internal Controls
+
+Example evidence:
+- general ledger, journal entries, ERP integrations
+- segregation of duties, approval workflows
+- financial reports, reconciliation logic
+
+Potential review areas:
+- access control and least privilege
+- approval evidence and audit trails
+- change management
+
+### ICT Risk and Resilience (DORA)
+
+Example evidence:
+- ICT risk management policies, resilience testing, disaster recovery plans
+- failover, circuit breaker, business continuity
+- third-party risk assessments
+
+Potential review areas:
+- ICT risk framework completeness
+- resilience and penetration testing
+- third-party ICT oversight
+- incident classification and reporting
+
+### Network Security and Critical Infrastructure (NIS2)
+
+Example evidence:
+- firewall rules, WAF configuration, DDoS protection
+- intrusion detection, vulnerability scanning, patch management
+- supply chain security, SBOM generation
+
+Potential review areas:
+- network security policies
+- supply chain risk management
+- vulnerability handling and disclosure
+- incident notification compliance
+
+### AI Risk Management (NIST AI RMF)
+
+Example evidence:
+- model cards, dataset cards, bias evaluation
+- fairness testing, explainability documentation
+- AI impact assessments, AI risk documentation
+
+Potential review areas:
+- AI risk assessment and categorization
+- bias and fairness evaluation
+- model documentation and transparency
+- continuous monitoring
+
 ## Absence-Based Findings
 
 Use “not observed” findings only when a relevant feature is clearly present.

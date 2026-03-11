@@ -30,7 +30,8 @@ All scripts use UTF-8 JSON files as input. Dates use `YYYY-MM-DD`.
           "path": "services/llm/client.py",
           "line": 12,
           "match": "from openai import OpenAI",
-          "patterns": ["openai"]
+          "patterns": ["openai"],
+          "evidence_class": "source"
         }
       ],
       "summary": "The repo integrates external model services or orchestration tooling."
@@ -73,7 +74,9 @@ Pass the JSON file produced by `repo_signal_scan.py`.
   "uses_ai": true,
   "customers": ["enterprise", "healthcare"],
   "deployment_model": "hosted-saas",
-  "regulated_claims": []
+  "regulated_claims": [],
+  "financial_entity": false,
+  "essential_service": false
 }
 ```
 

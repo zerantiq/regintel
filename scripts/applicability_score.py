@@ -38,6 +38,18 @@ FRAMEWORK_DETAILS = {
         "display_name": "SOX",
         "review_areas": ["Change management", "privileged access", "audit trails", "approval evidence"],
     },
+    "dora": {
+        "display_name": "DORA",
+        "review_areas": ["ICT risk framework", "resilience testing", "third-party oversight", "incident reporting"],
+    },
+    "nis2": {
+        "display_name": "NIS2",
+        "review_areas": ["Network security", "supply chain risk", "vulnerability management", "incident notification"],
+    },
+    "nist-ai-rmf": {
+        "display_name": "NIST AI RMF",
+        "review_areas": ["AI risk assessment", "bias and fairness", "model documentation", "explainability"],
+    },
 }
 
 
@@ -70,10 +82,13 @@ def company_boosts(company: dict[str, Any] | None) -> tuple[dict[str, int], list
     if company.get("uses_ai"):
         boosts["eu-ai-act"] += 16
         boosts["gdpr"] += 6
+        boosts["nist-ai-rmf"] += 12
         notes.append("Company context confirms AI use.")
     if "EU" in jurisdictions or any(value.startswith("EU-") for value in jurisdictions):
         boosts["gdpr"] += 14
         boosts["eu-ai-act"] += 10
+        boosts["dora"] += 8
+        boosts["nis2"] += 8
         notes.append("Company context includes EU exposure.")
     if any(value.startswith("US-") for value in jurisdictions) or "US" in jurisdictions:
         boosts["us-state-privacy"] += 10
@@ -90,7 +105,15 @@ def company_boosts(company: dict[str, Any] | None) -> tuple[dict[str, int], list
     if deployment_model == "hosted-saas":
         boosts["gdpr"] += 6
         boosts["us-state-privacy"] += 6
-        notes.append("Hosted SaaS deployment increases direct operational privacy exposure.")
+        boosts["nis2"] += 4
+        notes.append("Hosted SaaS deployment increases direct operational/privacy exposure.")
+    if company.get("financial_entity"):
+        boosts["dora"] += 20
+        boosts["sec-cyber-disclosure"] += 6
+        notes.append("Company context indicates financial-entity status (DORA scope).")
+    if company.get("essential_service") or company.get("important_entity"):
+        boosts["nis2"] += 18
+        notes.append("Company context indicates essential or important entity status (NIS2 scope).")
     return boosts, notes
 
 
@@ -146,6 +169,12 @@ def assumptions_for(framework: str, company: dict[str, Any] | None) -> list[str]
         assumptions.append("Device or clinical intended-use claims are not confirmed.")
     if framework in {"gdpr", "eu-ai-act"} and "EU" not in {str(v).upper() for v in (company or {}).get("jurisdictions", [])}:
         assumptions.append("EU establishment or EU-user exposure is inferred from product signals, not confirmed.")
+    if framework == "dora" and not (company or {}).get("financial_entity"):
+        assumptions.append("Financial-entity status under DORA is not confirmed.")
+    if framework == "nis2" and not ((company or {}).get("essential_service") or (company or {}).get("important_entity")):
+        assumptions.append("Essential or important entity status under NIS2 is not confirmed.")
+    if framework == "nist-ai-rmf" and not (company or {}).get("uses_ai"):
+        assumptions.append("AI system deployment is inferred from repo signals, not confirmed.")
     return assumptions
 
 

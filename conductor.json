@@ -12,7 +12,7 @@
       "name": "regintel",
       "version": "0.1.0",
       "source": ".",
-      "description": "Scan any codebase for regulatory compliance signals across EU AI Act, GDPR, HIPAA, SEC cyber disclosure, FDA, SOX, and global privacy regimes. Also tracks regulatory developments and deadlines."
+      "description": "Scan any codebase for regulatory compliance signals across EU AI Act, GDPR, HIPAA, SEC cyber disclosure, FDA, SOX, DORA, NIS2, NIST AI RMF, and global privacy regimes. Also tracks regulatory developments and deadlines."
     }
   ]
 }

@@ -1,0 +1,157 @@
+{
+  "scan": {
+    "path": "tests/fixtures/repos/healthcare",
+    "scope": "full",
+    "focus": null,
+    "scanned_files": 2,
+    "excluded_files": 0
+  },
+  "product_profile": {
+    "labels": [
+      "healthcare-software"
+    ],
+    "confidence": 0.53,
+    "reasons": [
+      "healthcare software inferred from: Healthcare, PHI, or clinical data handling."
+    ]
+  },
+  "signals": [
+    {
+      "id": "healthcare-data",
+      "category": "healthcare",
+      "title": "Healthcare, PHI, or clinical data handling",
+      "frameworks": [
+        "fda-software",
+        "gdpr",
+        "hipaa"
+      ],
+      "confidence": 0.9,
+      "summary": "The repo appears to support healthcare workflows or PHI-like data.",
+      "review_areas": [
+        "Access control",
+        "audit trails",
+        "vendor logging",
+        "minimum necessary"
+      ],
+      "evidence": [
+        {
+          "path": "app/patient_service.py",
+          "line": 3,
+          "match": "FHIR_ENDPOINT = \"/fhir/Patient\"",
+          "patterns": [
+            "fhir",
+            "patient"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "app/patient_service.py",
+          "line": 7,
+          "match": "def create_encounter(self, patient_id: str, diagnosis: str) -> dict[str, Any]:",
+          "patterns": [
+            "diagnosis"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "app/patient_service.py",
+          "line": 9,
+          "match": "\"patient\": patient_id,",
+          "patterns": [
+            "patient"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "app/patient_service.py",
+          "line": 10,
+          "match": "\"diagnosis\": diagnosis,",
+          "patterns": [
+            "diagnosis"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "docs/clinical-workflow.md",
+          "line": 3,
+          "match": "This service stores patient encounter data and exports FHIR resources to provider systems.",
+          "patterns": [
+            "encounter",
+            "fhir",
+            "patient",
+            "provider"
+          ],
+          "evidence_class": "docs"
+        }
+      ],
+      "matched_terms": [
+        "diagnosis",
+        "encounter",
+        "fhir",
+        "patient",
+        "provider"
+      ]
+    }
+  ],
+  "control_observations": [
+    {
+      "control": "healthcare-safeguards",
+      "status": "not-observed",
+      "frameworks": [
+        "hipaa"
+      ],
+      "confidence": 0.67,
+      "rationale": "Healthcare-like data signals were found, but little evidence of audit logging or incident workflow support was observed.",
+      "evidence": [
+        {
+          "path": "app/patient_service.py",
+          "line": 3,
+          "match": "FHIR_ENDPOINT = \"/fhir/Patient\"",
+          "patterns": [
+            "fhir",
+            "patient"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "app/patient_service.py",
+          "line": 7,
+          "match": "def create_encounter(self, patient_id: str, diagnosis: str) -> dict[str, Any]:",
+          "patterns": [
+            "diagnosis"
+          ],
+          "evidence_class": "source"
+        }
+      ]
+    }
+  ],
+  "candidate_frameworks": [
+    {
+      "framework": "hipaa",
+      "display_name": "HIPAA",
+      "score": 50,
+      "confidence": 0.77,
+      "reasons": [
+        "Healthcare, PHI, or clinical data handling evidence was detected."
+      ]
+    },
+    {
+      "framework": "fda-software",
+      "display_name": "FDA Software / SaMD",
+      "score": 25,
+      "confidence": 0.56,
+      "reasons": [
+        "Healthcare, PHI, or clinical data handling evidence was detected."
+      ]
+    },
+    {
+      "framework": "gdpr",
+      "display_name": "GDPR",
+      "score": 15,
+      "confidence": 0.47,
+      "reasons": [
+        "Healthcare, PHI, or clinical data handling evidence was detected."
+      ]
+    }
+  ]
+}

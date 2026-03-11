@@ -102,6 +102,48 @@ Keep stage separate from timing. A rule can be effective and still have an upcom
   - approval workflows and evidence retention
 - Treat SOX as low confidence without company context.
 
+### DORA (Digital Operational Resilience Act)
+
+- Likely relevant when the entity is a financial institution or ICT third-party service provider operating in the EU.
+- Strong repo signals:
+  - ICT risk management, resilience testing, disaster recovery, failover, circuit breaker, third-party risk management, business continuity
+  - incident response with financial context, encryption, key management
+- Likely review areas:
+  - ICT risk framework and governance
+  - resilience and penetration testing
+  - third-party ICT service provider oversight
+  - incident detection, reporting, and classification
+  - information sharing arrangements
+- Financial-entity status is a major gating factor. Mark as inferred unless company context confirms.
+
+### NIS2 (Network and Information Security Directive)
+
+- Likely relevant when the entity operates essential or important services in the EU (energy, transport, health, digital infrastructure, ICT services, etc.).
+- Strong repo signals:
+  - firewall, WAF, DDoS protection, intrusion detection, vulnerability scanning, patch management, supply chain security
+  - incident notification, network security policies
+- Likely review areas:
+  - risk analysis and security policies
+  - incident handling and reporting (24h early warning, 72h notification)
+  - business continuity and crisis management
+  - supply chain security
+  - vulnerability handling and disclosure
+- Entity classification as essential or important is a major gating factor.
+
+### NIST AI RMF (AI Risk Management Framework)
+
+- Relevant when the organization deploys AI systems and wants to align with the NIST AI Risk Management Framework.
+- Strong repo signals:
+  - model cards, dataset cards, bias evaluation, fairness testing, explainability, AI impact assessments, AI risk documentation
+  - model inventory, evaluation harnesses, human oversight mechanisms
+- Likely review areas:
+  - AI risk assessment and categorization
+  - bias and fairness evaluation
+  - model documentation and transparency
+  - explainability and interpretability
+  - continuous monitoring and governance
+- NIST AI RMF is voluntary but increasingly referenced as a baseline by U.S. regulators.
+
 ## Milestone Handling
 
 - Verify dates from current authoritative sources when the user asks for live deadlines or “latest” status.

@@ -2,7 +2,7 @@
 
 > Code-aware regulatory intelligence for software repositories.
 
-Regintel helps teams inspect a software repo for likely regulatory issues, map the findings to frameworks such as the EU AI Act, GDPR, HIPAA, FDA software obligations, SEC cyber disclosure, and SOX, and turn those signals into practical next actions.
+Regintel helps teams inspect a software repo for likely regulatory issues, map the findings to frameworks such as the EU AI Act, GDPR, HIPAA, FDA software obligations, SEC cyber disclosure, SOX, DORA, NIS2, and NIST AI RMF, and turn those signals into practical next actions.
 
 ## Install as a Claude Code Skill
 
@@ -194,6 +194,7 @@ The `agents/openai.yaml` manifest enables Codex to discover and invoke the skill
 ├── CONTRIBUTING.md
 ├── SECURITY.md
 ├── CODE_OF_CONDUCT.md
+├── ROADMAP.md
 ├── LICENSE
 └── README.md
 ```
@@ -256,11 +257,17 @@ Use this sequence when reviewing the repo:
 ## Examples and Tests
 
 - `examples/` contains ready-to-run JSON inputs for deadline checks, applicability scoring, and snapshot diffs.
-- `tests/fixtures/repos/` contains three regression fixture repos:
+- `tests/fixtures/repos/` contains five regression fixture repos:
   - `ai-saas`
   - `healthcare`
   - `low-risk`
+  - `fintech`
+  - `iot`
 - `tests/test_regintel.py` asserts expected framework detection, diff-scan behavior, deadline labels, and example diff output.
+
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for the planned evolution of Regintel, including upcoming milestones for AST-based scanning, extended framework coverage, and continuous monitoring.
 
 ## Contributing
 

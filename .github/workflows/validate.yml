@@ -2,20 +2,27 @@ name: Validate
 
 on:
   push:
+    branches: [main]
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12", "3.13"]
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Validate repository structure
         run: make validate
@@ -40,6 +47,8 @@ jobs:
           assert applicability["applicability"], "Applicability output should not be empty."
           labels = {item["id"]: item["warning_label"] for item in deadlines["developments"]}
           assert labels["gdpr-retention-review"] == "Action Needed Soon"
+          assert labels["dora-full-application"] == "Critical Deadline"
+          assert labels["nis2-transposition"] == "Upcoming Change"
           changed = diff["collections"]["candidate_frameworks"]["changed"]
           added = diff["collections"]["signals"]["added"]
           assert changed, "Expected candidate framework score changes in example diff."

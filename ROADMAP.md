@@ -1,0 +1,59 @@
+# Roadmap
+
+This document outlines the planned evolution of Regintel. Priorities may shift based on community feedback and real-world scan results.
+
+## v0.2 — Stronger Heuristics and Broader Coverage
+
+Status: **in progress**
+
+Goals:
+- Reduce false positives through evidence-class weighting and dependency-noise filtering
+- Dismiss documentation-only matches that describe regulatory concepts without implementing regulated processing
+- Add new signal categories: encryption and key management, infrastructure-as-code, financial reporting controls
+- Expand framework coverage to include DORA, NIS2, and NIST AI RMF
+- Add fintech and IoT fixture repos for broader regression testing
+- Enhance CI with Python version matrix testing
+- Publish example scan reports for common repo archetypes
+
+## v0.3 — Structured Code Analysis
+
+Goals:
+- Add optional AST-based scanning for Python and TypeScript to detect data flows, not just keywords
+- Detect function-level patterns: PII field usage in return values, unlogged database writes, unencrypted storage calls
+- Support Tree-sitter or Semgrep rule integration for language-agnostic structural matching
+- Reduce false positives from comments, docstrings, and string literals that match signal patterns
+
+## v0.4 — Extended Framework and Jurisdiction Support
+
+Goals:
+- Add ISO 42001 (AI management system), CCPA/CPRA detailed rules, PCI DSS software signals
+- Support jurisdiction-specific rule variants (e.g., GDPR vs. UK GDPR, state-by-state U.S. privacy)
+- Add infrastructure scanning for Terraform, Bicep, Helm, and CloudFormation templates
+- Support Go, Java, C#, and Rust source scanning with language-specific heuristics
+
+## v0.5 — Continuous Monitoring and Reporting
+
+Goals:
+- Track scan results over time with snapshot storage and trend reporting
+- Support scheduled scans via CI integration with baseline comparison
+- Add a lightweight HTML/Markdown dashboard for scan result browsing
+- Integrate with regulatory data feeds for automatic deadline updates
+
+## v1.0 — Stable Release
+
+Goals:
+- Stable script interfaces with semantic versioning guarantees
+- Comprehensive test coverage across all supported frameworks and languages
+- Published to PyPI for `pip install` adoption
+- Full documentation site with tutorials and integration guides
+
+## Non-Goals
+
+These remain explicitly out of scope:
+- Formal legal advice or compliance certification
+- Deep runtime data-flow analysis or taint tracking
+- Replacing human legal and compliance review
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to help with any of these milestones. The most impactful near-term contributions are better heuristics with fewer false positives, new fixture repos, and stronger reference material.

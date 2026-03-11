@@ -1,0 +1,363 @@
+{
+  "scan": {
+    "path": "tests/fixtures/repos/ai-saas",
+    "scope": "full",
+    "focus": null,
+    "scanned_files": 3,
+    "excluded_files": 0
+  },
+  "product_profile": {
+    "labels": [
+      "ai-enabled-software",
+      "personal-data-processing",
+      "tracked-user-behavior"
+    ],
+    "confidence": 0.69,
+    "reasons": [
+      "ai enabled software inferred from: AI model or agent integration.",
+      "personal data processing inferred from: Personal-data processing.",
+      "tracked user behavior inferred from: Analytics or tracking stack."
+    ]
+  },
+  "signals": [
+    {
+      "id": "ai-model-integration",
+      "category": "ai",
+      "title": "AI model or agent integration",
+      "frameworks": [
+        "eu-ai-act",
+        "gdpr",
+        "nist-ai-rmf",
+        "us-state-privacy"
+      ],
+      "confidence": 0.9,
+      "summary": "The repo integrates external model services or orchestration tooling.",
+      "review_areas": [
+        "AI inventory",
+        "transparency",
+        "logging and monitoring",
+        "vendor controls"
+      ],
+      "evidence": [
+        {
+          "path": "package.json",
+          "line": 5,
+          "match": "\"openai\": \"^5.0.0\",",
+          "patterns": [
+            "openai"
+          ],
+          "evidence_class": "config"
+        },
+        {
+          "path": "services/llm/client.py",
+          "line": 1,
+          "match": "from openai import OpenAI",
+          "patterns": [
+            "openai"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/llm/client.py",
+          "line": 3,
+          "match": "client = OpenAI()",
+          "patterns": [
+            "openai"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/llm/client.py",
+          "line": 7,
+          "match": "return client.chat.completions.create(",
+          "patterns": [
+            "chat.completions"
+          ],
+          "evidence_class": "source"
+        }
+      ],
+      "matched_terms": [
+        "chat.completions",
+        "openai"
+      ]
+    },
+    {
+      "id": "personal-data-processing",
+      "category": "privacy",
+      "title": "Personal-data processing",
+      "frameworks": [
+        "gdpr",
+        "hipaa",
+        "us-state-privacy"
+      ],
+      "confidence": 0.77,
+      "summary": "The repo handles user or customer personal data fields.",
+      "review_areas": [
+        "Lawful basis",
+        "retention",
+        "data subject rights",
+        "security controls"
+      ],
+      "evidence": [
+        {
+          "path": "services/llm/client.py",
+          "line": 6,
+          "match": "def summarize_customer(email: str, request_text: str) -> str:",
+          "patterns": [
+            "email"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/llm/client.py",
+          "line": 9,
+          "match": "messages=[{\"role\": \"user\", \"content\": f\"{email}: {request_text}\"}],",
+          "patterns": [
+            "email"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "src/api/telemetry.ts",
+          "line": 3,
+          "match": "export function trackSignup(email: string) {",
+          "patterns": [
+            "email"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "src/api/telemetry.ts",
+          "line": 4,
+          "match": "posthog.capture(\"signup\", { email, cookie: document.cookie });",
+          "patterns": [
+            "email"
+          ],
+          "evidence_class": "source"
+        }
+      ],
+      "matched_terms": [
+        "email"
+      ]
+    },
+    {
+      "id": "analytics-and-tracking",
+      "category": "privacy",
+      "title": "Analytics or tracking stack",
+      "frameworks": [
+        "gdpr",
+        "sec-cyber-disclosure",
+        "us-state-privacy"
+      ],
+      "confidence": 0.8,
+      "summary": "The repo includes analytics, tracking, or session replay integrations.",
+      "review_areas": [
+        "Consent",
+        "vendor disclosures",
+        "notice at collection"
+      ],
+      "evidence": [
+        {
+          "path": "package.json",
+          "line": 6,
+          "match": "\"posthog-js\": \"^1.0.0\"",
+          "patterns": [
+            "posthog"
+          ],
+          "evidence_class": "config"
+        },
+        {
+          "path": "src/api/telemetry.ts",
+          "line": 1,
+          "match": "import posthog from \"posthog-js\";",
+          "patterns": [
+            "posthog"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "src/api/telemetry.ts",
+          "line": 4,
+          "match": "posthog.capture(\"signup\", { email, cookie: document.cookie });",
+          "patterns": [
+            "cookie",
+            "posthog"
+          ],
+          "evidence_class": "source"
+        }
+      ],
+      "matched_terms": [
+        "cookie",
+        "posthog"
+      ]
+    }
+  ],
+  "control_observations": [
+    {
+      "control": "privacy-user-controls",
+      "status": "not-observed",
+      "frameworks": [
+        "gdpr",
+        "us-state-privacy"
+      ],
+      "confidence": 0.64,
+      "rationale": "Personal-data or tracking signals were found, but no privacy-notice, consent, deletion/export, or retention evidence was observed.",
+      "evidence": [
+        {
+          "path": "services/llm/client.py",
+          "line": 6,
+          "match": "def summarize_customer(email: str, request_text: str) -> str:",
+          "patterns": [
+            "email"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "services/llm/client.py",
+          "line": 9,
+          "match": "messages=[{\"role\": \"user\", \"content\": f\"{email}: {request_text}\"}],",
+          "patterns": [
+            "email"
+          ],
+          "evidence_class": "source"
+        },
+        {
+          "path": "package.json",
+          "line": 6,
+          "match": "\"posthog-js\": \"^1.0.0\"",
+          "patterns": [
+            "posthog"
+          ],
+          "evidence_class": "config"
+        },
+        {
+          "path": "src/api/telemetry.ts",
+          "line": 1,
+          "match": "import posthog from \"posthog-js\";",
+          "patterns": [
+            "posthog"
+          ],
+          "evidence_class": "source"
+        }
+      ]
+    },
+    {
+      "control": "ai-governance-controls",
+      "status": "not-observed",
+      "frameworks": [
+        "eu-ai-act"
+      ],
+      "confidence": 0.69,
+      "rationale": "AI model integration was found, but no moderation, guardrail, evaluation, or model-inventory evidence was observed.",
+      "evidence": [
+        {
+          "path": "package.json",
+          "line": 5,
+          "match": "\"openai\": \"^5.0.0\",",
+          "patterns": [
+            "openai"
+          ],
+          "evidence_class": "config"
+        },
+        {
+          "path": "services/llm/client.py",
+          "line": 1,
+          "match": "from openai import OpenAI",
+          "patterns": [
+            "openai"
+          ],
+          "evidence_class": "source"
+        }
+      ]
+    },
+    {
+      "control": "ai-risk-governance",
+      "status": "not-observed",
+      "frameworks": [
+        "nist-ai-rmf"
+      ],
+      "confidence": 0.65,
+      "rationale": "AI model integration was found, but no model cards, bias evaluation, fairness testing, or AI risk management evidence was observed.",
+      "evidence": [
+        {
+          "path": "package.json",
+          "line": 5,
+          "match": "\"openai\": \"^5.0.0\",",
+          "patterns": [
+            "openai"
+          ],
+          "evidence_class": "config"
+        },
+        {
+          "path": "services/llm/client.py",
+          "line": 1,
+          "match": "from openai import OpenAI",
+          "patterns": [
+            "openai"
+          ],
+          "evidence_class": "source"
+        }
+      ]
+    }
+  ],
+  "candidate_frameworks": [
+    {
+      "framework": "gdpr",
+      "display_name": "GDPR",
+      "score": 95,
+      "confidence": 0.95,
+      "reasons": [
+        "AI model or agent integration evidence was detected.",
+        "Analytics or tracking stack evidence was detected.",
+        "Personal-data processing evidence was detected."
+      ]
+    },
+    {
+      "framework": "us-state-privacy",
+      "display_name": "U.S. State Privacy",
+      "score": 90,
+      "confidence": 0.95,
+      "reasons": [
+        "AI model or agent integration evidence was detected.",
+        "Analytics or tracking stack evidence was detected.",
+        "Personal-data processing evidence was detected."
+      ]
+    },
+    {
+      "framework": "eu-ai-act",
+      "display_name": "EU AI Act",
+      "score": 45,
+      "confidence": 0.72,
+      "reasons": [
+        "AI model or agent integration evidence was detected."
+      ]
+    },
+    {
+      "framework": "nist-ai-rmf",
+      "display_name": "NIST AI RMF",
+      "score": 30,
+      "confidence": 0.6,
+      "reasons": [
+        "AI model or agent integration evidence was detected."
+      ]
+    },
+    {
+      "framework": "hipaa",
+      "display_name": "HIPAA",
+      "score": 10,
+      "confidence": 0.43,
+      "reasons": [
+        "Personal-data processing evidence was detected."
+      ]
+    },
+    {
+      "framework": "sec-cyber-disclosure",
+      "display_name": "SEC Cyber Disclosure",
+      "score": 10,
+      "confidence": 0.43,
+      "reasons": [
+        "Analytics or tracking stack evidence was detected."
+      ]
+    }
+  ]
+}
