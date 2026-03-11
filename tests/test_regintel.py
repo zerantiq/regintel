@@ -38,6 +38,9 @@ class RegintelRegressionTests(unittest.TestCase):
     maxDiff = None
 
     def test_validate_repo_passes_without_creating_script_pycache(self) -> None:
+        for pycache_dir in (REPO_ROOT / "scripts" / "__pycache__", REPO_ROOT / "tools" / "__pycache__"):
+            if pycache_dir.exists():
+                shutil.rmtree(pycache_dir)
         run_command([sys.executable, str(TOOLS_ROOT / "validate_repo.py")])
         self.assertFalse((REPO_ROOT / "scripts" / "__pycache__").exists())
         self.assertFalse((REPO_ROOT / "tools" / "__pycache__").exists())
@@ -196,6 +199,70 @@ class RegintelRegressionTests(unittest.TestCase):
             self.assertIn("dora", signal["frameworks"])
         for candidate in result["candidate_frameworks"]:
             self.assertEqual(candidate["framework"], "dora")
+
+    def test_v04_polyglot_scan_detects_extended_frameworks(self) -> None:
+        result = run_json_script("repo_signal_scan.py", "--path", str(FIXTURES_ROOT / "polyglot-regulated"), "--scope", "full")
+        frameworks = {item["framework"]: item["score"] for item in result["candidate_frameworks"]}
+        signal_ids = {signal["id"] for signal in result["signals"]}
+
+        self.assertIn("iso-42001", frameworks)
+        self.assertIn("uk-gdpr", frameworks)
+        self.assertIn("ccpa-cpra", frameworks)
+        self.assertIn("pci-dss", frameworks)
+        self.assertGreaterEqual(frameworks["ccpa-cpra"], 40)
+        self.assertGreaterEqual(frameworks["pci-dss"], 35)
+
+        self.assertIn("ai-management-system", signal_ids)
+        self.assertIn("uk-data-protection-regime", signal_ids)
+        self.assertIn("cpra-privacy-rights", signal_ids)
+        self.assertIn("payment-card-processing", signal_ids)
+
+    def test_v04_polyglot_scan_detects_language_specific_signals(self) -> None:
+        result = run_json_script("repo_signal_scan.py", "--path", str(FIXTURES_ROOT / "polyglot-regulated"), "--scope", "full")
+        signal_ids = {signal["id"] for signal in result["signals"]}
+        self.assertIn("go-backend-service", signal_ids)
+        self.assertIn("java-backend-service", signal_ids)
+        self.assertIn("csharp-backend-service", signal_ids)
+        self.assertIn("rust-backend-service", signal_ids)
+
+    def test_v04_infra_templates_scanned_and_classified_as_infra(self) -> None:
+        result = run_json_script("repo_signal_scan.py", "--path", str(FIXTURES_ROOT / "polyglot-regulated"), "--scope", "full")
+        iac_signal = next(signal for signal in result["signals"] if signal["id"] == "iac-deployment")
+        evidence = iac_signal["evidence"]
+        paths = {item["path"] for item in evidence}
+
+        self.assertTrue(any(path.endswith(".tf") for path in paths))
+        self.assertTrue(any(path.endswith(".bicep") for path in paths))
+        self.assertTrue(any(path.endswith("Chart.yaml") or path.endswith("template.yaml") for path in paths))
+        self.assertTrue(all(item["evidence_class"] == "infra" for item in evidence))
+
+    def test_v04_applicability_scores_new_frameworks_with_company_context(self) -> None:
+        scan_result = run_json_script(
+            "repo_signal_scan.py",
+            "--path",
+            str(FIXTURES_ROOT / "polyglot-regulated"),
+            "--scope",
+            "full",
+        )
+        company = {
+            "jurisdictions": ["UK", "US-CA", "US-VA"],
+            "uses_ai": True,
+            "processes_card_payments": True,
+            "deployment_model": "hosted-saas",
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            scan_path = Path(tmpdir) / "scan.json"
+            company_path = Path(tmpdir) / "company.json"
+            scan_path.write_text(json.dumps(scan_result), encoding="utf-8")
+            company_path.write_text(json.dumps(company), encoding="utf-8")
+            result = run_json_script("applicability_score.py", "--signals", str(scan_path), "--company", str(company_path))
+
+        frameworks = {item["framework"]: item for item in result["applicability"]}
+        self.assertIn("iso-42001", frameworks)
+        self.assertIn("uk-gdpr", frameworks)
+        self.assertIn("ccpa-cpra", frameworks)
+        self.assertIn("pci-dss", frameworks)
+        self.assertIn("us-va-cdpa", frameworks)
 
 
 class ASTScannerTests(unittest.TestCase):

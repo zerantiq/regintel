@@ -23,22 +23,22 @@ Regintel is an **AI coding agent skill** that inspects a software repository for
 
 ### Supported Frameworks
 
-<table>
-<tr>
-<td>🇪🇺 EU AI Act</td>
-<td>🔒 GDPR</td>
-<td>🏥 HIPAA</td>
-<td>💊 FDA Software</td>
-<td>📊 SEC Cyber Disclosure</td>
-</tr>
-<tr>
-<td>📋 SOX</td>
-<td>🏦 DORA</td>
-<td>🛡️ NIS2</td>
-<td>🤖 NIST AI RMF</td>
-<td>🔐 US State Privacy</td>
-</tr>
-</table>
+- 🇪🇺 EU AI Act
+- 🤖 ISO/IEC 42001
+- 🔒 GDPR
+- 🇬🇧 UK GDPR
+- 🔐 U.S. State Privacy
+- 🌉 CCPA / CPRA
+- 🇺🇸 Virginia CDPA
+- 🇺🇸 Colorado Privacy Act
+- 🏥 HIPAA
+- 💊 FDA Software
+- 💳 PCI DSS
+- 📊 SEC Cyber Disclosure
+- 📋 SOX
+- 🏦 DORA
+- 🛡️ NIS2
+- 🤖 NIST AI RMF
 
 ### Two Operating Modes
 
@@ -148,7 +148,7 @@ Scan this repo for regulatory compliance issues
 # 1. Validate repo structure
 make validate
 
-# 2. Run the regression suite (22 tests)
+# 2. Run the regression suite (26 tests)
 make test
 
 # 3. Scan a sample repo
@@ -209,6 +209,7 @@ make check   # validate + test in one step
 | `healthcare` | Clinical application | HIPAA, FDA Software |
 | `fintech` | Financial services | SOX, DORA, SEC Cyber |
 | `iot` | IoT infrastructure | NIS2, NIST AI RMF |
+| `polyglot-regulated` | Polyglot platform + IaC | ISO 42001, UK GDPR, CCPA/CPRA, PCI DSS |
 | `low-risk` | Minimal signals | *(negative test case)* |
 
 ---
@@ -243,11 +244,11 @@ make check   # validate + test in one step
 
 ## 🔍 How It Works
 
-1. **Signal detection** — `repo_signal_scan.py` walks your repo's source, config, schemas, and docs, matching patterns against 19 signal definitions with evidence-class weighting (source/config evidence ranked higher than docs/comments). Python docstrings are excluded to suppress false positives from regulatory terms mentioned only in documentation prose.
+1. **Signal detection** — `repo_signal_scan.py` walks your repo's source, config, schemas, and docs, matching patterns against 28 signal definitions with evidence-class weighting (source/config evidence ranked higher than docs/comments). Python docstrings are excluded to suppress false positives from regulatory terms mentioned only in documentation prose.
 
 2. **Structural analysis** — `ast_signal_scan.py` parses Python source files using the stdlib `ast` module to detect function-level patterns: PII fields in return values, database writes without audit logging, and storage writes without encryption indicators.
 
-3. **Framework mapping** — Detected signals are mapped to 10 regulatory frameworks through 8 control rules. Each framework receives a weighted score based on the strength and class of evidence found.
+3. **Framework mapping** — Detected signals are mapped to 16 regulatory frameworks through 11 control rules. Each framework receives a weighted score based on the strength and class of evidence found.
 
 4. **Applicability scoring** — `applicability_score.py` combines scan output with optional company context (jurisdiction, industry, data types) to produce prioritized framework recommendations.
 
@@ -264,7 +265,7 @@ See **[ROADMAP.md](ROADMAP.md)** for the planned evolution of Regintel:
 | **v0.1** | ✅ Initial release — core scanner, 7 frameworks, agent integrations |
 | **v0.2** | ✅ Stronger heuristics, DORA/NIS2/NIST AI RMF, evidence-class weighting |
 | **v0.3** | ✅ AST-based structural scanning — function-level PII, DB write, and storage findings |
-| **v0.4** | Extended frameworks (ISO 42001, PCI DSS) |
+| **v0.4** | ✅ Extended framework + jurisdiction support (ISO 42001, UK GDPR, CCPA/CPRA, PCI DSS, polyglot + IaC scanning) |
 | **v0.5** | Continuous monitoring & dashboards |
 | **v1.0** | Stable release on PyPI |
 

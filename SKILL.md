@@ -1,6 +1,6 @@
 ---
 name: regintel
-description: Regulatory compliance intelligence for software, AI, privacy, security, and disclosure obligations. Use when the user asks for regulatory updates, upcoming compliance deadlines, applicability analysis, or to scan a codebase or repository for potential issues under frameworks such as the EU AI Act, GDPR, HIPAA, SEC cyber disclosure rules, FDA software obligations, SOX, DORA, NIS2, NIST AI RMF, or global privacy regimes. Triggers include "regulatory update", "what changed", "what do we need to fix", "upcoming compliance deadline", "scan this repo", "check this codebase for GDPR", "does this software raise HIPAA issues", "check for DORA compliance", and "what regulatory problems exist in this software".
+description: Regulatory compliance intelligence for software, AI, privacy, security, and disclosure obligations. Use when the user asks for regulatory updates, upcoming compliance deadlines, applicability analysis, or to scan a codebase or repository for potential issues under frameworks such as the EU AI Act, ISO/IEC 42001, GDPR, UK GDPR, CCPA/CPRA, HIPAA, PCI DSS, SEC cyber disclosure rules, FDA software obligations, SOX, DORA, NIS2, NIST AI RMF, or global privacy regimes. Triggers include "regulatory update", "what changed", "what do we need to fix", "upcoming compliance deadline", "scan this repo", "check this codebase for GDPR", "does this software raise HIPAA issues", "check for DORA compliance", and "what regulatory problems exist in this software".
 ---
 
 # Regintel

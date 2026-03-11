@@ -27,6 +27,18 @@ Keep stage separate from timing. A rule can be effective and still have an upcom
   - vendor controls for third-party AI services
 - Avoid high-confidence scope claims for high-risk or prohibited practices unless the repo shows direct evidence.
 
+### ISO/IEC 42001 (AI Management System)
+
+- Likely relevant when the repo includes AI governance policy artifacts, management-review evidence, internal-audit language, or AIMS terminology.
+- Strong repo signals:
+  - `ISO/IEC 42001`, `AI management system`, `AIMS`, `internal audit`, `management review`, `AI policy`, `AI risk treatment`
+- Likely review areas:
+  - AIMS scope and boundaries
+  - governance roles and accountability
+  - risk treatment controls
+  - internal audit and continuous improvement
+- ISO/IEC 42001 is a management-system standard and does not itself determine statutory legal scope.
+
 ### GDPR and ePrivacy
 
 - Likely relevant when the software processes personal data for EU users or operators.
@@ -41,6 +53,19 @@ Keep stage separate from timing. A rule can be effective and still have an upcom
   - security controls and incident handling
 - Repo evidence alone cannot confirm geography, controller/processor posture, or legal basis.
 
+### UK GDPR (DPA 2018 Context)
+
+- Likely relevant when the software processes personal data tied to UK users, UK entities, or UK-hosted operations.
+- Strong repo signals:
+  - `UK GDPR`, `Data Protection Act 2018`, `ICO`, `IDTA`, UK addendum language
+  - UK-specific rights forms and transfer-mechanism references
+- Likely review areas:
+  - UK privacy notices and lawful basis
+  - UK rights handling (access, deletion, correction)
+  - UK international-transfer mechanisms
+  - security controls and breach handling
+- Treat UK GDPR scope as inferred unless UK jurisdiction is confirmed in company context.
+
 ### U.S. State Privacy / CPRA-style Obligations
 
 - Likely relevant when the repo suggests consumer-facing data collection, advertising/analytics, sharing with vendors, or user rights workflows.
@@ -51,6 +76,28 @@ Keep stage separate from timing. A rule can be effective and still have an upcom
   - opt-out and preference management
   - contracts with vendors/service providers
   - rights intake, deletion, and access workflows
+
+### CCPA / CPRA (California)
+
+- Likely relevant when California consumers are in scope and the repo references rights-specific controls.
+- Strong repo signals:
+  - `Do Not Sell or Share`, `Global Privacy Control`, `sensitive personal information`, `notice at collection`, `service provider`, `contractor`
+- Likely review areas:
+  - do-not-sell/share controls
+  - GPC signal handling
+  - sensitive PI limitation and use restrictions
+  - service-provider and contractor restrictions
+
+### Virginia CDPA / Colorado Privacy Act Variants
+
+- Likely relevant when jurisdiction evidence points to state-specific obligations beyond California.
+- Strong repo signals:
+  - state-targeted rights flows, universal opt-out handling, processor contract language, state-specific policy variants
+- Likely review areas:
+  - state-specific notice and rights handling
+  - opt-out mechanisms and consent logic
+  - controller/processor contract workflows
+- State-by-state applicability is low confidence without confirmed jurisdiction exposure.
 
 ### HIPAA
 
@@ -77,6 +124,18 @@ Keep stage separate from timing. A rule can be effective and still have an upcom
   - software lifecycle documentation
   - change control, validation, and traceability
 - Do not infer FDA scope from general wellness or generic health-tracking terms alone.
+
+### PCI DSS
+
+- Likely relevant when the repo handles payment-card data, cardholder records, or PCI control language.
+- Strong repo signals:
+  - `PCI DSS`, `cardholder data`, `card number`, `CVV/CVC`, `payment card`, `tokenization`, `3D Secure`, SAQ references
+- Likely review areas:
+  - cardholder-data inventory and minimization
+  - encryption and key-management controls
+  - access logging and monitoring
+  - incident response for payment environments
+- Treat PCI scope as inferred unless cardholder-data processing is confirmed by company context.
 
 ### SEC Cyber Disclosure
 

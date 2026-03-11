@@ -14,6 +14,7 @@ Strong signals:
 
 Implications:
 - EU AI Act review likely
+- ISO/IEC 42001 governance review likely
 - privacy review likely if prompts, outputs, or user context are logged
 
 ### SaaS / Cloud Service
@@ -24,6 +25,17 @@ Strong signals:
 Implications:
 - GDPR and U.S. privacy review usually relevant when personal data is present
 - security and disclosure controls matter more for public or enterprise vendors
+
+### Payment Card Processing
+
+Strong signals:
+- cardholder-data terms (`card_number`, `cvv`, `cvc`, `payment card`)
+- tokenization and gateway integrations
+- PCI DSS language in code, docs, or controls
+
+Implications:
+- PCI DSS review likely
+- encryption, access logging, and incident controls become higher-priority
 
 ### Healthcare / Clinical Software
 
@@ -71,6 +83,17 @@ Implications:
 - NIST AI RMF alignment recommended for U.S. AI deployments
 - Complements EU AI Act obligations for dual-jurisdiction operations
 
+### UK and U.S. State Privacy Variants
+
+Strong signals:
+- UK: `UK GDPR`, `Data Protection Act 2018`, `ICO`, `IDTA`
+- California: `Do Not Sell or Share`, `Global Privacy Control`, sensitive PI limitation terms
+- state-specific rights and opt-out workflow references
+
+Implications:
+- UK GDPR and state-specific U.S. privacy obligations can outrank generic global privacy assumptions
+- rights workflows should be validated per-jurisdiction, not as one universal implementation
+
 ## Company Context Signals
 
 Increase confidence when company facts confirm:
@@ -78,6 +101,7 @@ Increase confidence when company facts confirm:
 - `jurisdictions`
   - EU or UK presence increases privacy and AI-governance relevance
   - California or broad U.S. consumer operations increase state privacy relevance
+  - `US-VA` and `US-CO` raise variant state privacy relevance
 - `public_company`
   - raises SEC cyber disclosure and SOX relevance
 - `customers`
@@ -87,6 +111,9 @@ Increase confidence when company facts confirm:
   - on-prem changes some operational assumptions but not all obligations
 - `uses_ai`
   - raises EU AI Act and privacy review
+  - raises ISO/IEC 42001 and NIST AI RMF alignment relevance
+- `processes_card_payments` / `handles_cardholder_data`
+  - raises PCI DSS relevance
 - `regulated_claims`
   - diagnostic, treatment, or device-control claims raise FDA relevance
 - `financial_entity`

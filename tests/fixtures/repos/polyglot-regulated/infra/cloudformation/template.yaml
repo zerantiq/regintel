@@ -1,0 +1,6 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  AlertsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: polyglot-alerts

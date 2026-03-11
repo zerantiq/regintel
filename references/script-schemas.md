@@ -69,14 +69,15 @@ Pass the JSON file produced by `repo_signal_scan.py`.
 
 ```json
 {
-  "jurisdictions": ["EU", "US-CA"],
+  "jurisdictions": ["EU", "UK", "US-CA"],
   "public_company": false,
   "uses_ai": true,
   "customers": ["enterprise", "healthcare"],
   "deployment_model": "hosted-saas",
   "regulated_claims": [],
   "financial_entity": false,
-  "essential_service": false
+  "essential_service": false,
+  "processes_card_payments": false
 }
 ```
 

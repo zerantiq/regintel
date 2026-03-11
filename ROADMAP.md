@@ -44,13 +44,19 @@ Delivered:
 - Regression tests covering all three structural findings, field validation, false-positive suppression, and markdown output
 - Tree-sitter support for TypeScript deferred to v0.4 (optional dependency; Python stdlib AST covers the primary use case)
 
-## v0.4 — Extended Framework and Jurisdiction Support
+## ✅ v0.4 — Extended Framework and Jurisdiction Support
 
-Goals:
-- Add ISO 42001 (AI management system), CCPA/CPRA detailed rules, PCI DSS software signals
-- Support jurisdiction-specific rule variants (e.g., GDPR vs. UK GDPR, state-by-state U.S. privacy)
-- Add infrastructure scanning for Terraform, Bicep, Helm, and CloudFormation templates
-- Support Go, Java, C#, and Rust source scanning with language-specific heuristics
+Status: **complete**
+
+Delivered:
+- Added new framework mappings: ISO/IEC 42001, UK GDPR, CCPA/CPRA, Virginia CDPA, Colorado Privacy Act, and PCI DSS
+- Added dedicated signal categories for ISO 42001 AI management controls, CCPA/CPRA rights controls, and PCI card-data handling
+- Added jurisdiction-specific scoring boosts and assumptions in `applicability_score.py` for UK and state-level U.S. privacy variants
+- Expanded infrastructure file scanning to include Terraform (`.tf`, `.tfvars`), Bicep (`.bicep`), Helm chart files, and CloudFormation templates
+- Improved evidence classification so IaC and deployment templates are consistently labeled as `infra`
+- Added language-specific source heuristics for Go, Java, C#, and Rust service code
+- Added new control-observation rules for CPRA rights coverage and PCI cardholder-security controls
+- Added a polyglot regulated fixture repo and regression tests for new frameworks, language heuristics, infra detection, and applicability scoring
 
 ## v0.5 — Continuous Monitoring and Reporting
 

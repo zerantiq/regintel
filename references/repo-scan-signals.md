@@ -28,6 +28,19 @@ Potential review areas:
 - safety guardrails and human oversight
 - vendor management
 
+### AI Management System (ISO/IEC 42001)
+
+Example evidence:
+- `ISO/IEC 42001`, `AI management system`, `AIMS`
+- internal audit artifacts, management review notes, AI policy language
+- AI risk-treatment plans or governance registers
+
+Potential review areas:
+- AIMS scope and boundaries
+- governance roles and accountability
+- risk-treatment control mapping
+- internal audit and continuous improvement
+
 ### Personal Data and Tracking
 
 Example evidence:
@@ -40,6 +53,20 @@ Potential review areas:
 - consent and preference management
 - data minimization
 - vendor disclosures
+
+### CCPA / CPRA Rights Controls
+
+Example evidence:
+- Do Not Sell or Share controls
+- Global Privacy Control signal handling
+- limit use of sensitive personal information workflows
+- service-provider / contractor language and rights intake endpoints
+
+Potential review areas:
+- notice-at-collection coverage
+- opt-out and preference implementation
+- sensitive-PI limitation handling
+- California-specific rights workflow quality
 
 ### User Rights and Lifecycle Controls
 
@@ -62,6 +89,19 @@ Potential review areas:
 - disclosure readiness
 - access reviews
 - logging around sensitive operations
+
+### Payment Card Processing (PCI DSS)
+
+Example evidence:
+- PCI DSS references, cardholder data terms
+- `card_number`, `cvv`, `cvc`, payment-card tokenization logic
+- 3D Secure workflows, SAQ references, encryption controls around payment data
+
+Potential review areas:
+- cardholder-data inventory and minimization
+- encryption and key management
+- access monitoring and audit trails
+- payment-incident response readiness
 
 ### Healthcare and Clinical Signals
 
@@ -106,7 +146,8 @@ Potential review areas:
 ### Infrastructure-as-Code and Deployment
 
 Example evidence:
-- Terraform, Bicep, CloudFormation, Helm, Kustomize
+- Terraform (`.tf`, `.tfvars`), Bicep (`.bicep`), CloudFormation templates (`template.yaml`)
+- Helm chart files (`Chart.yaml`, `values.yaml`), Kustomize files
 - Dockerfile, docker-compose configurations
 - Kubernetes manifests, deployment pipelines
 
@@ -114,6 +155,19 @@ Potential review areas:
 - change management and drift detection
 - environment isolation
 - secret injection and management
+
+### Polyglot Backend Language Heuristics (Go/Java/C#/Rust)
+
+Example evidence:
+- Go: `net/http`, `http.HandleFunc`, `gin.Default`, `fiber.New`
+- Java: `@RestController`, `@RequestMapping`, Spring Boot startup
+- C#: `WebApplication.CreateBuilder`, `MapGet` / `MapPost`, API controller patterns
+- Rust: `axum::Router`, `actix_web`, `warp::Filter`, `tokio::main`
+
+Potential review areas:
+- API data-flow mapping across language stacks
+- consistency of privacy and security controls across services
+- coverage gaps from language-specific implementation differences
 
 ### Financial Reporting and Internal Controls
 
