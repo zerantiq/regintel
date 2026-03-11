@@ -2,7 +2,7 @@
 
 Regintel scans software repositories for regulatory signals, maps evidence to frameworks, and produces artifacts that teams can use in CI and release checks.
 
-## v0.9 Highlights
+## v1.0 Highlights
 
 - Stable JSON contracts for all machine-readable CLI outputs (`meta.tool`, `meta.schema_version`).
 - Pip-installable CLI entry points for every core workflow.
@@ -10,6 +10,7 @@ Regintel scans software repositories for regulatory signals, maps evidence to fr
 - Monitoring and release gates for continuous compliance checks.
 - Multi-language structural scanning across Python, TypeScript, Java, Go, and .NET/C#.
 - Incremental cache and parallel file scanning for large repository performance.
+- Benchmark harness with labeled-corpus precision/recall trend reporting and CI regression gating.
 
 ## Quick Start
 
@@ -28,3 +29,4 @@ regintel-applicability --signals /tmp/scan.json --format markdown
 - Deadlines and updates: `regintel-deadlines`, `regintel-feed-sync`
 - Continuous monitoring: `regintel-snapshot`, `regintel-trend`, `regintel-dashboard`
 - Policy gating: `regintel-gate`
+- Benchmark quality harness: `regintel-benchmark`

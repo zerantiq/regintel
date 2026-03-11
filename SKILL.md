@@ -141,6 +141,12 @@ This agent review step is what separates Regintel from a raw keyword scan.
 - Use gate checks for not-observed controls, urgent deadlines, structural findings, required/forbidden signals, and framework-score trends.
 - Treat non-zero exit as a release/merge gate failure unless explicitly running in report-only mode.
 
+### 5. Run Benchmark Quality Harness
+
+- Run `benchmark_harness.py` with labeled corpus + baseline metrics to track precision/recall trend deltas in CI.
+- Use benchmark policy checks to prevent false-positive regressions as scanner rules evolve.
+- Treat non-zero exit as a quality gate failure unless explicitly running in report-only mode.
+
 ## Output Format
 
 For repo scans, use this structure:
@@ -187,6 +193,7 @@ The agent runs these scripts automatically as part of the skill workflow. The us
 | `trend_report.py` | When summarising movement across snapshots | `python3 SKILL_DIR/scripts/trend_report.py --snapshot-dir <snapshot-dir> --format markdown` |
 | `dashboard_report.py` | When rendering a monitoring dashboard | `python3 SKILL_DIR/scripts/dashboard_report.py --snapshot-dir <snapshot-dir> --format html --output <dashboard.html>` |
 | `compliance_gate.py` | When enforcing policy thresholds in CI/release workflows | `python3 SKILL_DIR/scripts/compliance_gate.py --policy <policy.json> --scan <scan.json> --format markdown` |
+| `benchmark_harness.py` | When tracking scanner quality trends and enforcing benchmark gates in CI/release workflows | `python3 SKILL_DIR/scripts/benchmark_harness.py --labels <labeled-corpus.json> --fixtures-root <fixtures-dir> --baseline <baseline.json> --policy <benchmark-policy.json> --format markdown` |
 
 ## Bundled References
 

@@ -54,7 +54,7 @@ class TestTooling(BaseRegintelTest):
 
     def test_v1_docs_site_files_and_navigation_exist(self) -> None:
         mkdocs_path = self.repo_root / "mkdocs.yml"
-        self.assertTrue(mkdocs_path.exists(), "Expected mkdocs.yml to exist for the v0.9 docs site.")
+        self.assertTrue(mkdocs_path.exists(), "Expected mkdocs.yml to exist for the v1.0 docs site.")
         content = mkdocs_path.read_text(encoding="utf-8")
         self.assertIn("nav:", content)
         self.assertIn("tutorials/ci-monitoring.md", content)
@@ -73,6 +73,7 @@ class TestTooling(BaseRegintelTest):
         self.assertIn("[project.scripts]", pyproject)
         self.assertIn('regintel-scan = "scripts.repo_signal_scan:main"', pyproject)
         self.assertIn('regintel-gate = "scripts.compliance_gate:main"', pyproject)
+        self.assertIn('regintel-benchmark = "scripts.benchmark_harness:main"', pyproject)
 
     def test_publish_workflow_exists_for_release_builds(self) -> None:
         workflow_path = self.repo_root / ".github" / "workflows" / "publish.yml"
@@ -80,3 +81,10 @@ class TestTooling(BaseRegintelTest):
         content = workflow_path.read_text(encoding="utf-8")
         self.assertIn("gh-action-pypi-publish", content)
         self.assertIn("python -m build", content)
+
+    def test_validate_workflow_runs_benchmark_harness(self) -> None:
+        workflow_path = self.repo_root / ".github" / "workflows" / "validate.yml"
+        self.assertTrue(workflow_path.exists(), "Expected .github/workflows/validate.yml to exist.")
+        content = workflow_path.read_text(encoding="utf-8")
+        self.assertIn("benchmark_harness.py", content)
+        self.assertIn("benchmark-gate-policy.json", content)

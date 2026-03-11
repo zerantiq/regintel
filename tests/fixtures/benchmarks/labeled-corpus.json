@@ -1,0 +1,93 @@
+{
+  "version": "1.0",
+  "description": "Labeled fixture corpus for scanner quality benchmarking.",
+  "fixtures": [
+    {
+      "id": "ai-saas",
+      "path": "ai-saas",
+      "expected_signal_ids": [
+        "ai-model-integration",
+        "analytics-and-tracking",
+        "personal-data-processing"
+      ],
+      "expected_ast_finding_ids": [
+        "pii-in-return-value",
+        "unencrypted-storage-write",
+        "unlogged-db-write"
+      ]
+    },
+    {
+      "id": "healthcare",
+      "path": "healthcare",
+      "expected_signal_ids": [
+        "healthcare-data"
+      ],
+      "expected_ast_finding_ids": []
+    },
+    {
+      "id": "fintech",
+      "path": "fintech",
+      "expected_signal_ids": [
+        "encryption-key-management",
+        "financial-reporting",
+        "ict-risk-management",
+        "incident-response",
+        "personal-data-processing",
+        "web-api-service"
+      ],
+      "expected_ast_finding_ids": []
+    },
+    {
+      "id": "iot",
+      "path": "iot",
+      "expected_signal_ids": [
+        "encryption-key-management",
+        "network-critical-infra",
+        "personal-data-processing",
+        "web-api-service"
+      ],
+      "expected_ast_finding_ids": [
+        "pii-in-return-value"
+      ]
+    },
+    {
+      "id": "polyglot-regulated",
+      "path": "polyglot-regulated",
+      "expected_signal_ids": [
+        "ai-management-system",
+        "consent-management",
+        "cpra-privacy-rights",
+        "csharp-backend-service",
+        "encryption-key-management",
+        "go-backend-service",
+        "iac-deployment",
+        "java-backend-service",
+        "payment-card-processing",
+        "privacy-notice",
+        "rust-backend-service",
+        "uk-data-protection-regime",
+        "web-api-service"
+      ],
+      "expected_ast_finding_ids": []
+    },
+    {
+      "id": "polyglot-structural",
+      "path": "polyglot-structural",
+      "expected_signal_ids": [
+        "go-backend-service",
+        "personal-data-processing"
+      ],
+      "expected_ast_finding_ids": [
+        "pii-in-return-value",
+        "unencrypted-storage-write",
+        "unlogged-db-write"
+      ]
+    },
+    {
+      "id": "low-risk",
+      "path": "low-risk",
+      "expected_signal_ids": [],
+      "expected_ast_finding_ids": []
+    }
+  ]
+}

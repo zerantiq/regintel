@@ -116,14 +116,16 @@ Delivered:
 - Added scan metadata for performance telemetry (`parallel_workers`, `cache_enabled`, `cache_hits`, `cache_misses`) in both scanner outputs
 - Added regression tests to validate cache reuse and parallel-scan metadata behavior
 
-## v1.0 — Benchmark Harness for Quality
+## ✅ v1.0 — Benchmark Harness for Quality
 
-Status: **planned**
+Status: **complete**
 
-Goals:
-- Add a labeled fixture corpus for scanner evaluation
-- Report precision and recall trends in CI
-- Prevent false-positive regressions as rules expand
+Delivered:
+- Added `benchmark_harness.py` to evaluate `repo_signal_scan.py` and `ast_signal_scan.py` outputs against a labeled fixture corpus
+- Added benchmark labels and baseline metrics fixtures (`tests/fixtures/benchmarks/`) for deterministic precision/recall regression tracking
+- Added benchmark quality gate policy (`examples/benchmark-gate-policy.json`) with minimum metric thresholds and maximum baseline-drop checks
+- Added CI benchmark reporting in `.github/workflows/validate.yml` with JSON + Markdown benchmark outputs and pass/fail gate enforcement
+- Added regression tests to validate benchmark metrics output, policy gating behavior, workflow integration, and release entry-point coverage
 
 ## Non-Goals
 

@@ -33,6 +33,50 @@ jobs:
       - name: Run regression tests
         run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 
+      - name: Run benchmark harness quality gate
+        if: matrix.python-version == '3.12'
+        run: |
+          python3 scripts/benchmark_harness.py \
+            --labels tests/fixtures/benchmarks/labeled-corpus.json \
+            --fixtures-root tests/fixtures/repos \
+            --baseline tests/fixtures/benchmarks/baseline-metrics.json \
+            --policy examples/benchmark-gate-policy.json \
+            --workers 2 \
+            --cache-dir /tmp/regintel-benchmark-cache \
+            --format json > /tmp/benchmark.json
+
+          python3 scripts/benchmark_harness.py \
+            --labels tests/fixtures/benchmarks/labeled-corpus.json \
+            --fixtures-root tests/fixtures/repos \
+            --baseline tests/fixtures/benchmarks/baseline-metrics.json \
+            --policy examples/benchmark-gate-policy.json \
+            --workers 2 \
+            --cache-dir /tmp/regintel-benchmark-cache \
+            --format markdown > /tmp/benchmark.md
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          benchmark = json.loads(Path("/tmp/benchmark.json").read_text())
+          assert benchmark["meta"]["tool"] == "benchmark_harness"
+          assert benchmark["gate"]["passed"] is True
+          assert benchmark["overall"]["signals"]["precision"] >= 0.95
+          assert benchmark["overall"]["signals"]["recall"] >= 0.95
+          assert benchmark["overall"]["combined"]["precision"] >= 0.95
+          assert benchmark["overall"]["combined"]["recall"] >= 0.95
+          assert "Benchmark Quality Report" in Path("/tmp/benchmark.md").read_text()
+          PY
+
+      - name: Upload benchmark quality artifacts
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: regintel-benchmark-${{ github.run_number }}
+          path: |
+            /tmp/benchmark.json
+            /tmp/benchmark.md
+
       - name: Smoke-test documented example commands
         run: |
           regintel-scan --path tests/fixtures/repos/ai-saas --scope full > /tmp/regintel-scan.json
@@ -46,6 +90,7 @@ jobs:
           regintel-trend --snapshot-dir /tmp/regintel-snapshots --format json > /tmp/trend.json
           regintel-dashboard --snapshot-dir /tmp/regintel-snapshots --format markdown > /tmp/dashboard.md
           regintel-gate --policy examples/compliance-gate-policy.json --scan /tmp/regintel-scan-2.json --format json > /tmp/gate.json
+          regintel-benchmark --labels tests/fixtures/benchmarks/labeled-corpus.json --fixtures-root tests/fixtures/repos --baseline tests/fixtures/benchmarks/baseline-metrics.json --policy examples/benchmark-gate-policy.json --workers 2 --cache-dir /tmp/regintel-benchmark-cache --format json > /tmp/benchmark-cli.json
           python3 - <<'PY'
           import json
           from pathlib import Path
@@ -57,6 +102,7 @@ jobs:
           snapshot_two = json.loads(Path("/tmp/snapshot-2.json").read_text())
           trend = json.loads(Path("/tmp/trend.json").read_text())
           gate = json.loads(Path("/tmp/gate.json").read_text())
+          benchmark = json.loads(Path("/tmp/benchmark-cli.json").read_text())
           dashboard = Path("/tmp/dashboard.md").read_text()
 
           assert applicability["applicability"], "Applicability output should not be empty."
@@ -76,8 +122,10 @@ jobs:
           assert snapshot_two["meta"]["schema_version"] == "1.0.0"
           assert trend["meta"]["schema_version"] == "1.0.0"
           assert gate["meta"]["schema_version"] == "1.0.0"
+          assert benchmark["meta"]["schema_version"] == "1.0.0"
           assert snapshot_two["trend"]["baseline_snapshot_id"], "Expected second snapshot to have a baseline."
           assert trend["snapshot_count"] >= 2, "Trend report should include snapshot history."
           assert gate["passed"] is True, "Default gate policy should pass for fintech smoke fixture."
+          assert benchmark["gate"]["passed"] is True, "Default benchmark gate should pass for fixture corpus."
           assert "Regintel Monitoring Dashboard" in dashboard
           PY

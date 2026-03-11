@@ -77,7 +77,7 @@ flowchart LR
 
 Regintel is designed to be installed once and invoked by prompting your AI agent. **No manual script execution needed.**
 
-For direct CLI usage (v0.9 package):
+For direct CLI usage (v1.0 package):
 
 ```bash
 python -m pip install zerantiq-regintel
@@ -235,6 +235,14 @@ python3 scripts/compliance_gate.py \
   --deadlines /tmp/deadlines.json \
   --ast /tmp/ast.json \
   --format markdown
+
+# 12. Run benchmark quality harness (precision/recall + trend gate)
+python3 scripts/benchmark_harness.py \
+  --labels tests/fixtures/benchmarks/labeled-corpus.json \
+  --fixtures-root tests/fixtures/repos \
+  --baseline tests/fixtures/benchmarks/baseline-metrics.json \
+  --policy examples/benchmark-gate-policy.json \
+  --format markdown
 ```
 
 ---
@@ -253,6 +261,7 @@ python3 scripts/compliance_gate.py \
 | [`dashboard_report.py`](scripts/dashboard_report.py) | Render monitoring dashboards in Markdown or HTML |
 | [`sync_regulatory_feeds.py`](scripts/sync_regulatory_feeds.py) | Sync JSON/RSS/Atom feeds into `developments` schema |
 | [`compliance_gate.py`](scripts/compliance_gate.py) | Evaluate policy-based compliance gates for CI and release checks |
+| [`benchmark_harness.py`](scripts/benchmark_harness.py) | Benchmark signal/finding precision-recall against labeled fixture corpus with trend gating |
 | [`validate_repo.py`](tools/validate_repo.py) | Validate repo structure, frontmatter, and Python syntax |
 
 ---
@@ -276,6 +285,8 @@ make check   # validate + test in one step
 | `polyglot-regulated` | Polyglot platform + IaC | ISO 42001, UK GDPR, CCPA/CPRA, PCI DSS |
 | `polyglot-structural` | Structural-scan stress fixture | TypeScript, Java, Go, .NET/C# function-level findings |
 | `low-risk` | Minimal signals | *(negative test case)* |
+
+Benchmark labels and baseline metrics live under `tests/fixtures/benchmarks/`.
 
 ---
 
@@ -323,6 +334,8 @@ make check   # validate + test in one step
 
 7. **Policy gating** — `compliance_gate.py` applies configurable thresholds to signals, controls, deadlines, structural findings, and trend movement so CI can fail on unacceptable risk drift.
 
+8. **Benchmark quality harness** — `benchmark_harness.py` measures precision/recall over labeled fixture repos, computes baseline metric deltas, and enforces quality gates to catch false-positive regressions as rules evolve.
+
 ---
 
 ## 🗺️ Roadmap
@@ -340,7 +353,7 @@ See **[ROADMAP.md](ROADMAP.md)** for the planned evolution of Regintel:
 | **v0.7** | ✅ Stable interfaces, pip entry points, and docs site |
 | **v0.8** | ✅ Multi-language structural scanning across Python, TypeScript, Java, Go, and .NET/C# |
 | **v0.9** | ✅ Incremental cache + parallel scanning for large repos |
-| **v1.0** | Planned: benchmark harness with precision/recall CI tracking |
+| **v1.0** | ✅ Benchmark harness with precision/recall CI tracking and regression gating |
 
 ---
 

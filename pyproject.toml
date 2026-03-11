@@ -36,6 +36,7 @@ regintel-trend = "scripts.trend_report:main"
 regintel-dashboard = "scripts.dashboard_report:main"
 regintel-feed-sync = "scripts.sync_regulatory_feeds:main"
 regintel-gate = "scripts.compliance_gate:main"
+regintel-benchmark = "scripts.benchmark_harness:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.3,<9"]

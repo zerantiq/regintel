@@ -80,6 +80,23 @@ class TestV1Release(BaseRegintelTest):
                 "--format",
                 "json",
             )
+            benchmark = self.run_json_script(
+                "benchmark_harness.py",
+                "--labels",
+                str(self.repo_root / "tests" / "fixtures" / "benchmarks" / "labeled-corpus.json"),
+                "--fixtures-root",
+                str(self.repo_root / "tests" / "fixtures" / "repos"),
+                "--baseline",
+                str(self.repo_root / "tests" / "fixtures" / "benchmarks" / "baseline-metrics.json"),
+                "--policy",
+                str(self.repo_root / "examples" / "benchmark-gate-policy.json"),
+                "--workers",
+                "2",
+                "--cache-dir",
+                str(tmp / "bench-cache"),
+                "--format",
+                "json",
+            )
 
         outputs = {
             "repo_signal_scan": scan_ai,
@@ -91,6 +108,7 @@ class TestV1Release(BaseRegintelTest):
             "trend_report": trend,
             "sync_regulatory_feeds": feed_sync,
             "compliance_gate": gate,
+            "benchmark_harness": benchmark,
         }
         for tool, output in outputs.items():
             self.assertIn("meta", output)
@@ -125,6 +143,7 @@ class TestV1Release(BaseRegintelTest):
             "regintel-dashboard",
             "regintel-feed-sync",
             "regintel-gate",
+            "regintel-benchmark",
         }
         self.assertEqual(set(scripts.keys()), expected)
 
@@ -132,4 +151,3 @@ class TestV1Release(BaseRegintelTest):
             module_name, attr = target.split(":")
             module = __import__(module_name, fromlist=[attr])
             self.assertTrue(callable(getattr(module, attr)))
-

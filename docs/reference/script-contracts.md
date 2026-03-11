@@ -1,6 +1,6 @@
 # Script Contracts
 
-Regintel v0.9 defines a stable JSON interface contract across all machine-readable script outputs.
+Regintel v1.0 defines a stable JSON interface contract across all machine-readable script outputs.
 
 ## Common Contract Header
 
@@ -28,6 +28,7 @@ Every JSON output starts with:
 - `trend_report.py`
 - `sync_regulatory_feeds.py`
 - `compliance_gate.py`
+- `benchmark_harness.py`
 
 ## Compatibility Rules
 

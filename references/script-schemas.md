@@ -2,7 +2,7 @@
 
 All scripts use UTF-8 JSON files as input. Dates use `YYYY-MM-DD`.
 
-## v0.9 Contract Header
+## v1.0 Contract Header
 
 All machine-readable outputs include a stable contract header:
 
@@ -425,3 +425,64 @@ Items should expose `id` where possible. If `id` is absent, the script falls bac
 
 - Exit code `0`: gate passed
 - Exit code `1`: one or more gate checks failed
+
+## `benchmark_harness.py` Inputs
+
+- `--labels` (optional): labeled corpus JSON (default: `tests/fixtures/benchmarks/labeled-corpus.json`)
+- `--fixtures-root` (optional): fixture repo root (default: `tests/fixtures/repos`)
+- `--baseline` (optional): baseline metrics JSON used for trend deltas (default: `tests/fixtures/benchmarks/baseline-metrics.json`)
+- `--policy` (optional): benchmark gate policy JSON with minimum-metric and max-drop checks (default: `examples/benchmark-gate-policy.json`)
+- `--workers` (optional): worker count forwarded to scanner runs
+- `--cache-dir` (optional): cache directory forwarded to scanner runs
+- `--no-cache` (optional): disable scanner cache for benchmark runs
+- `--history-file` (optional): append run summaries as JSON Lines
+
+## `benchmark_harness.py` Output
+
+```json
+{
+  "meta": {
+    "tool": "benchmark_harness",
+    "schema_version": "1.0.0"
+  },
+  "generated_at": "2026-03-11T12:00:00Z",
+  "labels_path": "tests/fixtures/benchmarks/labeled-corpus.json",
+  "fixtures_root": "tests/fixtures/repos",
+  "fixture_count": 7,
+  "fixtures": [
+    {
+      "id": "ai-saas",
+      "path": "ai-saas",
+      "expected_signal_ids": ["ai-model-integration", "analytics-and-tracking", "personal-data-processing"],
+      "predicted_signal_ids": ["ai-model-integration", "analytics-and-tracking", "personal-data-processing"],
+      "expected_ast_finding_ids": ["pii-in-return-value", "unencrypted-storage-write", "unlogged-db-write"],
+      "predicted_ast_finding_ids": ["pii-in-return-value", "unencrypted-storage-write", "unlogged-db-write"],
+      "signal_metrics": { "tp": 3, "fp": 0, "fn": 0, "precision": 1.0, "recall": 1.0, "f1": 1.0 },
+      "ast_metrics": { "tp": 3, "fp": 0, "fn": 0, "precision": 1.0, "recall": 1.0, "f1": 1.0 }
+    }
+  ],
+  "overall": {
+    "signals": { "tp": 29, "fp": 0, "fn": 0, "precision": 1.0, "recall": 1.0, "f1": 1.0 },
+    "ast": { "tp": 7, "fp": 0, "fn": 0, "precision": 1.0, "recall": 1.0, "f1": 1.0 },
+    "combined": { "tp": 36, "fp": 0, "fn": 0, "precision": 1.0, "recall": 1.0, "f1": 1.0 }
+  },
+  "trends": {
+    "baseline_path": "tests/fixtures/benchmarks/baseline-metrics.json",
+    "available": true,
+    "deltas": {
+      "signals": { "precision": 0.0, "recall": 0.0, "f1": 0.0 },
+      "ast": { "precision": 0.0, "recall": 0.0, "f1": 0.0 },
+      "combined": { "precision": 0.0, "recall": 0.0, "f1": 0.0 }
+    }
+  },
+  "gate": {
+    "policy_name": "default-benchmark-gate",
+    "passed": true,
+    "failed_checks": 0,
+    "total_checks": 12
+  }
+}
+```
+
+- Exit code `0`: benchmark gate passed (or no policy checks configured)
+- Exit code `1`: one or more benchmark gate checks failed

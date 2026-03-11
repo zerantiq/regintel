@@ -1,6 +1,6 @@
 # Pip CLI Workflow
 
-The v0.9 package exposes stable CLI entry points for all major workflows.
+The v1.0 package exposes stable CLI entry points for all major workflows.
 
 ## Install
 
@@ -26,6 +26,12 @@ regintel-diff --old examples/old-scan.json --new examples/new-scan.json --format
 ```bash
 regintel-feed-sync --config examples/regulatory-feed-config.json --format json > /tmp/developments.json
 regintel-deadlines --input /tmp/developments.json --format markdown
+```
+
+## Benchmark Quality Gate
+
+```bash
+regintel-benchmark --labels tests/fixtures/benchmarks/labeled-corpus.json --fixtures-root tests/fixtures/repos --baseline tests/fixtures/benchmarks/baseline-metrics.json --policy examples/benchmark-gate-policy.json --format markdown
 ```
 
 ## Contract Compatibility
