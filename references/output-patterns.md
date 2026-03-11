@@ -4,6 +4,12 @@ Use these patterns to keep responses practical, evidence-backed, and visually sc
 
 ## Repo Scan Pattern
 
+### Regulatory Scan Summary
+
+**Scanned:** Full application repo scan across source, config, infra, and compliance-sensitive docs for a SaaS platform that handles user accounts, analytics, model-provider calls, and operational telemetry.
+
+**Overall Risk Picture:** 🔴 High. The repo suggests a mix of personal data handling and AI-enabled workflows, while several governance and lifecycle controls are not clearly visible in-repo, so the immediate risk is around privacy obligations, AI governance, and evidence gaps.
+
 ### Executive Snapshot
 
 | Metric | Value |
@@ -17,21 +23,21 @@ Use these patterns to keep responses practical, evidence-backed, and visually sc
 
 `🚨 Critical` · `🔴 High` · `🟠 Medium` · `🟡 Low` · `🔵 Info`
 
-### Applicability Matrix
+### Applicability
 
-| Priority | Framework | Why it triggered | Confirmed repo evidence | Depends on company context |
-|---|---|---|---|---|
-| 🔴 High | GDPR | Account data, analytics, delete/export language | `apps/api/routes/users.ts`, `src/api/telemetry.ts` | EU-user exposure and controller/processor role |
-| 🟠 Elevated | EU AI Act | External model APIs and prompt orchestration | `services/llm/client.py`, prompt templates | Whether the deployed feature set is in-scope and how it is used |
-| 🟡 Watch | HIPAA | Healthcare domain terms are present | patient-related schemas or workflow docs | Whether PHI is processed in production and BA/CE status |
+| Framework | Applicability | Confidence |
+|---|---|---|
+| GDPR / UK GDPR | High: the repo includes account data, analytics, and delete/export-style workflows that suggest personal-data handling | Medium-High |
+| EU AI Act | Medium-High: model-provider integrations and prompt orchestration suggest AI governance review is needed | Medium |
+| HIPAA | Low-Medium: healthcare-style terminology may indicate sensitivity, but PHI handling is not confirmed from repo evidence alone | Low-Medium |
 
 ### Key Findings
 
-| Severity | Framework | Repo evidence | Why it matters | Owner |
-|---|---|---|---|---|
-| 🔴 High | GDPR | `src/api/telemetry.ts` logs account-linked events; no retention path observed | Suggests a review gap around storage limitation, deletion, and notice coverage | Engineering + Privacy |
-| 🟠 Medium | EU AI Act | `services/llm/client.py` integrates model providers; no model inventory or human-review path observed | Suggests an AI governance and transparency gap to review before broader rollout | Product + Compliance |
-| 🟡 Low | ISO/IEC 42001 | AI-related workflows exist but governance artifacts are not visible in-repo | Suggests maturity work, not necessarily an immediate blocker | Leadership + Security |
+| Severity | Regulatory framework | Evidence (where found) | Why it matters |
+|---|---|---|---|
+| 🔴 High | GDPR | `src/api/telemetry.ts` logs account-linked events; no retention path observed | Suggests a review gap around storage limitation, deletion, and notice coverage |
+| 🟠 Medium | EU AI Act | `services/llm/client.py` integrates model providers; no model inventory or human-review path observed | Suggests an AI governance and transparency gap to review before broader rollout |
+| 🟡 Low | ISO/IEC 42001 | AI-related workflows exist but governance artifacts are not visible in-repo | Suggests maturity work, not necessarily an immediate blocker |
 
 ### Action Plan
 

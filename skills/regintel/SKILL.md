@@ -115,17 +115,23 @@ Begin every full response with this exact banner in a fenced `text` block:
 
 For repo scans, prefer this richer markdown structure:
 
+### Regulatory Scan Summary
+Start with 2 short prose lines:
+
+- `Scanned:` what was scanned, including the repo path/scope and a plain-English description of the product or platform.
+- `Overall Risk Picture:` the current risk level and a concrete summary of the sensitive data/processes or missing controls driving that view.
+
 ### Executive Snapshot
 Use a 2-column table for scope, top frameworks, overall urgency, and confidence.
 
 ### Severity Legend
 Use these badges consistently: `🚨 Critical`, `🔴 High`, `🟠 Medium`, `🟡 Low`, `🔵 Info`.
 
-### Applicability Matrix
-Use a markdown table with: priority, framework, why it triggered, confirmed repo evidence, and what still depends on company context.
+### Applicability
+Use a markdown table with: framework, applicability, and confidence. The applicability cell should say why the framework is relevant in plain English, not just a score.
 
 ### Key Findings
-Use a markdown table with: severity badge, framework, repo evidence, why it matters, and recommended owner/team.
+Use a markdown table with these required columns: severity badge, regulatory framework, evidence (where it is found), and why it matters. Add owner/team only if it improves the clarity.
 
 ### Action Plan
 Use a markdown table with: priority, team, action, and evidence trigger.
@@ -139,6 +145,7 @@ Use short bullets for missing deployment facts, jurisdiction assumptions, or com
 Formatting rules:
 
 - Default to tables when comparing frameworks, findings, or actions.
+- Make the opening scan summary concrete and repo-specific; avoid generic statements like "several issues were found."
 - Put the most important 3-6 findings in the primary findings table; move lower-signal items to a short `Additional Observations` list only if needed.
 - Avoid empty sections and generic filler text.
 - Use emoji badges for severity, urgency, warnings, pass/fail status, and trend direction when relevant.
