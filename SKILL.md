@@ -132,6 +132,12 @@ This agent review step is what separates Regintel from a raw keyword scan.
 - Run `dashboard_report.py` to produce markdown or HTML monitoring views.
 - Use `change_diff.py` between the two latest snapshots for concise baseline deltas in CI logs.
 
+### 4. Enforce Policy Gates
+
+- Run `compliance_gate.py` with a policy JSON to enforce acceptable risk thresholds in CI.
+- Use gate checks for not-observed controls, urgent deadlines, structural findings, required/forbidden signals, and framework-score trends.
+- Treat non-zero exit as a release/merge gate failure unless explicitly running in report-only mode.
+
 ## Output Format
 
 For repo scans, use this structure:
@@ -177,6 +183,7 @@ The agent runs these scripts automatically as part of the skill workflow. The us
 | `snapshot_store.py` | When persisting a monitoring snapshot | `python3 SKILL_DIR/scripts/snapshot_store.py --scan <scan.json> --snapshot-dir <snapshot-dir>` |
 | `trend_report.py` | When summarising movement across snapshots | `python3 SKILL_DIR/scripts/trend_report.py --snapshot-dir <snapshot-dir> --format markdown` |
 | `dashboard_report.py` | When rendering a monitoring dashboard | `python3 SKILL_DIR/scripts/dashboard_report.py --snapshot-dir <snapshot-dir> --format html --output <dashboard.html>` |
+| `compliance_gate.py` | When enforcing policy thresholds in CI/release workflows | `python3 SKILL_DIR/scripts/compliance_gate.py --policy <policy.json> --scan <scan.json> --format markdown` |
 
 ## Bundled References
 

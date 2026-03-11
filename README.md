@@ -46,12 +46,13 @@ Regintel is an **AI coding agent skill** that inspects a software repository for
 </tr>
 </table>
 
-### Two Operating Modes
+### Three Operating Modes
 
 | Mode | Purpose | Output |
 |:---|:---|:---|
 | **Repo Scan** | Inspect source, config, schemas, infra, and docs | Evidence-backed findings, candidate frameworks, missing controls |
 | **Regulatory Update** | Track upcoming regulatory changes and deadlines | Applicability summary, urgency labels, next actions |
+| **Continuous Monitoring** | Store snapshots, track trend drift, and enforce gates | Snapshot history, dashboards, policy pass/fail checks |
 
 ```mermaid
 flowchart LR
@@ -64,6 +65,10 @@ flowchart LR
     E --> G["change_diff.py"]
     F --> H["⚠️ Warnings / Urgency"]
     G --> I["🔄 What's Changed"]
+    B --> J["snapshot_store.py"]
+    J --> K["trend_report.py"]
+    K --> L["dashboard_report.py"]
+    K --> M["compliance_gate.py"]
 ```
 
 ---
@@ -154,7 +159,7 @@ Scan this repo for regulatory compliance issues
 # 1. Validate repo structure
 make validate
 
-# 2. Run the regression suite (32 tests)
+# 2. Run the regression suite (35 tests)
 make test
 
 # 3. Scan a sample repo
@@ -206,6 +211,14 @@ python3 scripts/dashboard_report.py \
   --snapshot-dir .regintel/snapshots \
   --format html \
   --output /tmp/regintel-dashboard.html
+
+# 11. Evaluate policy gates for CI
+python3 scripts/compliance_gate.py \
+  --policy examples/compliance-gate-policy.json \
+  --scan /tmp/scan.json \
+  --deadlines /tmp/deadlines.json \
+  --ast /tmp/ast.json \
+  --format markdown
 ```
 
 ---
@@ -223,6 +236,7 @@ python3 scripts/dashboard_report.py \
 | [`trend_report.py`](scripts/trend_report.py) | Summarize trend movement across snapshots |
 | [`dashboard_report.py`](scripts/dashboard_report.py) | Render monitoring dashboards in Markdown or HTML |
 | [`sync_regulatory_feeds.py`](scripts/sync_regulatory_feeds.py) | Sync JSON/RSS/Atom feeds into `developments` schema |
+| [`compliance_gate.py`](scripts/compliance_gate.py) | Evaluate policy-based compliance gates for CI and release checks |
 | [`validate_repo.py`](tools/validate_repo.py) | Validate repo structure, frontmatter, and Python syntax |
 
 ---
@@ -290,6 +304,8 @@ make check   # validate + test in one step
 
 6. **Continuous monitoring** — `snapshot_store.py` and `trend_report.py` track changes over time, while `dashboard_report.py` renders lightweight status dashboards for recent scan history.
 
+7. **Policy gating** — `compliance_gate.py` applies configurable thresholds to signals, controls, deadlines, structural findings, and trend movement so CI can fail on unacceptable risk drift.
+
 ---
 
 ## 🗺️ Roadmap
@@ -303,6 +319,7 @@ See **[ROADMAP.md](ROADMAP.md)** for the planned evolution of Regintel:
 | **v0.3** | ✅ AST-based structural scanning — function-level PII, DB write, and storage findings |
 | **v0.4** | ✅ Extended framework + jurisdiction support (ISO 42001, UK GDPR, CCPA/CPRA, PCI DSS, polyglot + IaC scanning) |
 | **v0.5** | ✅ Continuous monitoring, scheduled CI scans, dashboards, and feed sync |
+| **v0.6** | ✅ Policy-based compliance gates and CI quality enforcement |
 | **v1.0** | Stable release on PyPI |
 
 ---

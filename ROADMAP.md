@@ -70,6 +70,19 @@ Delivered:
 - Added scheduled CI workflow (`.github/workflows/monitor.yml`) with nightly scan, snapshot history, trend/dashboard artifact output, and baseline diff generation
 - Added monitoring regression tests and feed fixtures covering snapshot storage, trend reporting, dashboard rendering, and feed sync compatibility
 
+## ✅ v0.6 — Policy Gates and Release Quality Controls
+
+Status: **complete**
+
+Delivered:
+- Added `compliance_gate.py` for policy-driven pass/fail checks over scan, deadlines, AST findings, and trend outputs
+- Added support for minimum framework scores, required/forbidden signals, maximum not-observed controls, urgent deadline limits, structural-finding limits, and trend-based framework-drop limits
+- Added default policy template `examples/compliance-gate-policy.json` for CI and release gating
+- Integrated policy-gate smoke validation into `.github/workflows/validate.yml`
+- Integrated gate-result generation into `.github/workflows/monitor.yml` artifact outputs
+- Added regression tests for pass/fail gate behavior and trend-drop detection
+- Updated reference schemas and skill instructions to include gate usage
+
 ## v1.0 — Stable Release
 
 Goals:

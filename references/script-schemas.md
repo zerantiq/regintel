@@ -322,3 +322,42 @@ Items should expose `id` where possible. If `id` is absent, the script falls bac
   "errors": []
 }
 ```
+
+## `compliance_gate.py` Input
+
+- `--policy` (required): policy JSON with threshold checks
+- `--scan` (required): JSON output from `repo_signal_scan.py`
+- `--deadlines` (optional): JSON output from `check_deadlines.py`
+- `--ast` (optional): JSON output from `ast_signal_scan.py`
+- `--trend` (optional): JSON output from `trend_report.py` or `snapshot_store.py` summary
+
+## `compliance_gate.py` Output
+
+```json
+{
+  "policy_name": "balanced-default-gate",
+  "passed": true,
+  "failed_checks": 0,
+  "total_checks": 8,
+  "checks": [
+    {
+      "check": "max_not_observed_controls",
+      "status": "pass",
+      "message": "Not-observed control count is within threshold.",
+      "threshold": 3,
+      "actual": 2
+    }
+  ],
+  "metrics": {
+    "signal_count": 6,
+    "framework_scores": { "gdpr": 81, "dora": 75 },
+    "not_observed_controls": 2,
+    "high_or_critical_deadlines": 2,
+    "structural_findings": 0,
+    "trend_deltas": { "gdpr": -4, "dora": 2 }
+  }
+}
+```
+
+- Exit code `0`: gate passed
+- Exit code `1`: one or more gate checks failed

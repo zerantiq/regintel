@@ -1,0 +1,19 @@
+{
+  "name": "balanced-default-gate",
+  "max_not_observed_controls": 3,
+  "max_high_or_critical_deadlines": 3,
+  "max_structural_findings": 8,
+  "minimum_framework_scores": {
+    "gdpr": 40
+  },
+  "required_signals_any": [
+    "personal-data-processing",
+    "ai-model-integration",
+    "financial-reporting"
+  ],
+  "forbidden_signals": [],
+  "max_framework_score_drop": {
+    "gdpr": 15,
+    "dora": 15
+  }
+}

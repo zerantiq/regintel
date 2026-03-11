@@ -73,6 +73,14 @@ jobs:
             --format html \
             --output /tmp/monitor-dashboard.html
 
+          python3 scripts/compliance_gate.py \
+            --policy examples/compliance-gate-policy.json \
+            --scan /tmp/current-scan.json \
+            --deadlines /tmp/current-deadlines.json \
+            --ast /tmp/current-ast.json \
+            --trend /tmp/trend-report.json \
+            --format json > /tmp/gate-result.json || true
+
       - name: Generate baseline diff (if prior snapshot exists)
         run: |
           python3 - <<'PY'
@@ -123,3 +131,4 @@ jobs:
             /tmp/current-scan.json
             /tmp/current-applicability.json
             /tmp/current-deadlines.json
+            /tmp/gate-result.json

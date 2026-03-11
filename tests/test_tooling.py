@@ -50,3 +50,4 @@ class TestTooling(BaseRegintelTest):
         self.assertIn("workflow_dispatch:", content)
         self.assertIn("snapshot_store.py", content)
         self.assertIn("trend_report.py", content)
+        self.assertIn("compliance_gate.py", content)
