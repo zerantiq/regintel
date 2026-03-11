@@ -1,30 +1,97 @@
+<div align="center">
+
+<img src="https://www.zerantiq.com/_next/image?url=%2Fzerantiq_logo.png&w=96&q=75" alt="Zerantiq" width="64" />
+
 # Regintel
 
-> Code-aware regulatory intelligence for software repositories.
+**Code-aware regulatory intelligence for software repositories.**
 
-Regintel helps teams inspect a software repo for likely regulatory issues, map the findings to frameworks such as the EU AI Act, GDPR, HIPAA, FDA software obligations, SEC cyber disclosure, SOX, DORA, NIS2, and NIST AI RMF, and turn those signals into practical next actions.
+Scan any codebase for regulatory signals · Map findings to legal frameworks · Get actionable next steps
 
-## Install as a Claude Code Skill
+[![CI](https://github.com/zerantiq/regintel/actions/workflows/validate.yml/badge.svg)](https://github.com/zerantiq/regintel/actions/workflows/validate.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776ab?logo=python&logoColor=white)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/zerantiq/regintel?style=social)](https://github.com/zerantiq/regintel)
 
-Anyone can install regintel as a Claude Code plugin in two commands:
+</div>
+
+---
+
+## 🎯 What Is Regintel?
+
+Regintel is an **AI coding agent skill** that inspects a software repository for likely regulatory issues, maps the findings to legal frameworks, and turns those signals into practical next actions — all from a single prompt.
+
+### Supported Frameworks
+
+<table>
+<tr>
+<td>🇪🇺 EU AI Act</td>
+<td>🔒 GDPR</td>
+<td>🏥 HIPAA</td>
+<td>💊 FDA Software</td>
+<td>📊 SEC Cyber Disclosure</td>
+</tr>
+<tr>
+<td>📋 SOX</td>
+<td>🏦 DORA</td>
+<td>🛡️ NIS2</td>
+<td>🤖 NIST AI RMF</td>
+<td>🔐 US State Privacy</td>
+</tr>
+</table>
+
+### Two Operating Modes
+
+| Mode | Purpose | Output |
+|:---|:---|:---|
+| **Repo Scan** | Inspect source, config, schemas, infra, and docs | Evidence-backed findings, candidate frameworks, missing controls |
+| **Regulatory Update** | Track upcoming regulatory changes and deadlines | Applicability summary, urgency labels, next actions |
+
+```mermaid
+flowchart LR
+    A["📂 Software Repo"] --> B["repo_signal_scan.py"]
+    B --> C["applicability_score.py"]
+    C --> D["📋 Evidence-backed Findings"]
+    E["📰 Regulatory Developments"] --> F["check_deadlines.py"]
+    E --> G["change_diff.py"]
+    F --> H["⚠️ Warnings / Urgency"]
+    G --> I["🔄 What's Changed"]
+```
+
+---
+
+## ⚡ Quick Install
+
+Regintel is designed to be installed once and invoked by prompting your AI agent. **No manual script execution needed.**
+
+<details>
+<summary><strong>Claude Code</strong> — marketplace plugin</summary>
 
 ```bash
 claude plugin marketplace add zerantiq/regintel
 claude plugin install regintel@zerantiq
 ```
 
-After restarting Claude Code, the `regintel` skill is active in every repo. Ask Claude things like:
+After restarting Claude Code, the `regintel` skill is active in every repo.
+</details>
 
-- *"Scan this repo for regulatory compliance"*
-- *"Does this codebase raise GDPR issues?"*
-- *"What are the upcoming EU AI Act deadlines?"*
-- *"Check this repo for HIPAA problems"*
+<details>
+<summary><strong>Claude Code</strong> — git clone</summary>
 
-Claude will automatically invoke the skill and run the full analysis pipeline.
+```bash
+mkdir -p .agent/skills
+git clone https://github.com/zerantiq/regintel .agent/skills/regintel
+```
 
-## Install as an Antigravity Skill
+Or add as a submodule:
 
-Antigravity discovers skills from `SKILL.md` files. Install globally or per-workspace:
+```bash
+git submodule add https://github.com/zerantiq/regintel .agent/skills/regintel
+```
+</details>
+
+<details>
+<summary><strong>Antigravity</strong> — global or per-workspace</summary>
 
 **Global** (available in every workspace):
 
@@ -38,250 +105,182 @@ git clone https://github.com/zerantiq/regintel ~/.gemini/antigravity/skills/regi
 mkdir -p .agents/skills
 git clone https://github.com/zerantiq/regintel .agents/skills/regintel
 ```
+</details>
 
-After opening the workspace in Antigravity, the `regintel` skill is active. Ask things like:
-
-- *"Scan this repo for regulatory compliance"*
-- *"Does this codebase raise GDPR issues?"*
-- *"What are the upcoming EU AI Act deadlines?"*
-- *"Check this repo for HIPAA problems"*
-
-Antigravity will automatically read the skill, run the Python scripts, review the code, and deliver a full audit report.
-
-## Why This Repo Exists
-
-This repository packages `regintel` as an AI coding agent skill (Claude Code, Antigravity, OpenAI Codex, and compatible agents) with:
-
-- a repo scan workflow for software codebases
-- a regulatory update workflow for current developments and deadlines
-- bundled references for applicability and warning logic
-- Python helpers for signal detection, applicability scoring, deadline checks, and change diffs
-
-## What Regintel Does
-
-| Mode | Purpose | Core Output |
-|---|---|---|
-| Repo scan | Inspect source, config, schemas, infra, and docs for likely compliance signals | Evidence-backed findings, candidate frameworks, missing-control observations |
-| Regulatory update | Track current or upcoming regulatory changes | Applicability summary, warnings, next actions, deadline urgency |
-
-```mermaid
-flowchart LR
-    A["Software Repo"] --> B["repo_signal_scan.py"]
-    B --> C["applicability_score.py"]
-    C --> D["Evidence-backed Findings"]
-    E["Regulatory Developments"] --> F["check_deadlines.py"]
-    E --> G["change_diff.py"]
-    F --> H["Warnings / Urgency"]
-    G --> I["What's Changed"]
-```
-
-## Install as a Skill
-
-Regintel is designed to be installed once and then invoked by prompting your AI agent. No manual script execution needed.
-
-### Claude Code
-
-Clone into your project's `.agent/skills/` directory:
-
-```bash
-mkdir -p .agent/skills
-git clone https://github.com/zerantiq/regintel .agent/skills/regintel
-```
-
-Or add as a git submodule:
-
-```bash
-git submodule add https://github.com/zerantiq/regintel .agent/skills/regintel
-```
-
-Then prompt Claude Code:
-
-```
-Make a regulatory compliance check on this repo
-```
-
-Claude will automatically read the skill, run the Python scripts, review the code, and deliver a full audit report.
-
-### Antigravity
-
-Antigravity loads skills from `SKILL.md` files in two locations:
-
-**Global** (every workspace):
-
-```bash
-git clone https://github.com/zerantiq/regintel ~/.gemini/antigravity/skills/regintel
-```
-
-**Per-workspace** (one project):
+<details>
+<summary><strong>OpenAI Codex</strong></summary>
 
 ```bash
 mkdir -p .agents/skills
 git clone https://github.com/zerantiq/regintel .agents/skills/regintel
 ```
 
-Or add as a git submodule:
+Prompt with the `$regintel` skill prefix, or just ask naturally — the `agents/openai.yaml` manifest enables auto-discovery.
+</details>
 
-```bash
-git submodule add https://github.com/zerantiq/regintel .agents/skills/regintel
-```
+Then just prompt your agent:
 
-Then prompt Antigravity:
-
-```
+```text
 Scan this repo for regulatory compliance issues
 ```
 
-Antigravity will automatically discover the skill, run the Python scripts, review the code, and deliver a full audit report.
+---
 
-### OpenAI Codex
-
-Clone the repo alongside your project:
-
-```bash
-git clone https://github.com/zerantiq/regintel
-```
-
-Or install into a skills directory if your Codex setup supports it:
-
-```bash
-mkdir -p .agents/skills
-git clone https://github.com/zerantiq/regintel .agents/skills/regintel
-```
-
-Then prompt Codex using the `$regintel` skill prefix:
-
-```
-Use $regintel to scan this software repo for likely regulatory issues
-```
-
-Codex will invoke the skill, run the analysis pipeline, and produce an evidence-backed report. You can also prompt without the prefix:
-
-```
-Scan this repo for regulatory compliance
-```
-
-The `agents/openai.yaml` manifest enables Codex to discover and invoke the skill automatically when the prompt matches.
-
-### Example Prompts
+## 💬 Example Prompts
 
 | Prompt | What Happens |
-|---|---|
+|:---|:---|
 | *"Scan this repo for regulatory issues"* | Full scan → applicability scoring → evidence-backed findings |
 | *"Does this codebase have GDPR problems?"* | Focused scan with `--focus gdpr` → targeted findings |
 | *"What regulatory deadlines should we worry about?"* | Regulatory update mode → deadline urgency labels |
 | *"Check this repo for HIPAA issues"* | Focused scan → healthcare-specific signals and controls |
 | *"What changed since our last compliance review?"* | Diff mode → snapshot comparison |
 
-## Repository Layout
+---
+
+## 🛠️ Manual Quick Start
+
+> **Prerequisites:** Python 3.10+ · No external dependencies required
+
+```bash
+# 1. Validate repo structure
+make validate
+
+# 2. Run the regression suite (13 tests)
+make test
+
+# 3. Scan a sample repo
+python3 scripts/repo_signal_scan.py \
+  --path tests/fixtures/repos/ai-saas \
+  --scope full > /tmp/scan.json
+
+# 4. Score framework relevance
+python3 scripts/applicability_score.py \
+  --signals /tmp/scan.json \
+  --company examples/company-context.json \
+  --format markdown
+
+# 5. Check deadline urgency
+python3 scripts/check_deadlines.py \
+  --input examples/developments.json \
+  --format markdown
+
+# 6. Compare two snapshots
+python3 scripts/change_diff.py \
+  --old examples/old-scan.json \
+  --new examples/new-scan.json \
+  --format markdown
+```
+
+---
+
+## 📦 Scripts
+
+| Script | Purpose |
+|:---|:---|
+| [`repo_signal_scan.py`](scripts/repo_signal_scan.py) | Scan a repo and inventory evidence-backed regulatory signals |
+| [`applicability_score.py`](scripts/applicability_score.py) | Score framework relevance from scan output + optional company context |
+| [`check_deadlines.py`](scripts/check_deadlines.py) | Label milestone urgency for regulatory developments |
+| [`change_diff.py`](scripts/change_diff.py) | Compare old and new regulatory or scan snapshots |
+| [`validate_repo.py`](tools/validate_repo.py) | Validate repo structure, frontmatter, and Python syntax |
+
+---
+
+## 🧪 Testing
+
+The test suite covers framework detection, diff-scan behavior, deadline labels, evidence-class tracking, and more.
+
+```bash
+make check   # validate + test in one step
+```
+
+**Fixture repos** used for regression testing:
+
+| Fixture | Archetype | Key Frameworks |
+|:---|:---|:---|
+| `ai-saas` | AI/ML SaaS platform | EU AI Act, GDPR, US State Privacy |
+| `healthcare` | Clinical application | HIPAA, FDA Software |
+| `fintech` | Financial services | SOX, DORA, SEC Cyber |
+| `iot` | IoT infrastructure | NIS2, NIST AI RMF |
+| `low-risk` | Minimal signals | *(negative test case)* |
+
+---
+
+## 📁 Repository Layout
 
 ```text
 .
-├── conductor.json          # Claude Code marketplace manifest
+├── conductor.json            # Claude Code marketplace manifest
 ├── .claude-plugin/
-│   └── plugin.json         # Plugin metadata
-├── skills/
-│   └── regintel/
-│       └── SKILL.md        # Skill definition (installed copy)
-├── SKILL.md                # Canonical skill source
-├── CLAUDE.md
+│   └── plugin.json           # Plugin metadata
 ├── agents/
-├── examples/
-├── references/
-├── scripts/
-├── tests/
-├── tools/
-├── .github/
+│   └── openai.yaml           # OpenAI Codex agent manifest
+├── skills/regintel/
+│   └── SKILL.md              # Skill definition (installed copy)
+├── scripts/                  # Core analysis scripts
+├── references/               # Domain knowledge & schemas
+├── examples/                 # Sample inputs & scan reports
+├── tests/                    # Regression suite & fixtures
+├── tools/                    # Repo validation tooling
+├── .github/                  # CI workflows & issue templates
+├── SKILL.md                  # Canonical skill source
+├── CLAUDE.md                 # Agent development guide
+├── ROADMAP.md                # Planned milestones
 ├── CONTRIBUTING.md
 ├── SECURITY.md
 ├── CODE_OF_CONDUCT.md
-├── ROADMAP.md
-├── LICENSE
-└── README.md
+└── LICENSE
 ```
 
-## Quick Start
+---
 
-### 1. Validate the repo
+## 🔍 How It Works
 
-```bash
-make validate
-```
+1. **Signal detection** — `repo_signal_scan.py` walks your repo's source, config, schemas, and docs, matching patterns against 19 signal definitions with evidence-class weighting (source/config evidence ranked higher than docs/comments).
 
-### 2. Run the regression suite
+2. **Framework mapping** — Detected signals are mapped to 10 regulatory frameworks through 8 control rules. Each framework receives a weighted score based on the strength and class of evidence found.
 
-```bash
-make test
-```
+3. **Applicability scoring** — `applicability_score.py` combines scan output with optional company context (jurisdiction, industry, data types) to produce prioritized framework recommendations.
 
-### 3. Run a repo scan on the sample AI SaaS fixture
+4. **Deadline tracking** — `check_deadlines.py` labels regulatory milestones with urgency levels: *Critical Deadline*, *Action Needed Soon*, *Upcoming Change*, or *Monitor*.
 
-```bash
-python3 scripts/repo_signal_scan.py --path tests/fixtures/repos/ai-saas --scope full > /tmp/regintel-scan.json
-python3 scripts/applicability_score.py --signals /tmp/regintel-scan.json --company examples/company-context.json --format markdown
-```
+---
 
-### 4. Check milestone urgency
+## 🗺️ Roadmap
 
-```bash
-python3 scripts/check_deadlines.py --input examples/developments.json --format markdown
-```
+See **[ROADMAP.md](ROADMAP.md)** for the planned evolution of Regintel:
 
-### 5. Compare two snapshots
+| Version | Focus |
+|:---|:---|
+| **v0.2** | Stronger heuristics, DORA/NIS2/NIST AI RMF *(in progress)* |
+| **v0.3** | AST-based scanning (Python, TypeScript) |
+| **v0.4** | Extended frameworks (ISO 42001, PCI DSS) |
+| **v0.5** | Continuous monitoring & dashboards |
+| **v1.0** | Stable release on PyPI |
 
-```bash
-python3 scripts/change_diff.py --old examples/old-scan.json --new examples/new-scan.json --format markdown
-```
+---
 
-## Clean Examination Workflow
+## 🤝 Contributing
 
-Use this sequence when reviewing the repo:
+We welcome contributions! Start with **[CONTRIBUTING.md](CONTRIBUTING.md)**. High-impact areas:
 
-1. Read [README.md](README.md) and [SKILL.md](SKILL.md).
-2. Read [CLAUDE.md](CLAUDE.md) if you are using an AI coding agent to work in the repo.
-3. Review the domain references in [references/frameworks.md](references/frameworks.md) and [references/repo-scan-signals.md](references/repo-scan-signals.md).
-4. Run `make check` to verify structure and regression behavior.
-5. Run `repo_signal_scan.py` against a target repo or this repo itself.
-6. Use `applicability_score.py` to turn raw signals into framework-specific review priorities.
-7. Use `examples/` when you want deterministic deadline and diff demonstrations.
+- 🎯 Better scan heuristics with fewer false positives
+- 📐 Clearer applicability logic for edge cases
+- 📚 Stronger reference material for regulatory obligations
+- ✅ Tighter test coverage for the analysis scripts
 
-## Script Overview
+---
 
-| Script | Purpose |
-|---|---|
-| `scripts/repo_signal_scan.py` | Scans a repo and inventories evidence-backed regulatory signals |
-| `scripts/applicability_score.py` | Scores likely framework relevance from scan output and optional company context |
-| `scripts/check_deadlines.py` | Labels milestone urgency for regulatory developments |
-| `scripts/change_diff.py` | Compares old and new regulatory or scan snapshots |
-| `tools/validate_repo.py` | Repo-native validation for structure, frontmatter, and Python syntax |
+## 🔒 Security
 
-## Examples and Tests
+For security-sensitive findings, follow **[SECURITY.md](SECURITY.md)** instead of opening a public issue.
 
-- `examples/` contains ready-to-run JSON inputs for deadline checks, applicability scoring, and snapshot diffs.
-- `tests/fixtures/repos/` contains five regression fixture repos:
-  - `ai-saas`
-  - `healthcare`
-  - `low-risk`
-  - `fintech`
-  - `iot`
-- `tests/test_regintel.py` asserts expected framework detection, diff-scan behavior, deadline labels, and example diff output.
+---
 
-## Roadmap
+<div align="center">
 
-See [ROADMAP.md](ROADMAP.md) for the planned evolution of Regintel, including upcoming milestones for AST-based scanning, extended framework coverage, and continuous monitoring.
+**[Documentation](SKILL.md)** · **[Roadmap](ROADMAP.md)** · **[Contributing](CONTRIBUTING.md)** · **[Security](SECURITY.md)**
 
-## Contributing
+MIT License · Copyright © 2026 [Zerantiq](https://www.zerantiq.com)
 
-Start with [CONTRIBUTING.md](CONTRIBUTING.md). Good contributions usually include one or more of:
-
-- better repo-scan heuristics with reduced false positives
-- clearer applicability logic for framework-specific edge cases
-- stronger reference material for software and AI obligations
-- tighter test and validation coverage for the helper scripts
-
-## Reporting Bugs
-
-Use the GitHub bug report template for normal issues. For security-sensitive findings, follow [SECURITY.md](SECURITY.md) instead of opening a public issue with exploit details.
-
-## License
-
-This repository is licensed under the MIT License. See [LICENSE](LICENSE).
+</div>
