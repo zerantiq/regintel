@@ -8,6 +8,9 @@ version = "0.1.0"
 description = "Code-aware regulatory intelligence skill for software repositories."
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+  "tomli>=2; python_version < '3.11'",
+]
 license = { text = "MIT" }
 authors = [{ name = "Zerantiq" }]
 keywords = ["compliance", "regulation", "privacy", "ai-governance", "security", "software"]

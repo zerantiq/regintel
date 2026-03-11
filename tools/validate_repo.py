@@ -6,8 +6,12 @@ from __future__ import annotations
 import json
 import re
 import sys
-import tomllib
 from pathlib import Path
+
+try:
+    import tomllib  # Python 3.11+
+except ModuleNotFoundError:
+    import tomli as tomllib  # type: ignore[no-redef]
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
