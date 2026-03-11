@@ -111,9 +111,6 @@ ZZZZZZZ EEEEEEE RRRRRR   AAAAA  N   N TTTTTTT IIIII QQQQQQQ
  ZZ     EE      RR  RR  AA   AA N  NN   T      I   QQ  QQQ
 ZZZZZZZ EEEEEEE RR   RR AA   AA N   N   T    IIIII  QQQQ QQ
                                                      QQQQ
----------------------------------------------------------------------+
-|                 Tailored for every stakeholder.                    |
----------------------------------------------------------------------+
 ```
 
 For repo scans, use this structure:
