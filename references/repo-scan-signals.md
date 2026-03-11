@@ -166,6 +166,49 @@ Potential review areas:
 - model documentation and transparency
 - continuous monitoring
 
+## Structural Code Signals (AST-Based)
+
+Run `ast_signal_scan.py` for function-level patterns that regex scanning cannot reliably detect.
+
+### PII in Return Values
+
+Example evidence:
+- Function returns a dict literal with keys like `email`, `phone`, `first_name`, `dob`
+- Function returns `user.email` or another PII attribute directly
+- Function returns a variable whose name is a PII field name
+
+Why it matters:
+- Exposes personal data to callers without data minimisation
+- Each call site becomes a potential disclosure or logging point
+- Relevant to GDPR data minimisation, HIPAA minimum-necessary, and CCPA/state-privacy obligations
+
+### Database Writes Without Audit Logging
+
+Example evidence:
+- Function calls `.execute()`, `.save()`, `.delete()`, `.commit()`, or ORM write methods
+- No logging call (`.info()`, `.warning()`, `.audit_log()`, etc.) is present in the same function
+
+Why it matters:
+- Sensitive data mutations without audit trails are a common HIPAA, SOX, and GDPR gap
+- Missing write logs limit incident investigation and compliance reporting
+
+### Storage Writes Without Encryption Indicators
+
+Example evidence:
+- `open(path, "w")` or `open(path, "wb")` calls with no encryption context
+- S3 `put_object()` or `upload_file()` calls with no `ServerSideEncryption` or KMS key argument
+
+Why it matters:
+- Unencrypted file or object writes may violate GDPR, HIPAA, DORA, and NIS2 storage obligations
+- Absence of encryption indicators does not confirm a violation, but flags a control gap to verify
+
+### False-Positive Reduction (v0.3+)
+
+The regex scanner skips lines inside Python module, class, and function docstrings. This reduces
+false positives when regulatory terms like `email`, `patient`, or `consent` appear only in
+documentation prose. String constants that are part of executable code (dict keys, assignments,
+return values) are not filtered and continue to score as evidence.
+
 ## Absence-Based Findings
 
 Use “not observed” findings only when a relevant feature is clearly present.

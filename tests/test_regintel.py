@@ -198,5 +198,96 @@ class RegintelRegressionTests(unittest.TestCase):
             self.assertEqual(candidate["framework"], "dora")
 
 
+class ASTScannerTests(unittest.TestCase):
+    """v0.3: Structured code analysis via Python AST scanner."""
+
+    maxDiff = None
+
+    def test_ast_scanner_detects_pii_in_return_value(self) -> None:
+        result = run_json_script("ast_signal_scan.py", "--path", str(FIXTURES_ROOT / "ai-saas"))
+        finding_ids = [f["id"] for f in result["structural_findings"]]
+        self.assertIn("pii-in-return-value", finding_ids)
+
+    def test_ast_scanner_detects_unlogged_db_write(self) -> None:
+        result = run_json_script("ast_signal_scan.py", "--path", str(FIXTURES_ROOT / "ai-saas"))
+        finding_ids = [f["id"] for f in result["structural_findings"]]
+        self.assertIn("unlogged-db-write", finding_ids)
+
+    def test_ast_scanner_detects_unencrypted_storage_write(self) -> None:
+        result = run_json_script("ast_signal_scan.py", "--path", str(FIXTURES_ROOT / "ai-saas"))
+        finding_ids = [f["id"] for f in result["structural_findings"]]
+        self.assertIn("unencrypted-storage-write", finding_ids)
+
+    def test_ast_findings_have_required_fields(self) -> None:
+        result = run_json_script("ast_signal_scan.py", "--path", str(FIXTURES_ROOT / "ai-saas"))
+        self.assertIn("scan", result)
+        self.assertIn("structural_findings", result)
+        self.assertIn("python_files", result["scan"])
+        self.assertEqual(result["scan"]["ast_method"], "python-ast")
+        for finding in result["structural_findings"]:
+            self.assertIn("id", finding)
+            self.assertIn("severity", finding)
+            self.assertIn("title", finding)
+            self.assertIn("frameworks", finding)
+            self.assertIn("evidence", finding)
+            for ev in finding["evidence"]:
+                self.assertIn("path", ev)
+                self.assertIn("line", ev)
+                self.assertIn("function", ev)
+                self.assertIn("detail", ev)
+                self.assertEqual(ev["finding_class"], "ast")
+
+    def test_ast_scanner_pii_finding_cites_correct_function(self) -> None:
+        result = run_json_script("ast_signal_scan.py", "--path", str(FIXTURES_ROOT / "ai-saas"))
+        pii_findings = [f for f in result["structural_findings"] if f["id"] == "pii-in-return-value"]
+        self.assertTrue(pii_findings, "Expected at least one pii-in-return-value finding")
+        functions = {ev["function"] for f in pii_findings for ev in f["evidence"]}
+        self.assertIn("get_user_profile", functions)
+
+    def test_ast_scanner_db_write_finding_cites_correct_function(self) -> None:
+        result = run_json_script("ast_signal_scan.py", "--path", str(FIXTURES_ROOT / "ai-saas"))
+        db_findings = [f for f in result["structural_findings"] if f["id"] == "unlogged-db-write"]
+        self.assertTrue(db_findings, "Expected at least one unlogged-db-write finding")
+        functions = {ev["function"] for f in db_findings for ev in f["evidence"]}
+        self.assertIn("delete_user_account", functions)
+
+    def test_python_docstring_matches_excluded_from_regex_scan(self) -> None:
+        """Keyword matches inside Python docstrings should not inflate signal counts."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file = Path(tmpdir) / "doc_only.py"
+            test_file.write_text(
+                '"""Module that describes email, phone, and address handling."""\n\n\n'
+                "def foo():\n"
+                '    """Processes user email address for notification."""\n'
+                "    return 42\n",
+                encoding="utf-8",
+            )
+            result = run_json_script("repo_signal_scan.py", "--path", tmpdir, "--scope", "full")
+            signal_ids = [s["id"] for s in result["signals"]]
+            self.assertNotIn(
+                "personal-data-processing",
+                signal_ids,
+                "personal-data-processing signal should not fire when matches are only in docstrings",
+            )
+
+    def test_ast_scanner_low_risk_fixture_has_no_findings(self) -> None:
+        result = run_json_script("ast_signal_scan.py", "--path", str(FIXTURES_ROOT / "low-risk"))
+        self.assertEqual(result["structural_findings"], [])
+
+    def test_ast_scanner_markdown_output(self) -> None:
+        result = run_command(
+            [
+                sys.executable,
+                str(SCRIPTS_ROOT / "ast_signal_scan.py"),
+                "--path",
+                str(FIXTURES_ROOT / "ai-saas"),
+                "--format",
+                "markdown",
+            ]
+        )
+        self.assertIn("AST Structural Scan", result.stdout)
+        self.assertIn("finding(s)", result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

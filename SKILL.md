@@ -46,7 +46,19 @@ python3 SKILL_DIR/scripts/repo_signal_scan.py --path TARGET_REPO --scope full > 
 - Use `--focus <framework>` to filter signals to a single framework when the user asks about a specific one.
 - Read the resulting JSON to understand what signals, frameworks, and control observations were found.
 
-### 3. Run the Applicability Scorer
+### 3. Run the AST Structural Scanner
+
+When the scan path contains Python source files, run the structural scanner to detect function-level patterns that regex scanning cannot reliably find:
+
+```bash
+python3 SKILL_DIR/scripts/ast_signal_scan.py --path TARGET_REPO > /tmp/regintel-ast.json
+```
+
+- Read `structural_findings` in the output for PII-in-return-value, unlogged-db-write, and unencrypted-storage-write findings.
+- Each finding includes the function name, file path, and line number for direct inspection.
+- Incorporate these findings into the agent review step alongside regex-based signal evidence.
+
+### 4. Run the Applicability Scorer
 
 Run the scorer automatically to compute framework-level priorities:
 
@@ -57,7 +69,7 @@ python3 SKILL_DIR/scripts/applicability_score.py --signals /tmp/regintel-scan.js
 - If the user provides company context (jurisdictions, public-company status, healthcare customers, etc.), save it as JSON and pass `--company <path>`.
 - Read the resulting JSON for scored frameworks, review areas, and confidence notes.
 
-### 4. Review Evidence with Agent Judgment
+### 5. Review Evidence with Agent Judgment
 
 The script output is a starting point. Refine it with your own code reading:
 
@@ -69,14 +81,14 @@ The script output is a starting point. Refine it with your own code reading:
 
 This agent review step is what separates Regintel from a raw keyword scan.
 
-### 5. Draft Findings Carefully
+### 6. Draft Findings Carefully
 
 - Cite concrete repo evidence for every finding. Include file paths and, when possible, the exact symbol, setting, schema, or log/event name that triggered the concern.
 - Allow absence-based findings only when the repo clearly implements a relevant feature and the expected control is not observed anywhere in the in-scope evidence.
 - Describe issues as likely gaps, missing controls, or areas to review. Do not claim definitive non-compliance from repo evidence alone.
 - Separate confirmed facts from inference. Mark company-level or deployment-level assumptions explicitly.
 
-### 6. Map to Frameworks and Deadlines
+### 7. Map to Frameworks and Deadlines
 
 - Use `SKILL_DIR/references/frameworks.md` for obligation framing and applicability boundaries.
 - If regulatory developments with milestone dates are available, run `python3 SKILL_DIR/scripts/check_deadlines.py --input <developments.json> --format markdown` automatically to annotate urgency.
@@ -137,6 +149,7 @@ The agent runs these scripts automatically as part of the skill workflow. The us
 | Script | When to Run | Command |
 |---|---|---|
 | `repo_signal_scan.py` | Always, as the first step of every repo scan | `python3 SKILL_DIR/scripts/repo_signal_scan.py --path TARGET_REPO --scope full` |
+| `ast_signal_scan.py` | After the signal scan, when the repo contains Python source files | `python3 SKILL_DIR/scripts/ast_signal_scan.py --path TARGET_REPO` |
 | `applicability_score.py` | Always, immediately after the signal scan | `python3 SKILL_DIR/scripts/applicability_score.py --signals <scan.json> --format json` |
 | `check_deadlines.py` | When regulatory developments with dates are available | `python3 SKILL_DIR/scripts/check_deadlines.py --input <developments.json> --format markdown` |
 | `change_diff.py` | When comparing two snapshots (before/after scans or regulatory updates) | `python3 SKILL_DIR/scripts/change_diff.py --old <old.json> --new <new.json> --format markdown` |

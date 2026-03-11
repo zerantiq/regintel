@@ -29,13 +29,20 @@ Delivered:
 - Enhanced CI with Python version matrix testing (3.10, 3.12, 3.13)
 - Published example scan reports for common repo archetypes
 
-## v0.3 — Structured Code Analysis
+## ✅ v0.3 — Structured Code Analysis
 
-Goals:
-- Add optional AST-based scanning for Python and TypeScript to detect data flows, not just keywords
-- Detect function-level patterns: PII field usage in return values, unlogged database writes, unencrypted storage calls
-- Support Tree-sitter or Semgrep rule integration for language-agnostic structural matching
-- Reduce false positives from comments, docstrings, and string literals that match signal patterns
+Status: **complete**
+
+Delivered:
+- New `ast_signal_scan.py` script using Python stdlib `ast` for zero-dependency structural analysis
+- Detects three function-level patterns: PII fields in return values, database writes without audit logging, and file/storage writes without encryption indicators
+- Each finding cites the function name, file path, and line number for direct inspection
+- Python string-literal and docstring filtering added to `repo_signal_scan.py` to reduce false positives from regulatory keywords mentioned only in documentation strings
+- Updated `references/repo-scan-signals.md` with structural signal categories and guidance
+- Updated `references/script-schemas.md` with `ast_signal_scan.py` JSON output schema
+- Updated `SKILL.md` pipeline to run `ast_signal_scan.py` after the signal scan when Python source files are present
+- Regression tests covering all three structural findings, field validation, false-positive suppression, and markdown output
+- Tree-sitter support for TypeScript deferred to v0.4 (optional dependency; Python stdlib AST covers the primary use case)
 
 ## v0.4 — Extended Framework and Jurisdiction Support
 

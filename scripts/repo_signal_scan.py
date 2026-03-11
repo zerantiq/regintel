@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import os
 import re
@@ -766,6 +767,46 @@ def build_compiled_signal_definitions() -> list[dict[str, Any]]:
     return compiled
 
 
+def get_python_docstring_lines(path: Path) -> set[int]:
+    """Return line numbers that fall inside module, class, or function docstrings.
+
+    Only targets true docstrings — the first string expression in a module, class,
+    or function body — not general string literals such as dict keys or assignments.
+    Regex matches on docstring lines are skipped to avoid false positives from
+    regulatory keywords that appear only in documentation prose.
+    Returns an empty set if the file cannot be parsed.
+    """
+    try:
+        source = path.read_text(encoding="utf-8", errors="ignore")
+        tree = ast.parse(source)
+    except (SyntaxError, ValueError):
+        return set()
+
+    docstring_lines: set[int] = set()
+
+    def record_docstring(body: list[ast.stmt]) -> None:
+        if not body:
+            return
+        first = body[0]
+        if (
+            isinstance(first, ast.Expr)
+            and isinstance(first.value, ast.Constant)
+            and isinstance(first.value.value, str)
+        ):
+            node = first.value
+            start = getattr(node, "lineno", None)
+            end = getattr(node, "end_lineno", start)
+            if start is not None:
+                for lineno in range(start, (end or start) + 1):
+                    docstring_lines.add(lineno)
+
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+            record_docstring(getattr(node, "body", []))
+
+    return docstring_lines
+
+
 def scan_files(files: list[Path], root: Path, focus: str | None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     compiled_definitions = build_compiled_signal_definitions()
     signals: dict[str, dict[str, Any]] = {}
@@ -787,13 +828,29 @@ def scan_files(files: list[Path], root: Path, focus: str | None) -> tuple[list[d
             "_matched_terms": set(),
         }
 
+    python_docstring_lines_cache: dict[str, set[int]] = {}
+
     for file_path in files:
         try:
             lines = file_path.read_text(encoding="utf-8", errors="ignore").splitlines()
         except OSError:
             continue
+
+        # For Python source files, skip lines that fall inside module, class, or function
+        # docstrings. This reduces false positives from regulatory keywords that appear
+        # only in documentation prose rather than in executable code or configuration.
+        is_python_source = file_path.suffix.lower() == ".py"
+        docstring_lines: set[int] = set()
+        if is_python_source:
+            cache_key = str(file_path)
+            if cache_key not in python_docstring_lines_cache:
+                python_docstring_lines_cache[cache_key] = get_python_docstring_lines(file_path)
+            docstring_lines = python_docstring_lines_cache[cache_key]
+
         for line_number, line in enumerate(lines, start=1):
             if not line.strip():
+                continue
+            if is_python_source and line_number in docstring_lines:
                 continue
             snippet = line.strip()
             if len(snippet) > MAX_SNIPPET_CHARS:
