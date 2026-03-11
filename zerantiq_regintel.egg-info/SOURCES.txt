@@ -1,0 +1,14 @@
+LICENSE
+README.md
+pyproject.toml
+scripts/applicability_score.py
+scripts/change_diff.py
+scripts/check_deadlines.py
+scripts/repo_signal_scan.py
+tests/test_regintel.py
+tools/validate_repo.py
+zerantiq_regintel.egg-info/PKG-INFO
+zerantiq_regintel.egg-info/SOURCES.txt
+zerantiq_regintel.egg-info/dependency_links.txt
+zerantiq_regintel.egg-info/requires.txt
+zerantiq_regintel.egg-info/top_level.txt
