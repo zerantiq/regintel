@@ -23,22 +23,28 @@ Regintel is an **AI coding agent skill** that inspects a software repository for
 
 ### Supported Frameworks
 
-- 🇪🇺 EU AI Act
-- 🤖 ISO/IEC 42001
-- 🔒 GDPR
-- 🇬🇧 UK GDPR
-- 🔐 U.S. State Privacy
-- 🌉 CCPA / CPRA
-- 🇺🇸 Virginia CDPA
-- 🇺🇸 Colorado Privacy Act
-- 🏥 HIPAA
-- 💊 FDA Software
-- 💳 PCI DSS
-- 📊 SEC Cyber Disclosure
-- 📋 SOX
-- 🏦 DORA
-- 🛡️ NIS2
-- 🤖 NIST AI RMF
+<table>
+<tr>
+<td>🇪🇺 EU AI Act</td>
+<td>🤖 ISO/IEC 42001</td>
+<td>🔒 GDPR</td>
+<td>🇬🇧 UK GDPR</td>
+<td>🔐 U.S. State Privacy</td>
+<td>🌉 CCPA / CPRA</td>
+<td>🇺🇸 Virginia CDPA</td>
+<td>🇺🇸 Colorado Privacy Act</td>
+</tr>
+<tr>
+<td>🏥 HIPAA</td>
+<td>💊 FDA Software</td>
+<td>💳 PCI DSS</td>
+<td>📊 SEC Cyber Disclosure</td>
+<td>📋 SOX</td>
+<td>🏦 DORA</td>
+<td>🛡️ NIS2</td>
+<td>🤖 NIST AI RMF</td>
+</tr>
+</table>
 
 ### Two Operating Modes
 
