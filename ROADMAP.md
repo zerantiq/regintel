@@ -94,6 +94,35 @@ Delivered:
 - Added documentation site scaffold (`mkdocs.yml` + `docs/`) with getting-started guidance, CI monitoring tutorial, pip CLI workflow, agent integration notes, and contract reference docs
 - Updated reference schemas and README install guidance to reflect pip-based usage and v0.7 interface guarantees
 
+## ✅ v0.8 — Multi-language Structural Scanning
+
+Status: **complete**
+
+Delivered:
+- Extended `ast_signal_scan.py` structural scanning beyond Python to include TypeScript (`.ts`/`.tsx`), Java (`.java`), Go (`.go`), and .NET/C# (`.cs`)
+- Kept Python stdlib AST analysis for Python and added function-block structural analyzers for TypeScript, Java, Go, and .NET/C# with no new runtime dependencies
+- Added per-language scan metadata (`python_files`, `typescript_files`, `java_files`, `go_files`, `csharp_files`) and `structural_methods` in the `scan` payload
+- Added a dedicated `polyglot-structural` fixture repo and regression tests to validate structural findings across TypeScript, Java, Go, and .NET/C#
+- Updated README, skill guidance, and reference schemas to document the multi-language structural scanner behavior
+
+## v0.9 — Performance Features for Large Repos
+
+Status: **planned**
+
+Goals:
+- Add incremental caching for repeat scans
+- Add parallel file scanning for faster execution
+- Target predictable runtime characteristics for monorepos
+
+## v1.0 — Benchmark Harness for Quality
+
+Status: **planned**
+
+Goals:
+- Add a labeled fixture corpus for scanner evaluation
+- Report precision and recall trends in CI
+- Prevent false-positive regressions as rules expand
+
 ## Non-Goals
 
 These remain explicitly out of scope:

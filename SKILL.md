@@ -49,7 +49,7 @@ python3 SKILL_DIR/scripts/repo_signal_scan.py --path TARGET_REPO --scope full > 
 
 ### 3. Run the AST Structural Scanner
 
-When the scan path contains Python source files, run the structural scanner to detect function-level patterns that regex scanning cannot reliably find:
+When the scan path contains Python, TypeScript, Java, Go, or .NET/C# source files, run the structural scanner to detect function-level patterns that regex scanning cannot reliably find:
 
 ```bash
 python3 SKILL_DIR/scripts/ast_signal_scan.py --path TARGET_REPO > /tmp/regintel-ast.json
@@ -57,6 +57,7 @@ python3 SKILL_DIR/scripts/ast_signal_scan.py --path TARGET_REPO > /tmp/regintel-
 
 - Read `structural_findings` in the output for PII-in-return-value, unlogged-db-write, and unencrypted-storage-write findings.
 - Each finding includes the function name, file path, and line number for direct inspection.
+- Python analysis uses stdlib AST parsing; TypeScript/Java/Go/.NET analysis uses structural function-block parsing.
 - Incorporate these findings into the agent review step alongside regex-based signal evidence.
 
 ### 4. Run the Applicability Scorer
@@ -175,7 +176,7 @@ The agent runs these scripts automatically as part of the skill workflow. The us
 | Script | When to Run | Command |
 |---|---|---|
 | `repo_signal_scan.py` | Always, as the first step of every repo scan | `python3 SKILL_DIR/scripts/repo_signal_scan.py --path TARGET_REPO --scope full` |
-| `ast_signal_scan.py` | After the signal scan, when the repo contains Python source files | `python3 SKILL_DIR/scripts/ast_signal_scan.py --path TARGET_REPO` |
+| `ast_signal_scan.py` | After the signal scan, when the repo contains Python/TypeScript/Java/Go/.NET-C# source files | `python3 SKILL_DIR/scripts/ast_signal_scan.py --path TARGET_REPO` |
 | `applicability_score.py` | Always, immediately after the signal scan | `python3 SKILL_DIR/scripts/applicability_score.py --signals <scan.json> --format json` |
 | `check_deadlines.py` | When regulatory developments with dates are available | `python3 SKILL_DIR/scripts/check_deadlines.py --input <developments.json> --format markdown` |
 | `change_diff.py` | When comparing two snapshots (before/after scans or regulatory updates) | `python3 SKILL_DIR/scripts/change_diff.py --old <old.json> --new <new.json> --format markdown` |

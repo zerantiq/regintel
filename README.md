@@ -77,7 +77,7 @@ flowchart LR
 
 Regintel is designed to be installed once and invoked by prompting your AI agent. **No manual script execution needed.**
 
-For direct CLI usage (v0.7 package):
+For direct CLI usage (v0.8 package):
 
 ```bash
 python -m pip install zerantiq-regintel
@@ -176,7 +176,7 @@ python3 scripts/repo_signal_scan.py \
   --path tests/fixtures/repos/ai-saas \
   --scope full > /tmp/scan.json
 
-# 3b. Run the AST structural scanner (Python source files)
+# 3b. Run the AST structural scanner (Python + TypeScript + Java + Go + .NET/C#)
 python3 scripts/ast_signal_scan.py \
   --path tests/fixtures/repos/ai-saas > /tmp/ast.json
 
@@ -237,7 +237,7 @@ python3 scripts/compliance_gate.py \
 | Script | Purpose |
 |:---|:---|
 | [`repo_signal_scan.py`](scripts/repo_signal_scan.py) | Scan a repo and inventory evidence-backed regulatory signals |
-| [`ast_signal_scan.py`](scripts/ast_signal_scan.py) | AST-based structural scan of Python source files for function-level patterns |
+| [`ast_signal_scan.py`](scripts/ast_signal_scan.py) | Multi-language structural scan (Python AST + TypeScript/Java/Go/.NET-C# function-block analysis) for function-level patterns |
 | [`applicability_score.py`](scripts/applicability_score.py) | Score framework relevance from scan output + optional company context |
 | [`check_deadlines.py`](scripts/check_deadlines.py) | Label milestone urgency for regulatory developments |
 | [`change_diff.py`](scripts/change_diff.py) | Compare old and new regulatory or scan snapshots |
@@ -252,7 +252,7 @@ python3 scripts/compliance_gate.py \
 
 ## 🧪 Testing
 
-The test suite covers framework detection, AST structural findings, diff-scan behavior, deadline labels, evidence-class tracking, false-positive suppression, and more.
+The test suite covers framework detection, multi-language structural findings, diff-scan behavior, deadline labels, evidence-class tracking, false-positive suppression, and more.
 
 ```bash
 make check   # validate + test in one step
@@ -267,6 +267,7 @@ make check   # validate + test in one step
 | `fintech` | Financial services | SOX, DORA, SEC Cyber |
 | `iot` | IoT infrastructure | NIS2, NIST AI RMF |
 | `polyglot-regulated` | Polyglot platform + IaC | ISO 42001, UK GDPR, CCPA/CPRA, PCI DSS |
+| `polyglot-structural` | Structural-scan stress fixture | TypeScript, Java, Go, .NET/C# function-level findings |
 | `low-risk` | Minimal signals | *(negative test case)* |
 
 ---
@@ -303,7 +304,7 @@ make check   # validate + test in one step
 
 1. **Signal detection** — `repo_signal_scan.py` walks your repo's source, config, schemas, and docs, matching patterns against 28 signal definitions with evidence-class weighting (source/config evidence ranked higher than docs/comments). Python docstrings are excluded to suppress false positives from regulatory terms mentioned only in documentation prose.
 
-2. **Structural analysis** — `ast_signal_scan.py` parses Python source files using the stdlib `ast` module to detect function-level patterns: PII fields in return values, database writes without audit logging, and storage writes without encryption indicators.
+2. **Structural analysis** — `ast_signal_scan.py` parses Python source files using stdlib `ast` and applies function-block structural analysis for TypeScript, Java, Go, and .NET/C# to detect: PII fields in return values, database writes without audit logging, and storage writes without encryption indicators.
 
 3. **Framework mapping** — Detected signals are mapped to 16 regulatory frameworks through 11 control rules. Each framework receives a weighted score based on the strength and class of evidence found.
 
@@ -330,6 +331,9 @@ See **[ROADMAP.md](ROADMAP.md)** for the planned evolution of Regintel:
 | **v0.5** | ✅ Continuous monitoring, scheduled CI scans, dashboards, and feed sync |
 | **v0.6** | ✅ Policy-based compliance gates and CI quality enforcement |
 | **v0.7** | ✅ Stable interfaces, pip entry points, and docs site |
+| **v0.8** | ✅ Multi-language structural scanning across Python, TypeScript, Java, Go, and .NET/C# |
+| **v0.9** | Planned: incremental cache + parallel scanning for large repos |
+| **v1.0** | Planned: benchmark harness with precision/recall CI tracking |
 
 ---
 

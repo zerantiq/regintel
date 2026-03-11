@@ -2,12 +2,13 @@
 
 Regintel scans software repositories for regulatory signals, maps evidence to frameworks, and produces artifacts that teams can use in CI and release checks.
 
-## v0.7 Highlights
+## v0.8 Highlights
 
 - Stable JSON contracts for all machine-readable CLI outputs (`meta.tool`, `meta.schema_version`).
 - Pip-installable CLI entry points for every core workflow.
 - Full framework coverage tests across all bundled fixture repositories.
 - Monitoring and release gates for continuous compliance checks.
+- Multi-language structural scanning across Python, TypeScript, Java, Go, and .NET/C#.
 
 ## Quick Start
 

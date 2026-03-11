@@ -2,7 +2,7 @@
 
 All scripts use UTF-8 JSON files as input. Dates use `YYYY-MM-DD`.
 
-## v0.7 Contract Header
+## v0.8 Contract Header
 
 All machine-readable outputs include a stable contract header:
 
@@ -155,6 +155,8 @@ Pass the JSON file produced by `repo_signal_scan.py`.
 
 ## `ast_signal_scan.py` Output
 
+Scans Python, TypeScript, Java, Go, and .NET/C# source files for structural function-level findings.
+
 ```json
 {
   "meta": {
@@ -164,8 +166,19 @@ Pass the JSON file produced by `repo_signal_scan.py`.
   "scan": {
     "path": ".",
     "python_files": 4,
+    "typescript_files": 2,
+    "java_files": 1,
+    "go_files": 1,
+    "csharp_files": 1,
     "finding_count": 3,
-    "ast_method": "python-ast"
+    "ast_method": "python-ast",
+    "structural_methods": [
+      "python-ast",
+      "typescript-brace-patterns",
+      "java-brace-patterns",
+      "go-brace-patterns",
+      "csharp-brace-patterns"
+    ]
   },
   "structural_findings": [
     {

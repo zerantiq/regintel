@@ -223,6 +223,7 @@ Potential review areas:
 ## Structural Code Signals (AST-Based)
 
 Run `ast_signal_scan.py` for function-level patterns that regex scanning cannot reliably detect.
+The scanner uses Python stdlib AST parsing for `.py` files and structural function-block analysis for `.ts`/`.tsx`, `.java`, `.go`, and `.cs` files.
 
 ### PII in Return Values
 
@@ -230,6 +231,7 @@ Example evidence:
 - Function returns a dict literal with keys like `email`, `phone`, `first_name`, `dob`
 - Function returns `user.email` or another PII attribute directly
 - Function returns a variable whose name is a PII field name
+- TypeScript/Java/Go/.NET returns include PII tokens in returned objects/maps or expression values
 
 Why it matters:
 - Exposes personal data to callers without data minimisation
@@ -241,6 +243,7 @@ Why it matters:
 Example evidence:
 - Function calls `.execute()`, `.save()`, `.delete()`, `.commit()`, or ORM write methods
 - No logging call (`.info()`, `.warning()`, `.audit_log()`, etc.) is present in the same function
+- TypeScript/Java/Go/.NET write calls such as `update()`, `save()`, `Exec()`, or `Execute()` occur without logging/audit calls
 
 Why it matters:
 - Sensitive data mutations without audit trails are a common HIPAA, SOX, and GDPR gap
@@ -251,6 +254,7 @@ Why it matters:
 Example evidence:
 - `open(path, "w")` or `open(path, "wb")` calls with no encryption context
 - S3 `put_object()` or `upload_file()` calls with no `ServerSideEncryption` or KMS key argument
+- TypeScript/Java/Go/.NET write paths like `writeFileSync()`, `FileOutputStream`, `os.WriteFile()`, or `File.WriteAllText()` with no encryption indicators
 
 Why it matters:
 - Unencrypted file or object writes may violate GDPR, HIPAA, DORA, and NIS2 storage obligations
