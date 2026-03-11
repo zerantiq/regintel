@@ -130,14 +130,27 @@ git clone https://github.com/zerantiq/regintel .agents/skills/regintel
 </details>
 
 <details>
-<summary><strong>OpenAI Codex</strong></summary>
+<summary><strong>OpenAI Codex</strong> — global install</summary>
 
 ```bash
-mkdir -p .agents/skills
-git clone https://github.com/zerantiq/regintel .agents/skills/regintel
+mkdir -p ~/.codex/skills
+mv ~/.codex/skills/regintel /tmp/regintel-skill-backup 2>/dev/null || true
+git clone https://github.com/zerantiq/regintel ~/.codex/skills/regintel
 ```
 
-Prompt with the `$regintel` skill prefix, or just ask naturally — the `agents/openai.yaml` manifest enables auto-discovery.
+This installs Regintel globally for Codex, not just for the current repository.
+
+If you previously installed Regintel inside a specific repo, remove or move that repo-local copy first. Codex can prefer a workspace copy such as `.agents/skills/regintel` over the global one in the UI.
+
+Example cleanup for a repo-local install:
+
+```bash
+mv /path/to/repo/.agents/skills/regintel /tmp/regintel-repo-skill-backup
+```
+
+Restart Codex to pick up the new skill.
+
+Then prompt with the `$regintel` skill prefix, or just ask naturally.
 </details>
 
 Then just prompt your agent:
