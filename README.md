@@ -50,7 +50,9 @@ Regintel is an **AI coding agent skill** that inspects a software repository for
 ```mermaid
 flowchart LR
     A["📂 Software Repo"] --> B["repo_signal_scan.py"]
+    A --> B2["ast_signal_scan.py"]
     B --> C["applicability_score.py"]
+    B2 --> D
     C --> D["📋 Evidence-backed Findings"]
     E["📰 Regulatory Developments"] --> F["check_deadlines.py"]
     E --> G["change_diff.py"]
@@ -146,13 +148,17 @@ Scan this repo for regulatory compliance issues
 # 1. Validate repo structure
 make validate
 
-# 2. Run the regression suite (13 tests)
+# 2. Run the regression suite (22 tests)
 make test
 
 # 3. Scan a sample repo
 python3 scripts/repo_signal_scan.py \
   --path tests/fixtures/repos/ai-saas \
   --scope full > /tmp/scan.json
+
+# 3b. Run the AST structural scanner (Python source files)
+python3 scripts/ast_signal_scan.py \
+  --path tests/fixtures/repos/ai-saas > /tmp/ast.json
 
 # 4. Score framework relevance
 python3 scripts/applicability_score.py \
@@ -179,6 +185,7 @@ python3 scripts/change_diff.py \
 | Script | Purpose |
 |:---|:---|
 | [`repo_signal_scan.py`](scripts/repo_signal_scan.py) | Scan a repo and inventory evidence-backed regulatory signals |
+| [`ast_signal_scan.py`](scripts/ast_signal_scan.py) | AST-based structural scan of Python source files for function-level patterns |
 | [`applicability_score.py`](scripts/applicability_score.py) | Score framework relevance from scan output + optional company context |
 | [`check_deadlines.py`](scripts/check_deadlines.py) | Label milestone urgency for regulatory developments |
 | [`change_diff.py`](scripts/change_diff.py) | Compare old and new regulatory or scan snapshots |
@@ -188,7 +195,7 @@ python3 scripts/change_diff.py \
 
 ## 🧪 Testing
 
-The test suite covers framework detection, diff-scan behavior, deadline labels, evidence-class tracking, and more.
+The test suite covers framework detection, AST structural findings, diff-scan behavior, deadline labels, evidence-class tracking, false-positive suppression, and more.
 
 ```bash
 make check   # validate + test in one step
@@ -236,13 +243,15 @@ make check   # validate + test in one step
 
 ## 🔍 How It Works
 
-1. **Signal detection** — `repo_signal_scan.py` walks your repo's source, config, schemas, and docs, matching patterns against 19 signal definitions with evidence-class weighting (source/config evidence ranked higher than docs/comments).
+1. **Signal detection** — `repo_signal_scan.py` walks your repo's source, config, schemas, and docs, matching patterns against 19 signal definitions with evidence-class weighting (source/config evidence ranked higher than docs/comments). Python docstrings are excluded to suppress false positives from regulatory terms mentioned only in documentation prose.
 
-2. **Framework mapping** — Detected signals are mapped to 10 regulatory frameworks through 8 control rules. Each framework receives a weighted score based on the strength and class of evidence found.
+2. **Structural analysis** — `ast_signal_scan.py` parses Python source files using the stdlib `ast` module to detect function-level patterns: PII fields in return values, database writes without audit logging, and storage writes without encryption indicators.
 
-3. **Applicability scoring** — `applicability_score.py` combines scan output with optional company context (jurisdiction, industry, data types) to produce prioritized framework recommendations.
+3. **Framework mapping** — Detected signals are mapped to 10 regulatory frameworks through 8 control rules. Each framework receives a weighted score based on the strength and class of evidence found.
 
-4. **Deadline tracking** — `check_deadlines.py` labels regulatory milestones with urgency levels: *Critical Deadline*, *Action Needed Soon*, *Upcoming Change*, or *Monitor*.
+4. **Applicability scoring** — `applicability_score.py` combines scan output with optional company context (jurisdiction, industry, data types) to produce prioritized framework recommendations.
+
+5. **Deadline tracking** — `check_deadlines.py` labels regulatory milestones with urgency levels: *Critical Deadline*, *Action Needed Soon*, *Upcoming Change*, or *Monitor*.
 
 ---
 
@@ -254,7 +263,7 @@ See **[ROADMAP.md](ROADMAP.md)** for the planned evolution of Regintel:
 |:---|:---|
 | **v0.1** | ✅ Initial release — core scanner, 7 frameworks, agent integrations |
 | **v0.2** | ✅ Stronger heuristics, DORA/NIS2/NIST AI RMF, evidence-class weighting |
-| **v0.3** | AST-based scanning (Python, TypeScript) |
+| **v0.3** | ✅ AST-based structural scanning — function-level PII, DB write, and storage findings |
 | **v0.4** | Extended frameworks (ISO 42001, PCI DSS) |
 | **v0.5** | Continuous monitoring & dashboards |
 | **v1.0** | Stable release on PyPI |
