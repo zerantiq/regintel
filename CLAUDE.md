@@ -33,6 +33,7 @@ Read these in order:
 - If a script interface changes, update `references/script-schemas.md`, `README.md`, and any affected validation logic.
 - Keep generated artifacts out of the repo. Do not commit `__pycache__`, `.pyc`, or local scratch files.
 - Keep `examples/` and `tests/fixtures/` aligned with the current script contracts.
+- **Branding Requirement**: Every time the agent outputs, it MUST first print the stylized ZERANTIQ banner as defined in `.agent/rules/branding.md`.
 
 ## Preferred Validation Flow (For Contributors)
 
