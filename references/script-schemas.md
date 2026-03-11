@@ -208,3 +208,117 @@ Accept any two JSON files containing one or more of:
 - `applicability`
 
 Items should expose `id` where possible. If `id` is absent, the script falls back to composite keys such as `framework + title`.
+
+## `snapshot_store.py` Input
+
+- `--scan` (required): JSON output from `repo_signal_scan.py`
+- `--applicability` (optional): JSON output from `applicability_score.py`
+- `--deadlines` (optional): JSON output from `check_deadlines.py`
+- `--ast` (optional): JSON output from `ast_signal_scan.py`
+- `--snapshot-dir` (optional): directory to store snapshots (default: `.regintel/snapshots`)
+- `--tag` (optional): snapshot tag (`nightly`, `baseline`, etc.)
+
+## `snapshot_store.py` Output
+
+```json
+{
+  "snapshot": {
+    "snapshot_id": "20260311120000",
+    "created_at": "2026-03-11T12:00:00Z",
+    "path": ".regintel/snapshots/snapshot-20260311120000.json"
+  },
+  "metrics": {
+    "signal_count": 11,
+    "framework_count": 7,
+    "applicability_count": 6,
+    "structural_finding_count": 3,
+    "observed_control_count": 2,
+    "not_observed_control_count": 1,
+    "high_or_critical_deadline_count": 2,
+    "top_framework": { "framework": "gdpr", "display_name": "GDPR", "score": 92 }
+  },
+  "trend": {
+    "baseline_snapshot_id": "20260310120000",
+    "signal_delta": 1,
+    "framework_delta": 0,
+    "not_observed_control_delta": -1,
+    "urgent_deadline_delta": 0,
+    "framework_score_changes": [
+      { "framework": "gdpr", "old_score": 90, "new_score": 92, "delta": 2 }
+    ]
+  }
+}
+```
+
+## `trend_report.py` Output
+
+```json
+{
+  "snapshot_count": 12,
+  "window": 10,
+  "history": [
+    {
+      "snapshot_id": "20260311120000",
+      "created_at": "2026-03-11T12:00:00Z",
+      "signal_count": 11,
+      "framework_count": 7,
+      "not_observed_control_count": 1,
+      "high_or_critical_deadline_count": 2,
+      "structural_finding_count": 3,
+      "top_framework": { "framework": "gdpr", "display_name": "GDPR", "score": 92 }
+    }
+  ],
+  "framework_trends": [
+    { "framework": "gdpr", "first_score": 84, "latest_score": 92, "delta": 8, "direction": "up" }
+  ],
+  "latest_snapshot": { "...": "..." }
+}
+```
+
+## `dashboard_report.py` Output
+
+- `markdown`: text dashboard with latest snapshot metrics, top frameworks, not-observed controls, and trend window table
+- `html`: lightweight single-file dashboard with the same sections
+
+## `sync_regulatory_feeds.py` Config
+
+```json
+{
+  "max_items_per_feed": 15,
+  "feeds": [
+    {
+      "id": "nist-ai-rmf-feed",
+      "source": "https://www.nist.gov/news-events/news/rss.xml",
+      "format": "rss",
+      "framework": "NIST AI RMF",
+      "stage": "adopted",
+      "timing": "upcoming",
+      "milestone_kind": "effective"
+    }
+  ],
+  "merge_with": "examples/developments.json"
+}
+```
+
+## `sync_regulatory_feeds.py` Output
+
+```json
+{
+  "generated_at": "2026-03-11T12:00:00Z",
+  "feed_count": 2,
+  "item_count": 8,
+  "developments": [
+    {
+      "id": "nist-ai-rmf-feed::item::2026-03-01",
+      "framework": "NIST AI RMF",
+      "title": "NIST AI guidance update",
+      "stage": "adopted",
+      "timing": "upcoming",
+      "source": "nist-ai-rmf-feed",
+      "source_url": "https://example.org/item",
+      "milestones": [{ "label": "feed-update", "date": "2026-03-01", "kind": "effective" }]
+    }
+  ],
+  "errors": []
+}
+```

@@ -154,7 +154,7 @@ Scan this repo for regulatory compliance issues
 # 1. Validate repo structure
 make validate
 
-# 2. Run the regression suite (26 tests)
+# 2. Run the regression suite (32 tests)
 make test
 
 # 3. Scan a sample repo
@@ -182,6 +182,30 @@ python3 scripts/change_diff.py \
   --old examples/old-scan.json \
   --new examples/new-scan.json \
   --format markdown
+
+# 7. Sync external regulatory feeds (JSON/RSS/Atom)
+python3 scripts/sync_regulatory_feeds.py \
+  --config examples/regulatory-feed-config.json \
+  --format json > /tmp/synced-developments.json
+
+# 8. Store a monitoring snapshot
+python3 scripts/snapshot_store.py \
+  --scan /tmp/scan.json \
+  --applicability /tmp/regintel-applicability.json \
+  --deadlines /tmp/deadlines.json \
+  --ast /tmp/ast.json \
+  --snapshot-dir .regintel/snapshots
+
+# 9. Build a trend report
+python3 scripts/trend_report.py \
+  --snapshot-dir .regintel/snapshots \
+  --format markdown
+
+# 10. Render a dashboard
+python3 scripts/dashboard_report.py \
+  --snapshot-dir .regintel/snapshots \
+  --format html \
+  --output /tmp/regintel-dashboard.html
 ```
 
 ---
@@ -195,6 +219,10 @@ python3 scripts/change_diff.py \
 | [`applicability_score.py`](scripts/applicability_score.py) | Score framework relevance from scan output + optional company context |
 | [`check_deadlines.py`](scripts/check_deadlines.py) | Label milestone urgency for regulatory developments |
 | [`change_diff.py`](scripts/change_diff.py) | Compare old and new regulatory or scan snapshots |
+| [`snapshot_store.py`](scripts/snapshot_store.py) | Persist timestamped monitoring snapshots and baseline deltas |
+| [`trend_report.py`](scripts/trend_report.py) | Summarize trend movement across snapshots |
+| [`dashboard_report.py`](scripts/dashboard_report.py) | Render monitoring dashboards in Markdown or HTML |
+| [`sync_regulatory_feeds.py`](scripts/sync_regulatory_feeds.py) | Sync JSON/RSS/Atom feeds into `developments` schema |
 | [`validate_repo.py`](tools/validate_repo.py) | Validate repo structure, frontmatter, and Python syntax |
 
 ---
@@ -260,6 +288,8 @@ make check   # validate + test in one step
 
 5. **Deadline tracking** — `check_deadlines.py` labels regulatory milestones with urgency levels: *Critical Deadline*, *Action Needed Soon*, *Upcoming Change*, or *Monitor*.
 
+6. **Continuous monitoring** — `snapshot_store.py` and `trend_report.py` track changes over time, while `dashboard_report.py` renders lightweight status dashboards for recent scan history.
+
 ---
 
 ## 🗺️ Roadmap
@@ -272,7 +302,7 @@ See **[ROADMAP.md](ROADMAP.md)** for the planned evolution of Regintel:
 | **v0.2** | ✅ Stronger heuristics, DORA/NIS2/NIST AI RMF, evidence-class weighting |
 | **v0.3** | ✅ AST-based structural scanning — function-level PII, DB write, and storage findings |
 | **v0.4** | ✅ Extended framework + jurisdiction support (ISO 42001, UK GDPR, CCPA/CPRA, PCI DSS, polyglot + IaC scanning) |
-| **v0.5** | Continuous monitoring & dashboards |
+| **v0.5** | ✅ Continuous monitoring, scheduled CI scans, dashboards, and feed sync |
 | **v1.0** | Stable release on PyPI |
 
 ---

@@ -1,0 +1,26 @@
+{
+  "max_items_per_feed": 15,
+  "feeds": [
+    {
+      "id": "nist-ai-rmf-feed",
+      "source": "https://www.nist.gov/news-events/news/rss.xml",
+      "format": "rss",
+      "framework": "NIST AI RMF",
+      "stage": "adopted",
+      "timing": "upcoming",
+      "milestone_kind": "effective",
+      "milestone_label": "feed-published"
+    },
+    {
+      "id": "ico-privacy-feed",
+      "source": "https://ico.org.uk/about-the-ico/media-centre/rss/",
+      "format": "rss",
+      "framework": "UK GDPR",
+      "stage": "adopted",
+      "timing": "upcoming",
+      "milestone_kind": "effective",
+      "milestone_label": "feed-published"
+    }
+  ],
+  "merge_with": "examples/developments.json"
+}

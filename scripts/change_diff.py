@@ -118,6 +118,32 @@ def extract_collections(data: Any) -> dict[str, list[dict[str, Any]]]:
             value = data.get(key)
             if isinstance(value, list):
                 collections[key] = [item for item in value if isinstance(item, dict)]
+
+        # Snapshot payload compatibility (v0.5+):
+        # snapshot files store these collections under nested keys:
+        # - scan.signals / scan.candidate_frameworks
+        # - applicability.applicability
+        # - deadlines.developments
+        scan = data.get("scan")
+        if isinstance(scan, dict):
+            for key in ("signals", "candidate_frameworks"):
+                if key in collections:
+                    continue
+                value = scan.get(key)
+                if isinstance(value, list):
+                    collections[key] = [item for item in value if isinstance(item, dict)]
+
+        applicability = data.get("applicability")
+        if "applicability" not in collections and isinstance(applicability, dict):
+            value = applicability.get("applicability")
+            if isinstance(value, list):
+                collections["applicability"] = [item for item in value if isinstance(item, dict)]
+
+        deadlines = data.get("deadlines")
+        if "developments" not in collections and isinstance(deadlines, dict):
+            value = deadlines.get("developments")
+            if isinstance(value, list):
+                collections["developments"] = [item for item in value if isinstance(item, dict)]
         return collections
     return {}
 

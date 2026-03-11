@@ -1,0 +1,24 @@
+{
+  "max_items_per_feed": 10,
+  "feeds": [
+    {
+      "id": "eu-ai-feed",
+      "source": "json-feed.json",
+      "format": "json",
+      "framework": "EU AI Act",
+      "stage": "adopted",
+      "timing": "upcoming",
+      "milestone_kind": "effective",
+      "items_path": "items"
+    },
+    {
+      "id": "nis2-feed",
+      "source": "rss-feed.xml",
+      "format": "rss",
+      "framework": "NIS2",
+      "stage": "adopted",
+      "timing": "upcoming",
+      "milestone_kind": "reporting"
+    }
+  ]
+}

@@ -41,3 +41,12 @@ class TestTooling(BaseRegintelTest):
         self.assertTrue(result["collections"]["signals"]["added"])
         self.assertTrue(result["collections"]["candidate_frameworks"]["changed"])
         self.assertTrue(result["collections"]["applicability"]["changed"])
+
+    def test_monitor_workflow_exists_with_schedule_and_dispatch(self) -> None:
+        workflow_path = self.repo_root / ".github" / "workflows" / "monitor.yml"
+        self.assertTrue(workflow_path.exists(), "Expected .github/workflows/monitor.yml to exist.")
+        content = workflow_path.read_text(encoding="utf-8")
+        self.assertIn("schedule:", content)
+        self.assertIn("workflow_dispatch:", content)
+        self.assertIn("snapshot_store.py", content)
+        self.assertIn("trend_report.py", content)

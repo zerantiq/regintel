@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "id": "eu-ai-act-feed-item-1",
+      "title": "EU AI Act implementation timeline update",
+      "date": "2026-04-01",
+      "url": "https://example.org/eu-ai-act-update"
+    },
+    {
+      "id": "eu-ai-act-feed-item-2",
+      "title": "ISO/IEC 42001 adoption guidance published",
+      "date": "2026-05-15",
+      "url": "https://example.org/iso-42001-guidance"
+    }
+  ]
+}

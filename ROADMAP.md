@@ -58,13 +58,17 @@ Delivered:
 - Added new control-observation rules for CPRA rights coverage and PCI cardholder-security controls
 - Added a polyglot regulated fixture repo and regression tests for new frameworks, language heuristics, infra detection, and applicability scoring
 
-## v0.5 — Continuous Monitoring and Reporting
+## ✅ v0.5 — Continuous Monitoring and Reporting
 
-Goals:
-- Track scan results over time with snapshot storage and trend reporting
-- Support scheduled scans via CI integration with baseline comparison
-- Add a lightweight HTML/Markdown dashboard for scan result browsing
-- Integrate with regulatory data feeds for automatic deadline updates
+Status: **complete**
+
+Delivered:
+- Added `snapshot_store.py` to persist timestamped scan snapshots with index management and baseline deltas
+- Added `trend_report.py` for snapshot-history trend summaries across signals, controls, deadlines, and framework scores
+- Added `dashboard_report.py` to generate lightweight monitoring dashboards in both Markdown and HTML
+- Added `sync_regulatory_feeds.py` to ingest JSON/RSS/Atom regulatory feeds into the `developments` schema
+- Added scheduled CI workflow (`.github/workflows/monitor.yml`) with nightly scan, snapshot history, trend/dashboard artifact output, and baseline diff generation
+- Added monitoring regression tests and feed fixtures covering snapshot storage, trend reporting, dashboard rendering, and feed sync compatibility
 
 ## v1.0 — Stable Release
 

@@ -1,0 +1,125 @@
+name: Monitor
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install package dependencies
+        run: pip install .
+
+      - name: Restore snapshot history cache
+        uses: actions/cache@v4
+        with:
+          path: .regintel/monitor-history
+          key: regintel-monitor-${{ github.run_id }}
+          restore-keys: |
+            regintel-monitor-
+
+      - name: Run monitoring pipeline
+        run: |
+          mkdir -p .regintel/monitor-history
+
+          python3 scripts/repo_signal_scan.py --path . --scope full > /tmp/current-scan.json
+          python3 scripts/applicability_score.py --signals /tmp/current-scan.json --format json > /tmp/current-applicability.json
+
+          python3 scripts/sync_regulatory_feeds.py \
+            --config examples/regulatory-feed-config.json \
+            --format json \
+            --output /tmp/synced-developments.json || cp examples/developments.json /tmp/synced-developments.json
+
+          python3 scripts/check_deadlines.py \
+            --input /tmp/synced-developments.json \
+            --format json > /tmp/current-deadlines.json
+
+          python3 scripts/ast_signal_scan.py --path . --format json > /tmp/current-ast.json
+
+          python3 scripts/snapshot_store.py \
+            --scan /tmp/current-scan.json \
+            --applicability /tmp/current-applicability.json \
+            --deadlines /tmp/current-deadlines.json \
+            --ast /tmp/current-ast.json \
+            --snapshot-dir .regintel/monitor-history \
+            --tag nightly \
+            --format json > /tmp/snapshot-summary.json
+
+          python3 scripts/trend_report.py \
+            --snapshot-dir .regintel/monitor-history \
+            --format json > /tmp/trend-report.json
+
+          python3 scripts/dashboard_report.py \
+            --snapshot-dir .regintel/monitor-history \
+            --format markdown \
+            --output /tmp/monitor-dashboard.md
+
+          python3 scripts/dashboard_report.py \
+            --snapshot-dir .regintel/monitor-history \
+            --format html \
+            --output /tmp/monitor-dashboard.html
+
+      - name: Generate baseline diff (if prior snapshot exists)
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          import subprocess
+
+          history_dir = Path(".regintel/monitor-history")
+          index_path = history_dir / "index.json"
+          if not index_path.exists():
+              Path("/tmp/monitor-diff.md").write_text("No snapshot history index found.\n", encoding="utf-8")
+              raise SystemExit(0)
+
+          index = json.loads(index_path.read_text(encoding="utf-8"))
+          snapshots = [item for item in index.get("snapshots", []) if isinstance(item, dict)]
+          snapshots.sort(key=lambda item: str(item.get("created_at", "")))
+          if len(snapshots) < 2:
+              Path("/tmp/monitor-diff.md").write_text("No baseline snapshot available yet.\n", encoding="utf-8")
+              raise SystemExit(0)
+
+          old_path = history_dir / snapshots[-2]["path"]
+          new_path = history_dir / snapshots[-1]["path"]
+          cmd = [
+              "python3",
+              "scripts/change_diff.py",
+              "--old",
+              str(old_path),
+              "--new",
+              str(new_path),
+              "--format",
+              "markdown",
+          ]
+          result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+          Path("/tmp/monitor-diff.md").write_text(result.stdout, encoding="utf-8")
+          PY
+
+      - name: Upload monitoring artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: regintel-monitoring-${{ github.run_number }}
+          path: |
+            .regintel/monitor-history/*.json
+            /tmp/snapshot-summary.json
+            /tmp/trend-report.json
+            /tmp/monitor-dashboard.md
+            /tmp/monitor-dashboard.html
+            /tmp/monitor-diff.md
+            /tmp/current-scan.json
+            /tmp/current-applicability.json
+            /tmp/current-deadlines.json

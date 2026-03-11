@@ -5,12 +5,13 @@ description: Regulatory compliance intelligence for software, AI, privacy, secur
 
 # Regintel
 
-Provide compliance intelligence for software products and engineering organizations. Work in one of two modes: regulatory update mode for current developments and repo scan mode for codebase-specific risk discovery.
+Provide compliance intelligence for software products and engineering organizations. Work in three modes: repo scan mode for codebase-specific risk discovery, regulatory update mode for current developments, and continuous monitoring mode for recurring tracking.
 
 ## Mode Selection
 
 - Use **repo scan mode** when the user wants to inspect a codebase, repository, application, or product implementation for potential regulatory issues.
 - Use **regulatory update mode** when the user wants to understand what changed, what is upcoming, or what deadlines and enforcement milestolds matter.
+- Use **continuous monitoring mode** when the user wants recurring snapshots, trend tracking, dashboards, or scheduled CI monitoring.
 - Combine both modes when the user wants a repo scan tied to current effective dates or upcoming obligations.
 
 ## Repo Scan Mode
@@ -112,6 +113,25 @@ This agent review step is what separates Regintel from a raw keyword scan.
 - Use `SKILL_DIR/scripts/change_diff.py` when comparing a new summary to a prior snapshot.
 - Use visible warnings when a transition window is ending, enforcement is near, or a reporting deadline is approaching.
 
+## Continuous Monitoring Mode
+
+### 1. Build Current Monitoring Inputs
+
+- Run `repo_signal_scan.py`, `ast_signal_scan.py`, and `applicability_score.py` for the target repo.
+- If feed sync is configured, run `sync_regulatory_feeds.py` and pass the result to `check_deadlines.py`.
+
+### 2. Store Snapshot History
+
+- Run `snapshot_store.py` with the current scan outputs and a stable snapshot directory.
+- Use `--tag nightly` (or equivalent) for scheduled runs.
+- Use the returned `trend` section to identify baseline movement from the previous snapshot.
+
+### 3. Generate Trend and Dashboard Artifacts
+
+- Run `trend_report.py` over the snapshot directory to summarize score/control movement over time.
+- Run `dashboard_report.py` to produce markdown or HTML monitoring views.
+- Use `change_diff.py` between the two latest snapshots for concise baseline deltas in CI logs.
+
 ## Output Format
 
 For repo scans, use this structure:
@@ -153,6 +173,10 @@ The agent runs these scripts automatically as part of the skill workflow. The us
 | `applicability_score.py` | Always, immediately after the signal scan | `python3 SKILL_DIR/scripts/applicability_score.py --signals <scan.json> --format json` |
 | `check_deadlines.py` | When regulatory developments with dates are available | `python3 SKILL_DIR/scripts/check_deadlines.py --input <developments.json> --format markdown` |
 | `change_diff.py` | When comparing two snapshots (before/after scans or regulatory updates) | `python3 SKILL_DIR/scripts/change_diff.py --old <old.json> --new <new.json> --format markdown` |
+| `sync_regulatory_feeds.py` | When external feed-based development updates are needed | `python3 SKILL_DIR/scripts/sync_regulatory_feeds.py --config <feed-config.json> --format json` |
+| `snapshot_store.py` | When persisting a monitoring snapshot | `python3 SKILL_DIR/scripts/snapshot_store.py --scan <scan.json> --snapshot-dir <snapshot-dir>` |
+| `trend_report.py` | When summarising movement across snapshots | `python3 SKILL_DIR/scripts/trend_report.py --snapshot-dir <snapshot-dir> --format markdown` |
+| `dashboard_report.py` | When rendering a monitoring dashboard | `python3 SKILL_DIR/scripts/dashboard_report.py --snapshot-dir <snapshot-dir> --format html --output <dashboard.html>` |
 
 ## Bundled References
 
