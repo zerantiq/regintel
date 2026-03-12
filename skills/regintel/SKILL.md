@@ -27,6 +27,13 @@ This skill is typically installed outside the repo being scanned. Resolve two pa
 
 All script commands below use `SKILL_DIR` for tool paths and `TARGET_REPO` for scan targets.
 
+### Execution Preconditions
+
+- Confirm `SKILL_DIR/scripts/` exists before running scan steps.
+- If required scripts are missing, stop and report an installation/configuration issue with exact missing paths.
+- Do not fall back to a scriptless "manual scan" as a substitute for this skill workflow.
+- Do not claim scripts are "not bundled locally" unless you first verified `SKILL_DIR/scripts` and listed what is missing.
+
 ### 1. Determine Scope
 
 - Default to the current repo root.
@@ -197,6 +204,7 @@ Formatting rules:
 - Avoid empty sections and generic filler text.
 - Use emoji badges for severity, urgency, warnings, pass/fail status, and trend direction when relevant.
 - Keep evidence concrete: file paths, symbols, routes, config keys, schema fields, or log/event names.
+- Do not include tool-progress chatter in the final report (for example, script-bundling status messages).
 
 For regulatory updates, keep the same visual style but rename the first section `Regulatory Update Snapshot` and include stage/status plus exact dates in the snapshot table.
 
