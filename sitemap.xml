@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://zerantiq.github.io/regintel/</loc>
+         <lastmod>2026-03-12</lastmod>
+    </url>
+    <url>
+         <loc>https://zerantiq.github.io/regintel/installation/</loc>
+         <lastmod>2026-03-12</lastmod>
+    </url>
+    <url>
+         <loc>https://zerantiq.github.io/regintel/integrations/agents/</loc>
+         <lastmod>2026-03-12</lastmod>
+    </url>
+    <url>
+         <loc>https://zerantiq.github.io/regintel/reference/script-contracts/</loc>
+         <lastmod>2026-03-12</lastmod>
+    </url>
+    <url>
+         <loc>https://zerantiq.github.io/regintel/tutorials/ci-monitoring/</loc>
+         <lastmod>2026-03-12</lastmod>
+    </url>
+    <url>
+         <loc>https://zerantiq.github.io/regintel/tutorials/pypi-cli/</loc>
+         <lastmod>2026-03-12</lastmod>
+    </url>
+</urlset>
