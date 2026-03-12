@@ -17,6 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 REQUIRED_FILES = [
     "SKILL.md",
+    "skills/regintel/SKILL.md",
     "CLAUDE.md",
     "README.md",
     "pyproject.toml",
@@ -136,6 +137,21 @@ def validate_frontmatter() -> list[str]:
     return errors
 
 
+def validate_skill_mirror() -> list[str]:
+    canonical_path = REPO_ROOT / "SKILL.md"
+    claude_skill_path = REPO_ROOT / "skills" / "regintel" / "SKILL.md"
+    try:
+        canonical = canonical_path.read_text(encoding="utf-8").replace("\r\n", "\n")
+        claude_skill = claude_skill_path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    except OSError as exc:
+        return [f"Could not read skill files for mirror check: {exc}"]
+    if canonical != claude_skill:
+        return [
+            "skills/regintel/SKILL.md must mirror SKILL.md so Claude Code and other agents share identical instructions."
+        ]
+    return []
+
+
 def validate_openai_yaml() -> list[str]:
     path = REPO_ROOT / "agents/openai.yaml"
     content = path.read_text(encoding="utf-8")
@@ -230,6 +246,7 @@ def main() -> int:
         errors.extend([f"Missing required file: {path}" for path in missing])
     else:
         errors.extend(validate_frontmatter())
+        errors.extend(validate_skill_mirror())
         errors.extend(validate_pyproject())
         errors.extend(validate_openai_yaml())
         errors.extend(validate_python_files())
@@ -243,6 +260,7 @@ def main() -> int:
 
     print("[OK] Required files present")
     print("[OK] SKILL.md frontmatter valid")
+    print("[OK] Claude skill mirror matches SKILL.md")
     print("[OK] pyproject metadata present")
     print("[OK] agents/openai.yaml contains required interface fields")
     print("[OK] Python files compile")

@@ -13,7 +13,7 @@ check: validate test
 
 install:
 	mkdir -p $(SKILLS_DIR)
-	cp skills/regintel/SKILL.md $(SKILLS_DIR)/SKILL.md
+	cp SKILL.md $(SKILLS_DIR)/SKILL.md
 
 scan-self:
 	$(PYTHON) scripts/repo_signal_scan.py --path . --scope full > /tmp/regintel-scan.json

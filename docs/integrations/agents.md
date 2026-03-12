@@ -6,6 +6,7 @@ Regintel supports agent-first workflows and also ships standalone CLI entry poin
 
 - Marketplace plugin via `conductor.json` and `.claude-plugin/plugin.json`
 - Local skill install via `skills/regintel/SKILL.md`
+- Keep `skills/regintel/SKILL.md` mirrored from the canonical `SKILL.md` so Claude Code follows the same output contract as other agents.
 
 ## OpenAI Codex
 

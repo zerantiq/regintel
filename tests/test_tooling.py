@@ -4,6 +4,17 @@ from tests.base_test import BaseRegintelTest
 
 
 class TestTooling(BaseRegintelTest):
+    def test_claude_skill_copy_matches_canonical_skill(self) -> None:
+        canonical = (self.repo_root / "SKILL.md").read_text(encoding="utf-8").replace("\r\n", "\n")
+        claude_copy = (self.repo_root / "skills" / "regintel" / "SKILL.md").read_text(encoding="utf-8").replace(
+            "\r\n", "\n"
+        )
+        self.assertEqual(
+            canonical,
+            claude_copy,
+            "skills/regintel/SKILL.md must mirror SKILL.md to keep Claude Code output behavior aligned.",
+        )
+
     def test_validate_repo_passes_without_creating_script_pycache(self) -> None:
         for pycache_dir in (self.repo_root / "scripts" / "__pycache__", self.repo_root / "tools" / "__pycache__"):
             if pycache_dir.exists():
