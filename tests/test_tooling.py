@@ -23,6 +23,15 @@ class TestTooling(BaseRegintelTest):
         self.assertFalse((self.repo_root / "scripts" / "__pycache__").exists())
         self.assertFalse((self.repo_root / "tools" / "__pycache__").exists())
 
+    def test_claude_md_contains_repo_scan_output_contract(self) -> None:
+        content = (self.repo_root / "CLAUDE.md").read_text(encoding="utf-8")
+        self.assertIn("## Claude Code Output Contract", content)
+        self.assertIn("Regulatory Scan Summary", content)
+        self.assertIn("`Scanned:`", content)
+        self.assertIn("`Overall Risk Picture:`", content)
+        self.assertIn("evidence (where it is found)", content)
+        self.assertIn("why it matters", content)
+
     def test_example_deadlines_have_expected_warning_labels(self) -> None:
         result = self.run_json_script(
             "check_deadlines.py",

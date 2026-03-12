@@ -73,6 +73,31 @@ python3 scripts/change_diff.py --old examples/old-scan.json --new examples/new-s
 - Separate confirmed repo evidence from company-context boosts.
 - Keep assumptions explicit for SEC, SOX, HIPAA, FDA, and geography-dependent obligations.
 
+## Claude Code Output Contract
+
+Claude Code marketplace/plugin installs may rely on this file more directly than Codex does. Do not default to a generic response shape when Regintel is invoked from Claude Code.
+
+For repo scans, mirror the Regintel output contract from `SKILL.md`:
+
+1. Print the ZERANTIQ banner first.
+2. Start with `Regulatory Scan Summary`.
+3. Include 2 short prose lines:
+   - `Scanned:` what was scanned, including repo path/scope and a plain-English description of the product or platform.
+   - `Overall Risk Picture:` the risk level plus the concrete data types, workflows, or missing controls driving that view.
+4. Include an `Executive Snapshot` table.
+5. Include an `Applicability` table with: framework, applicability, confidence.
+6. Include a `Key Findings` table with these required columns: severity, regulatory framework, evidence (where it is found), why it matters.
+7. Include an `Action Plan` table.
+8. Include `Deadlines & Warnings` when dates exist.
+9. End with `Open Questions / Assumptions`.
+
+Claude-specific formatting rules:
+
+- Prefer repo-specific wording over generic summaries.
+- Findings must name file paths, routes, symbols, config keys, schemas, or log/event names where possible.
+- Do not omit `evidence (where it is found)` or `why it matters` from the findings table.
+- If `SKILL.md` and this file drift, treat `SKILL.md` as canonical and update this file to match in the same change.
+
 ## Done Criteria
 
 A clean change normally means:

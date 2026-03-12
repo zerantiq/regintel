@@ -169,6 +169,24 @@ def validate_openai_yaml() -> list[str]:
     return errors
 
 
+def validate_claude_md() -> list[str]:
+    path = REPO_ROOT / "CLAUDE.md"
+    content = path.read_text(encoding="utf-8")
+    errors = []
+    required_fragments = [
+        "## Claude Code Output Contract",
+        "Regulatory Scan Summary",
+        "`Scanned:`",
+        "`Overall Risk Picture:`",
+        "evidence (where it is found)",
+        "why it matters",
+    ]
+    for fragment in required_fragments:
+        if fragment not in content:
+            errors.append(f"CLAUDE.md missing fragment: {fragment}")
+    return errors
+
+
 def validate_python_files() -> list[str]:
     errors = []
     for directory in ("scripts", "tools", "tests"):
@@ -249,6 +267,7 @@ def main() -> int:
         errors.extend(validate_skill_mirror())
         errors.extend(validate_pyproject())
         errors.extend(validate_openai_yaml())
+        errors.extend(validate_claude_md())
         errors.extend(validate_python_files())
         errors.extend(validate_example_json())
         errors.extend(validate_issue_templates())
@@ -263,6 +282,7 @@ def main() -> int:
     print("[OK] Claude skill mirror matches SKILL.md")
     print("[OK] pyproject metadata present")
     print("[OK] agents/openai.yaml contains required interface fields")
+    print("[OK] CLAUDE.md contains the Claude Code output contract")
     print("[OK] Python files compile")
     print("[OK] example JSON files parse")
     print("[OK] GitHub templates present")
