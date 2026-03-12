@@ -387,6 +387,16 @@ For security-sensitive findings, follow **[SECURITY.md](SECURITY.md)** instead o
 
 ---
 
+## Contact
+
+If you want to explore code-aware regulatory intelligence, compliance monitoring, or custom workflows for your software repositories, reach out to Zerantiq.
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/company/zerantiq/)
+[![X](https://img.shields.io/badge/X-000000?logo=x&logoColor=white)](https://x.com/zerantiq)
+[![Website](https://img.shields.io/badge/Website-111111?logo=googlechrome&logoColor=white)](https://zerantiq.com)
+
+---
+
 <div align="center">
 
 **[Documentation](docs/index.md)** · **[Roadmap](ROADMAP.md)** · **[Contributing](CONTRIBUTING.md)** · **[Security](SECURITY.md)**
