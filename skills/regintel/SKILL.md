@@ -156,6 +156,8 @@ This agent review step is what separates Regintel from a raw keyword scan.
 
 ## Output Format
 
+This output contract is mandatory for all agents that use this skill (Claude Code, Codex, and others). Do not let agent-specific default style override these rules.
+
 Begin every full response with this exact banner in a fenced `text` block:
 
 ```text
@@ -167,7 +169,7 @@ Begin every full response with this exact banner in a fenced `text` block:
 ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚═╝ ╚══▀▀╚═╝
 ```
 
-For repo scans, prefer this richer markdown structure:
+For repo scans, use this exact structure in this order:
 
 ### Regulatory Scan Summary
 Start with 2 short prose lines:
@@ -198,6 +200,7 @@ Use short bullets for missing deployment facts, jurisdiction assumptions, or com
 
 Formatting rules:
 
+- Do not add a planning preamble in final output (for example, "I will gather evidence" or "I'll run the scan now").
 - Default to tables when comparing frameworks, findings, or actions.
 - Make the opening scan summary concrete and repo-specific; avoid generic statements like "several issues were found."
 - Put the most important 3-6 findings in the primary findings table; move lower-signal items to a short `Additional Observations` list only if needed.
@@ -206,7 +209,7 @@ Formatting rules:
 - Keep evidence concrete: file paths, symbols, routes, config keys, schema fields, or log/event names.
 - Do not include tool-progress chatter in the final report (for example, script-bundling status messages).
 
-For regulatory updates, keep the same visual style but rename the first section `Regulatory Update Snapshot` and include stage/status plus exact dates in the snapshot table.
+For regulatory updates, keep the same visual style, rename the first section to `Regulatory Update Snapshot`, and keep the rest of the section order aligned to the repo-scan template where applicable.
 
 ## Script Execution
 

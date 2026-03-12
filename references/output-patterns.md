@@ -1,6 +1,8 @@
 # Output Patterns
 
 Use these patterns to keep responses practical, evidence-backed, and visually scannable.
+When the Regintel skill is active, treat these patterns as the canonical response contract across agents (Claude Code, Codex, and others).
+Do not include planning chatter in final reports.
 
 ## Repo Scan Pattern
 
